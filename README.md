@@ -1,1 +1,1 @@
-# oinkbrew_frimware
+# oinkbrew_firmware for Brewpi Spark hardware
