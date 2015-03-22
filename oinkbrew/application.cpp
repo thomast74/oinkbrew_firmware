@@ -28,18 +28,92 @@
 
 
 /* Function prototypes -------------------------------------------------------*/
+void wifiInit();
+void serialDebug(String, bool = true);
 
-SYSTEM_MODE(AUTOMATIC);
+SYSTEM_MODE(MANUAL);
 
+#ifdef DEBUG_BUILD    
+bool debug = true;
+#else
+bool debug = false;
+#endif
 
-/* This function is called once at start up ----------------------------------*/
+/*******************************************************************************
+ * Function Name  : setup
+ * Description    : configure device after startup
+ * Input          : 
+ * Output         : 
+ * Return         : 
+ ******************************************************************************/
 void setup()
+{
+    if (debug)
+    {        
+        Serial.begin(9600);
+        delay(2000);
+    }
+    
+    // turn on and configure WiFi
+    wifiInit();
+}
+
+/*******************************************************************************
+ * Function Name  : loop
+ * Description    : main application routine
+ * Input          : 
+ * Output         : 
+ * Return         : 
+ ******************************************************************************/
+void loop()
 {
 
 }
 
-/* This function loops forever -----------------------------------------------*/
-void loop()
+/*******************************************************************************
+ * Function Name  : wifiInit
+ * Description    : turn on WiFi and starts listening mode if not configured
+ * Input          : 
+ * Output         : 
+ * Return         : 
+ ******************************************************************************/
+void wifiInit()
 {
+    serialDebug("Turn on WiFi");
+    WiFi.on();
 
+    if (!WiFi.hasCredentials())
+    {
+        serialDebug("No credentials, change to Listen mode after connect");
+    }
+    
+    serialDebug("Connect to WiFi");
+    WiFi.connect();
+    
+    // wait until WiFi is ready
+    while (!WiFi.ready())
+    {
+        delay(500);
+    }    // connect to configured WiFi
+
+    
+    serialDebug("WiFi ready");
+}
+
+/*******************************************************************************
+ * Function Name  : serialDebug
+ * Description    : log to serial interface if debug build
+ * Input          : message to log and if lineFeed should be added to the end
+ * Output         : Serial print via USB
+ * Return         : 
+ ******************************************************************************/
+void serialDebug(String message, bool lineFeed)
+{
+    if (debug)
+    {
+        if (lineFeed)
+            Serial.println(message);
+        else
+            Serial.print(message);        
+    }
 }
