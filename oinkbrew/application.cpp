@@ -25,6 +25,7 @@
 
 /* Includes ------------------------------------------------------------------*/  
 #include "application.h"
+#include "modules/Buzzer.h"
 #include "Helper.h"
 #include "Settings.h"
 #include "StatusMessage.h"
@@ -38,7 +39,7 @@ void wifiInit();
 SYSTEM_MODE(MANUAL);
 
 /* Global Variables ----------------------------------------------------------*/
-static unsigned long lastStatusMessage = -305000;
+static unsigned long lastStatusMessage = -295000;
 
 StatusMessage status;
 Helper helper;
@@ -53,6 +54,9 @@ Helper helper;
  ******************************************************************************/
 void setup()
 {
+    buzzer.init();
+    buzzer.beep(1, 500);
+    
     if (Helper::isDebug())
     {        
         Serial.begin(9600);
@@ -64,6 +68,8 @@ void setup()
     
     // initialise application
     applicationInit();
+    
+    buzzer.beep(2, 250);
 }
 
 /*******************************************************************************
@@ -120,9 +126,6 @@ void wifiInit()
     {
         delay(500);
     }
-
-    // connect to configured WiFi, but wait a bit to get IP Address
-    delay(2000);
     
     Helper::serialDebug("WiFi ready");
 }
