@@ -25,19 +25,24 @@
 
 /* Includes ------------------------------------------------------------------*/  
 #include "application.h"
+#include "Helper.h"
+#include "Settings.h"
+#include "StatusMessage.h"
 
 
-/* Function prototypes -------------------------------------------------------*/
+/* Declarations --------------------------------------------------------------*/  
+void applicationInit();
 void wifiInit();
-void serialDebug(String, bool = true);
+
 
 SYSTEM_MODE(MANUAL);
 
-#ifdef DEBUG_BUILD    
-bool debug = true;
-#else
-bool debug = false;
-#endif
+/* Global Variables ----------------------------------------------------------*/
+static unsigned long lastStatusMessage = -305000;
+
+StatusMessage status;
+Helper helper;
+
 
 /*******************************************************************************
  * Function Name  : setup
@@ -48,7 +53,7 @@ bool debug = false;
  ******************************************************************************/
 void setup()
 {
-    if (debug)
+    if (Helper::isDebug())
     {        
         Serial.begin(9600);
         delay(2000);
@@ -56,6 +61,9 @@ void setup()
     
     // turn on and configure WiFi
     wifiInit();
+    
+    // initialise application
+    applicationInit();
 }
 
 /*******************************************************************************
@@ -67,7 +75,24 @@ void setup()
  ******************************************************************************/
 void loop()
 {
+    
+    if((millis() - lastStatusMessage) >= DURATION_MESSAGE)
+    {
+        Helper::serialDebug("Loop wants to send status message");
+        lastStatusMessage = millis();
+        StatusMessage::send();
+    }
+}
 
+/*******************************************************************************
+ * Function Name  : applicationInit
+ * Description    : initialise everything for the application to run
+ * Input          : 
+ * Output         : 
+ * Return         : 
+ ******************************************************************************/
+void applicationInit()
+{
 }
 
 /*******************************************************************************
@@ -79,41 +104,25 @@ void loop()
  ******************************************************************************/
 void wifiInit()
 {
-    serialDebug("Turn on WiFi");
+    Helper::serialDebug("Turn on WiFi");
     WiFi.on();
 
     if (!WiFi.hasCredentials())
     {
-        serialDebug("No credentials, change to Listen mode after connect");
+        Helper::serialDebug("No credentials, change to Listen mode after connect");
     }
     
-    serialDebug("Connect to WiFi");
+    Helper::serialDebug("Connect to WiFi");
     WiFi.connect();
     
     // wait until WiFi is ready
     while (!WiFi.ready())
     {
         delay(500);
-    }    // connect to configured WiFi
-
-    
-    serialDebug("WiFi ready");
-}
-
-/*******************************************************************************
- * Function Name  : serialDebug
- * Description    : log to serial interface if debug build
- * Input          : message to log and if lineFeed should be added to the end
- * Output         : Serial print via USB
- * Return         : 
- ******************************************************************************/
-void serialDebug(String message, bool lineFeed)
-{
-    if (debug)
-    {
-        if (lineFeed)
-            Serial.println(message);
-        else
-            Serial.print(message);        
     }
+
+    // connect to configured WiFi, but wait a bit to get IP Address
+    delay(2000);
+    
+    Helper::serialDebug("WiFi ready");
 }

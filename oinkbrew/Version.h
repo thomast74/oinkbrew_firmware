@@ -27,10 +27,11 @@
 #define	VERSION_H
 
 
-#define OINK_BREW_VERSION = "0.1"
-
-#define BREWPI_SHIELD_SPARK_REV_C 3
+const char* OINK_BREW_VERSION = "0.1";
 
 
-#endif	/* VERSION_H */
+const char* BREWPI_SPARK_REVISION = "REV_C";
+
+
+#endif
 
