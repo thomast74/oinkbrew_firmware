@@ -27,10 +27,14 @@
 #define	SETTINGS_H
 
 
-const uint16_t LISTENER_PORT = 7872;
+extern const char OINK_BREW_VERSION[];
+extern const char OINK_BREW_VERSION_STRING[];
+
+extern const char BREWPI_SPARK_REVISION[];
 
 
-const unsigned long DURATION_MESSAGE = 300000;
+extern const short LISTENER_PORT;
 
+extern const unsigned long DURATION_MESSAGE;
 
 #endif

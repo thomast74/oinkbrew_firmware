@@ -50,7 +50,7 @@ bool Helper::isDebug() {
  * Output         : Serial print via USB
  * Return         : 
  ******************************************************************************/
-void Helper::serialDebug(String message, bool lineFeed) {
+void Helper::serialDebug(const char* message, bool lineFeed) {
     if (Helper::isDebug()) {
         if (lineFeed)
             Serial.println(message);

@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    version.h
+ * @file    startup_screen.h
  * @authors Thomas Trageser
  * @version V0.1
- * @date    2015-03-21
+ * @date    2015-03-25
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
   Copyright (c) 2015 Oink Brew;  All rights reserved.
@@ -23,15 +23,25 @@
  ******************************************************************************
  */
 
-#ifndef VERSION_H
-#define	VERSION_H
 
+#ifndef STARTUP_SCREEN_H
+#define	STARTUP_SCREEN_H
 
-const char* OINK_BREW_VERSION = "0.1";
-
-
-const char* BREWPI_SPARK_REVISION = "REV_C";
-
-
+#ifdef	__cplusplus
+extern "C" {
 #endif
+
+void ScreenStartup_UpdateMessage(const char* message);
+void ScreenStartup_UpdateVersion(const char* version);
+    
+D4D_EXTERN_SCREEN(screen_startup);
+D4D_EXTERN_OBJECT(scrStartup_message);
+D4D_EXTERN_OBJECT(scrStartup_version);
+
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif	/* STARTUP_SCREEN_H */
 

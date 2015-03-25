@@ -23,12 +23,13 @@
  ******************************************************************************
  */
 
+
 /* Includes ------------------------------------------------------------------*/  
 #include "application.h"
-#include "modules/Buzzer.h"
 #include "Helper.h"
 #include "Settings.h"
 #include "StatusMessage.h"
+#include "Screen.h"
 
 
 /* Declarations --------------------------------------------------------------*/  
@@ -54,14 +55,14 @@ Helper helper;
  ******************************************************************************/
 void setup()
 {
-    buzzer.init();
-    buzzer.beep(1, 500);
-    
     if (Helper::isDebug())
     {        
         Serial.begin(9600);
         delay(2000);
     }
+    
+    screen.init();
+    screen.showStartupPage();
     
     // turn on and configure WiFi
     wifiInit();
@@ -69,7 +70,7 @@ void setup()
     // initialise application
     applicationInit();
     
-    buzzer.beep(2, 250);
+    screen.showHomePage();
 }
 
 /*******************************************************************************
@@ -81,6 +82,7 @@ void setup()
  ******************************************************************************/
 void loop()
 {
+    screen.ticks();
     
     if((millis() - lastStatusMessage) >= DURATION_MESSAGE)
     {
@@ -110,15 +112,15 @@ void applicationInit()
  ******************************************************************************/
 void wifiInit()
 {
-    Helper::serialDebug("Turn on WiFi");
+    screen.printStatusMessage("Turn on WiFi");
     WiFi.on();
 
     if (!WiFi.hasCredentials())
     {
-        Helper::serialDebug("No credentials, change to Listen mode after connect");
+        screen.printStatusMessage("No credentials, change to Listen mode after connect");
     }
     
-    Helper::serialDebug("Connect to WiFi");
+    screen.printStatusMessage("Connect to WiFi");
     WiFi.connect();
     
     // wait until WiFi is ready
@@ -127,5 +129,5 @@ void wifiInit()
         delay(500);
     }
     
-    Helper::serialDebug("WiFi ready");
+    screen.printStatusMessage("WiFi ready");
 }

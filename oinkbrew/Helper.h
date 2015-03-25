@@ -26,13 +26,13 @@
 #ifndef HELPER_H
 #define	HELPER_H
 
-#include "spark_wiring_print.h"
+#include "spark_wiring_string.h"
 
 
 class Helper {
 public:
     static bool isDebug();
-    static void serialDebug(String message, bool lineFeed = true);
+    static void serialDebug(const char* message, bool lineFeed = true);
 };
 
 
