@@ -31,7 +31,9 @@
 
 extern "C" {
 #include "startup_screen.h"
-#include "home_screen.h"
+#include "info_screen.h"
+#include "brew_screen.h"
+#include "common_screen.h"
 }
 
 eGuiSettingsClass eGuiSettings;
@@ -44,14 +46,14 @@ void Screen::init() {
     D4D_SetOrientation(D4D_ORIENT_LANDSCAPE);
     
     buzzer.init();
-    buzzer.beep(2, 100);
+    buzzer.beep(1, 100);
     
     if (!eGuiSettings.loadTouchCalib()) {
         calibrateTouchScreen();
     }    
 }
 
-void Screen::showStartupPage()
+void Screen::showStartupScreen()
 {
     D4D_ActivateScreen(&screen_startup, D4D_TRUE);    
     D4D_Poll();
@@ -66,12 +68,30 @@ void Screen::printStatusMessage(const char* message)
     Helper::serialDebug(message);
 }
 
-void Screen::showHomePage()
+void Screen::startupFinished()
 {
-    buzzer.beep(2, 500);
-    
-    D4D_ActivateScreen(&screen_home, D4D_TRUE);    
-    D4D_Poll();    
+    buzzer.beep(2, 250);
+    showBrewScreen();
+}
+
+void Screen::showInformationScreen()
+{
+    D4D_ActivateScreen(&screen_info, D4D_TRUE);    
+}
+
+void Screen::showBrewScreen()
+{
+    D4D_ActivateScreen(&screen_brew, D4D_TRUE);
+}
+
+void Screen::showFerm1Screen()
+{
+    D4D_ActivateScreen(&screen_info, D4D_TRUE);
+}
+
+void Screen::showFerm2Screen()
+{
+    D4D_ActivateScreen(&screen_info, D4D_TRUE);    
 }
 
 void Screen::ticks()
@@ -89,4 +109,16 @@ void Screen::update()
 void Screen::calibrateTouchScreen() {
     D4D_CalibrateTouchScreen();
     eGuiSettings.storeTouchCalib();
+}
+
+extern "C" void menuButtonClicked(D4D_OBJECT* pThis)
+{
+    if (pThis==&scr_btnInfo)
+        Screen::showInformationScreen();        
+    else if (pThis==&scr_btnBrew)
+        Screen::showBrewScreen();
+    else if (pThis==&scr_btnFerm1)
+        Screen::showFerm1Screen();
+    else if (pThis==&scr_btnFerm2)
+        Screen::showFerm2Screen();
 }

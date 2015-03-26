@@ -303,14 +303,19 @@
         <in>d4d_user_cfg_app.h</in>
       </df>
       <df name="screens">
+        <in>brew_screen.c</in>
+        <in>brew_screen.h</in>
+        <in>common_screen.c</in>
+        <in>common_screen.h</in>
         <in>fonts.c</in>
         <in>fonts.h</in>
-        <in>home_screen.c</in>
-        <in>home_screen.h</in>
+        <in>info_screen.c</in>
+        <in>info_screen.h</in>
         <in>oink_logo.c</in>
         <in>oink_logo.h</in>
         <in>startup_screen.c</in>
         <in>startup_screen.h</in>
+        <in>widget_color_scheme.h</in>
       </df>
       <df name="target">
         <df name="obj">

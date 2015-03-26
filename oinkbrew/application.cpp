@@ -62,7 +62,7 @@ void setup()
     }
     
     screen.init();
-    screen.showStartupPage();
+    screen.showStartupScreen();
     
     // turn on and configure WiFi
     wifiInit();
@@ -70,7 +70,8 @@ void setup()
     // initialise application
     applicationInit();
     
-    screen.showHomePage();
+    
+    screen.startupFinished();
 }
 
 /*******************************************************************************

@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    home_screen.h
+ * @file    brew_screen.h
  * @authors Thomas Trageser
  * @version V0.1
  * @date    2015-03-25
@@ -24,20 +24,20 @@
  */
 
 
-#ifndef HOME_SCREEN_H
-#define	HOME_SCREEN_H
+#ifndef BREW_SCREEN_H
+#define	BREW_SCREEN_H
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
     
-D4D_EXTERN_SCREEN(screen_home);
+D4D_EXTERN_SCREEN(screen_brew);
 
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif	/* HOME_SCREEN_H */
+#endif	/* BREW_SCREEN_H */
 

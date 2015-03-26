@@ -246,6 +246,8 @@
         <in>d4d_user_cfg_app.h</in>
       </df>
       <df name="screens">
+        <in>common_screen.c</in>
+        <in>common_screen.h</in>
         <in>fonts.c</in>
         <in>fonts.h</in>
         <in>oink_logo.c</in>
@@ -1030,6 +1032,10 @@
       </item>
       <item path="oinkbrew/d4d_user_cfg_app.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="screens/common_screen.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="screens/common_screen.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="screens/fonts.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="screens/fonts.h" ex="false" tool="3" flavor2="0">
@@ -1788,6 +1794,10 @@
       <item path="oinkbrew/application.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="oinkbrew/d4d_user_cfg_app.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="screens/common_screen.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="screens/common_screen.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="screens/fonts.c" ex="false" tool="0" flavor2="0">
       </item>

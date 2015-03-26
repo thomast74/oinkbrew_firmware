@@ -42,14 +42,32 @@ struct Screen {
      * Display the startup page and retrieve how long the startup page should be displayed 
      * for in milliseconds before moving on to the main page.
      */
-    static void showStartupPage();
+    static void showStartupScreen();
     static void printStatusMessage(const char* messsage);
+    static void startupFinished();
     
     /**
-     * Display the home page and allow the user to see the current status of devices
+     * Display the information page and allow the user to see the current status
      * and the configuration stored on the device
      */
-    static void showHomePage();
+    static void showInformationScreen();
+
+    /**
+     * Display the brew page and allow the user to see the current brew sensor information
+     */
+    static void showBrewScreen();
+
+    /**
+     * Display the Ferm 1  page and allow the user to see the current 
+     * fermentation chamber 1 sensor data
+     */
+    static void showFerm1Screen();
+
+    /**
+     * Display the Ferm 2  page and allow the user to see the current 
+     * fermentation chamber 1 sensor data
+     */
+    static void showFerm2Screen();
 
     /**
      * Called as often as possible by the application. Allows the UI to peform

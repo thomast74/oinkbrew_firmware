@@ -1,4 +1,4 @@
-/**************************************************************************
+/***************************************************hos***********************
 * 
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
@@ -114,7 +114,7 @@
 
 //#define D4D_UNICODE                   // Enables Unicode support
 
-#define D4D_SCREEN_HISTORY 3         // This option define depth of history of screens
+#define D4D_SCREEN_HISTORY 5         // This option define depth of history of screens
 
 #define D4D_SCREEN_SIZE_LONGER_SIDE  320  // The maximum resolution of longer longer side of physical LCD
 
@@ -124,7 +124,7 @@
 
 #define D4D_COLOR_SYSTEM_BCKG D4D_COLOR_BLACK // System background color (for example for calibration screen)
 
-#define D4D_FONT_SYSTEM_DEFAULT 4 // System default font (for example for calibration screen)
+#define D4D_FONT_SYSTEM_DEFAULT 2 // System default font (for example for calibration screen)
 
 /******************************************************************************
 * CallBack function definition
@@ -270,7 +270,7 @@
 ***********************/
 
 #ifndef D4D_BTN_F_DEFAULT
-#define D4D_BTN_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_BTN_F_3D | D4D_OBJECT_F_BEVEL_RAISED /*| D4D_BTN_F_CONT_RECT */)
+#define D4D_BTN_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH  | D4D_BTN_F_CONT_RECT)
 #endif
 
 //#define D4D_BTN_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
@@ -279,9 +279,9 @@
 * Sizes constants
 ***********************/
 
-//#define D4D_BTN_BORDER_OFFSET 3
+//#define D4D_BTN_BORDER_OFFSET 2
 
-//#define D4D_BTN_3D_FRAME_WIDTH 2
+//#define D4D_BTN_3D_FRAME_WIDTH 1
 
 //#define D4D_BTN_3D_SHIFT 1
 
@@ -369,8 +369,15 @@
 
 #define D4D_LBL_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED )
 
-#define D4D_LBL_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
+#define D4D_LBL_F_CENTER  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
+#define D4D_LBL_F_RIGHT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_TXT_PRTY_ALIGN_H_RIGHT_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
+
+#define D4D_LBL_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_LEFT_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 #define D4D_LBL_FNT_PRTY_DEFAULT  ( D4D_FNT_PRTY_TRANSPARENT_NO_MASK )
+
+#define D4D_LBL_TXT_PRTY_RIGHT  (D4D_TXT_PRTY_ALIGN_H_RIGHT_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
+#define D4D_LBL_TXT_PRTY_CENTER  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
+
 
 /******************************************************************************
 * Menu Object

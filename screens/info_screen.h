@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    home_screen.c
+ * @file    info_screen.h
  * @authors Thomas Trageser
  * @version V0.1
  * @date    2015-03-25
@@ -24,37 +24,20 @@
  */
 
 
-#include "d4d.h"
-#include "fonts.h"
-#include "oink_logo.h"
-        
-        
-D4D_DECLARE_STD_PICTURE(scrHome_bmpLogo, 66, 10, 188, 35, &bmp_oink_logo);
+#ifndef HOME_SCREEN_H
+#define	HOME_SCREEN_H
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
-D4D_DECLARE_STD_SCREEN_BEGIN(screen_home, ScreenHome_)
-    D4D_DECLARE_SCREEN_OBJECT(scrHome_bmpLogo)
-D4D_DECLARE_SCREEN_END()    
-
-static void ScreenHome_OnInit()
-{
-}
-
-static void ScreenHome_OnMain()
-{
     
-}
+D4D_EXTERN_SCREEN(screen_info);
 
-static void ScreenHome_OnActivate()
-{
-}
 
-static void ScreenHome_OnDeactivate()
-{
+#ifdef	__cplusplus
 }
+#endif
 
-static Byte ScreenHome_OnObjectMsg(D4D_MESSAGE* pMsg)
-{
-    D4D_UNUSED(pMsg);
-    return 0;
-}
+#endif	/* HOME_SCREEN_H */
+
