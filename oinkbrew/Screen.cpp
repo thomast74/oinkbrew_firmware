@@ -71,7 +71,7 @@ void Screen::printStatusMessage(const char* message)
 void Screen::startupFinished()
 {
     buzzer.beep(2, 250);
-    showBrewScreen();
+    showInformationScreen();
 }
 
 void Screen::showInformationScreen()
