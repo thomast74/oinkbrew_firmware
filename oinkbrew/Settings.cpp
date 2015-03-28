@@ -32,6 +32,8 @@ const char OINK_BREW_VERSION_STRING[] = "Version: 0.1";
 const char BREWPI_SPARK_REVISION[] = "REV_C";
 
 
-const short LISTENER_PORT = 7872;
+const short REMOTE_LISTENER_PORT = 7872;
+const short LOCAL_LISTENER_PORT = 7873;
+
 
 const unsigned long DURATION_MESSAGE = 300000;

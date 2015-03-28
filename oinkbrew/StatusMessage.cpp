@@ -59,8 +59,8 @@ void StatusMessage::send() {
 
     Helper::serialDebug("Send status message");
     UDP udp;
-    udp.begin(LISTENER_PORT);
-    udp.beginPacket(StatusMessage::getBroadcastAddress(), LISTENER_PORT);
+    udp.begin(REMOTE_LISTENER_PORT);
+    udp.beginPacket(StatusMessage::getBroadcastAddress(), REMOTE_LISTENER_PORT);
 
     udp.write(jsonMessage.c_str());
 

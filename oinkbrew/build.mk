@@ -4,7 +4,6 @@ INCLUDE_DIRS += $(SOURCE_PATH)/modules
 INCLUDE_DIRS += $(SOURCE_PATH)/modules/Adafruit_ILI9341
 INCLUDE_DIRS += $(SOURCE_PATH)/modules/Adafruit_mfGFX
 INCLUDE_DIRS += $(SOURCE_PATH)/modules/BrewPiTouch
-INCLUDE_DIRS += $(SOURCE_PATH)/modules/EEPROM
 INCLUDE_DIRS += $(SOURCE_PATH)/modules/LowPassFilter
 INCLUDE_DIRS += $(SOURCE_PATH)/screens
 

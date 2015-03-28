@@ -30,13 +30,10 @@
 
 #define FONT_ARIAL_10		1 
 #define FONT_ARIAL_11		2 
-#define FONT_ARIAL_12		3
-#define FONT_ARIAL_16		4
 
 
 extern const D4D_FONT_DESCRIPTOR d4dfnt_Arial_10_desc;
 extern const D4D_FONT_DESCRIPTOR d4dfnt_Arial_11_desc;
-extern const D4D_FONT_DESCRIPTOR d4dfnt_Arial_12_desc;
 
 
 #endif

@@ -32,7 +32,7 @@ extern "C" {
 }
 
 #define EEPROM_DEVICE_INFO_START_BLOCK 0
-#define EEPROM_DEVICE_INFO_END_BLOCK 2
+#define EEPROM_DEVICE_INFO_END_BLOCK 4
 #define EEPROM_EGUI_SETTINGS_START_BLOCK 32
 #define EEPROM_EGUI_SETTINGS_END_BLOCK 36
 
@@ -58,9 +58,9 @@ Configuration::Configuration() {
  * Return         : 
  ******************************************************************************/
 bool Configuration::loadDeviceInfo() {
-   //if (deviceInfoFlash->read(&deviceInfo, 0, sizeof(DeviceInfo)))
-   //     return true;
-   //else
+   if (deviceInfoFlash->read(&deviceInfo, 0, sizeof(DeviceInfo)))
+        return true;
+   else
         return false;
 };
 

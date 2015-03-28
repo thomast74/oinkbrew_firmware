@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    Settings.h
+ * @file    TcpListener.h
  * @authors Thomas Trageser
  * @version V0.1
- * @date    2015-03-21
+ * @date    2015-03-28
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
   Copyright (c) 2015 Oink Brew;  All rights reserved.
@@ -23,20 +23,32 @@
  ******************************************************************************
  */
 
-#ifndef SETTINGS_H
-#define	SETTINGS_H
+
+#ifndef TCPLISTENER_H
+#define	TCPLISTENER_H
 
 
-extern const char OINK_BREW_VERSION[];
-extern const char OINK_BREW_VERSION_STRING[];
+class TcpListener {
+public:
+    void init();
+    bool connected();
+private:
+    bool processRequest(char action);
 
-extern const char BREWPI_SPARK_REVISION[];
+    
+    typedef void (*ParseJsonCallback)(const char* key, const char* val, void* data);
 
+    
+    void parseJson(ParseJsonCallback fn, void* data);
+    bool parseJsonToken(char* val);
+    int readNext();
 
-extern const short REMOTE_LISTENER_PORT;
-extern const short LOCAL_LISTENER_PORT;
+    
+    static void processDeviceInfo(const char * key, const char * val, void* pv);
+    
+};
 
-extern const unsigned long DURATION_MESSAGE;
+extern TcpListener listener;
 
+#endif	/* TCPLISTENER_H */
 
-#endif

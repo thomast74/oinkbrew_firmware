@@ -243,6 +243,8 @@
         <in>Settings.h</in>
         <in>StatusMessage.cpp</in>
         <in>StatusMessage.h</in>
+        <in>TcpListener.cpp</in>
+        <in>TcpListener.h</in>
         <in>Version.cpp</in>
         <in>Version.h</in>
         <in>application.cpp</in>
@@ -305,7 +307,6 @@
               <pElem>../spark-firmware/main/inc</pElem>
               <pElem>../spark-firmware/services/inc</pElem>
               <pElem>modules/eGUI/D4D</pElem>
-              <pElem>modules/EEPROM</pElem>
               <pElem>modules</pElem>
               <pElem>screens</pElem>
               <pElem>oinkbrew</pElem>
@@ -1032,6 +1033,10 @@
       <item path="oinkbrew/StatusMessage.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="oinkbrew/StatusMessage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="oinkbrew/TcpListener.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="oinkbrew/TcpListener.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="oinkbrew/Version.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -1801,6 +1806,10 @@
       <item path="oinkbrew/StatusMessage.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="oinkbrew/StatusMessage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="oinkbrew/TcpListener.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="oinkbrew/TcpListener.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="oinkbrew/Version.cpp" ex="false" tool="1" flavor2="0">
       </item>

@@ -32,6 +32,7 @@
 #include "StatusMessage.h"
 #include "Screen.h"
 #include "DeviceInfo.h"
+#include "TcpListener.h"
 
 
 /* Declarations --------------------------------------------------------------*/  
@@ -47,6 +48,8 @@ static unsigned long lastStatusMessage = -295000;
 
 Configuration conf;
 DeviceInfo deviceInfo;
+TcpListener listener;
+
 
 /*******************************************************************************
  * Function Name  : setup
@@ -71,8 +74,7 @@ void setup()
     
     // initialise application
     applicationInit();
-    
-    
+        
     screen.startupFinished();
 }
 
@@ -85,14 +87,22 @@ void setup()
  ******************************************************************************/
 void loop()
 {
-    screen.ticks();
-    
+    // send status message every 5 minutes
     if((millis() - lastStatusMessage) >= DURATION_MESSAGE)
     {
         Helper::serialDebug("Loop wants to send status message");
         lastStatusMessage = millis();
         StatusMessage::send();
     }
+    
+    // check for client connectivity
+    if (listener.connected())
+    {
+        screen.update();
+    }
+    
+    // update screen and check for touch input
+    screen.ticks();    
 }
 
 /*******************************************************************************
@@ -104,6 +114,9 @@ void loop()
  ******************************************************************************/
 void applicationInit()
 {
+    screen.printStatusMessage("Start TCP Server");
+    listener.init();
+    
     screen.printStatusMessage("Load configuration data");
     conf.loadDeviceInfo();
 }

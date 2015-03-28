@@ -38,6 +38,8 @@ extern "C" {
 #include "common_screen.h"
 }
 
+void updateInformationScreen();
+
 
 void Screen::init() {        
     
@@ -78,14 +80,7 @@ void Screen::startupFinished()
 void Screen::showInformationScreen()
 {
     D4D_ActivateScreen(&screen_info, D4D_TRUE);
-    updateLabel((D4D_OBJECT*)&scrInfo_valName, (D4D_CHAR*)deviceInfo.name);
-    updateLabel((D4D_OBJECT*)&scrInfo_valMode, (D4D_CHAR*)deviceInfo.mode);
-    updateLabel((D4D_OBJECT*)&scrInfo_valId, (D4D_CHAR*)Spark.deviceID().c_str());
-    updateLabel((D4D_OBJECT*)&scrInfo_valConfig, (D4D_CHAR*)deviceInfo.config);
-    updateLabel((D4D_OBJECT*)&scrInfo_valTemp, (D4D_CHAR*)deviceInfo.tempType);
-    updateLabel((D4D_OBJECT*)&scrInfo_valFirmware, (D4D_CHAR*)OINK_BREW_VERSION);
-    updateLabel((D4D_OBJECT*)&scrInfo_valIp, (D4D_CHAR*)Helper::getLocalIPStr().c_str());
-    updateLabel((D4D_OBJECT*)&scrInfo_valWeb, (D4D_CHAR*)deviceInfo.oinkWeb);
+    updateInformationScreen();
 }
 
 void Screen::showBrewScreen()
@@ -116,7 +111,20 @@ void Screen::ticks()
 
 void Screen::update() 
 {    
+    if (D4D_GetActiveScreen() == &screen_info) {
+        updateInformationScreen();
+    }
+}
 
+void updateInformationScreen() {
+    updateLabel((D4D_OBJECT*)&scrInfo_valName, (D4D_CHAR*)deviceInfo.name);
+    updateLabel((D4D_OBJECT*)&scrInfo_valMode, (D4D_CHAR*)deviceInfo.mode);
+    updateLabel((D4D_OBJECT*)&scrInfo_valId, (D4D_CHAR*)Spark.deviceID().c_str());
+    updateLabel((D4D_OBJECT*)&scrInfo_valConfig, (D4D_CHAR*)deviceInfo.config);
+    updateLabel((D4D_OBJECT*)&scrInfo_valTemp, (D4D_CHAR*)deviceInfo.tempType);
+    updateLabel((D4D_OBJECT*)&scrInfo_valFirmware, (D4D_CHAR*)OINK_BREW_VERSION);
+    updateLabel((D4D_OBJECT*)&scrInfo_valIp, (D4D_CHAR*)Helper::getLocalIPStr().c_str());
+    updateLabel((D4D_OBJECT*)&scrInfo_valWeb, (D4D_CHAR*)deviceInfo.oinkWeb);    
 }
 
 void Screen::calibrateTouchScreen() {

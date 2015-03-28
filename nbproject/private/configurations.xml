@@ -296,6 +296,8 @@
         <in>Settings.h</in>
         <in>StatusMessage.cpp</in>
         <in>StatusMessage.h</in>
+        <in>TcpListener.cpp</in>
+        <in>TcpListener.h</in>
         <in>Version.cpp</in>
         <in>Version.h</in>
         <in>application.cpp</in>

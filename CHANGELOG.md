@@ -9,3 +9,4 @@ v0.1
 - Implemented Information Screen with device information shown to user
 - Implemented Brew Screen that can show all temp sensors and also which temp sensor is the acting one
 - Load Device Information from EEPROM during startup
+- Receive Device Information via TCP, stored in EEPROM and refresh screen with active information
