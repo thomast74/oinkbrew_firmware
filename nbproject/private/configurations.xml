@@ -62,10 +62,6 @@
           <in>BrewPiTouch.cpp</in>
           <in>BrewPiTouch.h</in>
         </df>
-        <df name="EEPROM">
-          <in>SparkEepromRegions.h</in>
-          <in>eGuiSettings.h</in>
-        </df>
         <df name="eGUI">
           <df name="D4D">
             <df name="_release_notes">
