@@ -232,6 +232,9 @@
         <in>Pins.h</in>
       </df>
       <df name="oinkbrew">
+        <in>Configuration.cpp</in>
+        <in>Configuration.h</in>
+        <in>DeviceInfo.h</in>
         <in>Helper.cpp</in>
         <in>Helper.h</in>
         <in>Screen.cpp</in>
@@ -1008,6 +1011,12 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="oinkbrew/Configuration.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="oinkbrew/Configuration.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="oinkbrew/DeviceInfo.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="oinkbrew/Helper.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="oinkbrew/Helper.h" ex="false" tool="3" flavor2="0">
@@ -1770,6 +1779,12 @@
             ex="false"
             tool="3"
             flavor2="0">
+      </item>
+      <item path="oinkbrew/Configuration.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="oinkbrew/Configuration.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="oinkbrew/DeviceInfo.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="oinkbrew/Helper.cpp" ex="false" tool="1" flavor2="0">
       </item>

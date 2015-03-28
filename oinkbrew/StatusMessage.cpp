@@ -54,7 +54,7 @@ void StatusMessage::send() {
     jsonMessage.concat("\",\"board_revision\":\"");
     jsonMessage.concat(BREWPI_SPARK_REVISION);
     jsonMessage.concat("\",\"ip_address\":\"");
-    jsonMessage.concat(StatusMessage::getLocalIPStr());
+    jsonMessage.concat(Helper::getLocalIPStr());
     jsonMessage.concat("\"}");
 
     Helper::serialDebug("Send status message");
@@ -66,30 +66,6 @@ void StatusMessage::send() {
 
     udp.endPacket();
     Helper::serialDebug("Status message sent");
-}
-
-
-/*******************************************************************************
- * Function Name  : getLocalIPStr
- * Description    : convert WiFi.localIP into a string
- * Input          : 
- * Output         : broadcast address as IPAddress
- * Return         : 
- ******************************************************************************/
-String StatusMessage::getLocalIPStr()
-{
-    uint8_t* address = spark::WiFi.localIP().raw_address();
-    
-    String ipAddressStr = "";
-    ipAddressStr.concat(address[0]);
-    ipAddressStr.concat(".");
-    ipAddressStr.concat(address[1]);
-    ipAddressStr.concat(".");
-    ipAddressStr.concat(address[2]);
-    ipAddressStr.concat(".");
-    ipAddressStr.concat(address[3]);
-    
-    return ipAddressStr;
 }
 
 /*******************************************************************************

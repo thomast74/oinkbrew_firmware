@@ -26,6 +26,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "Helper.h"
 #include "spark_wiring_usbserial.h"
+#include "spark_wiring_wifi.h"
 
 
 /*******************************************************************************
@@ -57,4 +58,27 @@ void Helper::serialDebug(const char* message, bool lineFeed) {
         else
             Serial.print(message);
     }
+}
+
+/*******************************************************************************
+ * Function Name  : getLocalIPStr
+ * Description    : convert WiFi.localIP into a string
+ * Input          : 
+ * Output         : broadcast address as IPAddress
+ * Return         : 
+ ******************************************************************************/
+String Helper::getLocalIPStr()
+{
+    uint8_t* address = spark::WiFi.localIP().raw_address();
+    
+    String ipAddressStr = "";
+    ipAddressStr.concat(address[0]);
+    ipAddressStr.concat(".");
+    ipAddressStr.concat(address[1]);
+    ipAddressStr.concat(".");
+    ipAddressStr.concat(address[2]);
+    ipAddressStr.concat(".");
+    ipAddressStr.concat(address[3]);
+    
+    return ipAddressStr;
 }

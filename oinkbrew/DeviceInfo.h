@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    startup_screen.h
+ * @file    DeviceInfo.h
  * @authors Thomas Trageser
  * @version V0.1
- * @date    2015-03-25
+ * @date    2015-03-27
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
   Copyright (c) 2015 Oink Brew;  All rights reserved.
@@ -24,25 +24,18 @@
  */
 
 
-#ifndef STARTUP_SCREEN_H
-#define	STARTUP_SCREEN_H
+#ifndef DEVICEINFO_H
+#define	DEVICEINFO_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+struct DeviceInfo {
+    unsigned char name[31] = "";
+    unsigned char mode[10] = "MANUAL";
+    unsigned char config[5] = "";
+    unsigned char tempType[2] = "C";
+    unsigned char oinkWeb[16] = "";
+};
 
-void ScreenStartup_UpdateMessage(const char* message);
-void ScreenStartup_UpdateVersion(const char* version);
-    
-D4D_EXTERN_SCREEN(screen_startup);
+extern DeviceInfo deviceInfo;
 
-D4D_EXTERN_OBJECT(scrStartup_message);
-D4D_EXTERN_OBJECT(scrStartup_version);
-
-
-#ifdef	__cplusplus
-}
-#endif
-
-#endif	/* STARTUP_SCREEN_H */
+#endif	/* DEVICEINFO_H */
 

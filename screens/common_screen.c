@@ -63,3 +63,9 @@ void changeMenuButtonState(D4D_OBJECT* pThis, D4D_BOOL state, D4D_CHAR* text)
 
     D4D_InvalidateObject(pThis, D4D_TRUE);
 }
+
+void updateLabel(D4D_OBJECT* pThis, D4D_CHAR* text)
+{
+    D4D_SetText(pThis, text);    
+    D4D_InvalidateObject(pThis, D4D_TRUE);
+}

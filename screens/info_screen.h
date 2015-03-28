@@ -34,6 +34,15 @@ extern "C" {
     
 D4D_EXTERN_SCREEN(screen_info);
 
+D4D_EXTERN_OBJECT(scrInfo_valName);
+D4D_EXTERN_OBJECT(scrInfo_valMode);
+D4D_EXTERN_OBJECT(scrInfo_valId);
+D4D_EXTERN_OBJECT(scrInfo_valConfig);
+D4D_EXTERN_OBJECT(scrInfo_valTemp);
+D4D_EXTERN_OBJECT(scrInfo_valFirmware);
+D4D_EXTERN_OBJECT(scrInfo_valIp);
+D4D_EXTERN_OBJECT(scrInfo_valWeb);
+
 
 #ifdef	__cplusplus
 }

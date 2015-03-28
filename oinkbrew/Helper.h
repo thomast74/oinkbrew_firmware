@@ -28,12 +28,15 @@
 
 #include "spark_wiring_string.h"
 
-
 class Helper {
 public:
     static bool isDebug();
     static void serialDebug(const char* message, bool lineFeed = true);
+
+    static String getLocalIPStr();
 };
+
+extern Helper helper;
 
 
 #endif

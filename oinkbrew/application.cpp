@@ -26,10 +26,12 @@
 
 /* Includes ------------------------------------------------------------------*/  
 #include "application.h"
+#include "Configuration.h"
 #include "Helper.h"
 #include "Settings.h"
 #include "StatusMessage.h"
 #include "Screen.h"
+#include "DeviceInfo.h"
 
 
 /* Declarations --------------------------------------------------------------*/  
@@ -42,9 +44,9 @@ SYSTEM_MODE(MANUAL);
 /* Global Variables ----------------------------------------------------------*/
 static unsigned long lastStatusMessage = -295000;
 
-StatusMessage status;
-Helper helper;
 
+Configuration conf;
+DeviceInfo deviceInfo;
 
 /*******************************************************************************
  * Function Name  : setup
@@ -102,6 +104,8 @@ void loop()
  ******************************************************************************/
 void applicationInit()
 {
+    screen.printStatusMessage("Load configuration data");
+    conf.loadDeviceInfo();
 }
 
 /*******************************************************************************

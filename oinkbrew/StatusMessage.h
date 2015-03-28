@@ -37,4 +37,6 @@ private:
     static IPAddress getBroadcastAddress();
 };
 
+extern StatusMessage status;
+
 #endif

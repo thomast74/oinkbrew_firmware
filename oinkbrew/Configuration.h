@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    startup_screen.h
+ * @file    DeviceInfo.h
  * @authors Thomas Trageser
  * @version V0.1
- * @date    2015-03-25
+ * @date    2015-03-27
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
   Copyright (c) 2015 Oink Brew;  All rights reserved.
@@ -24,25 +24,27 @@
  */
 
 
-#ifndef STARTUP_SCREEN_H
-#define	STARTUP_SCREEN_H
+#ifndef CONFIGURATION_H
+#define	CONFIGURATION_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-void ScreenStartup_UpdateMessage(const char* message);
-void ScreenStartup_UpdateVersion(const char* version);
-    
-D4D_EXTERN_SCREEN(screen_startup);
-
-D4D_EXTERN_OBJECT(scrStartup_message);
-D4D_EXTERN_OBJECT(scrStartup_version);
+#include "flashee-eeprom.h"
 
 
-#ifdef	__cplusplus
-}
-#endif
+class Configuration {
+    Flashee::FlashDevice* deviceInfoFlash;
+    Flashee::FlashDevice* eguiFlash;
 
-#endif	/* STARTUP_SCREEN_H */
+public:
+
+    Configuration();
+
+    bool loadDeviceInfo();
+    void storeDeviceInfo();
+    bool loadEguiSettings();
+    void storeEguiSettings();
+};
+
+extern Configuration conf;
+
+#endif	/* CONFIGURATION_H */
 

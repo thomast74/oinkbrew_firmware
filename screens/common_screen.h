@@ -34,9 +34,9 @@ extern "C" {
 #include "fonts.h"
 #include "widget_color_scheme.h"
 
-
 void menuButtonClicked(D4D_OBJECT* pThis);
 void changeMenuButtonState(D4D_OBJECT* pThis, D4D_BOOL state, D4D_CHAR* text);
+void updateLabel(D4D_OBJECT* pThis, D4D_CHAR* text);
 
     
 D4D_EXTERN_OBJECT(scr_btnInfo);
@@ -45,25 +45,25 @@ D4D_EXTERN_OBJECT(scr_btnFerm1);
 D4D_EXTERN_OBJECT(scr_btnFerm2);
 
 
-#define D4D_DECLARE_STD_LABEL_RIGHT(name, text, x, y, cx, cy, fontId) \
+#define D4D_DECLARE_STD_LABEL_RIGHT(name, text, x, y, cx, cy, fontId, pScheme) \
     static D4D_STR_PROPERTIES name##_strPrties = { D4D_LBL_FNT_PRTY_DEFAULT, D4D_LBL_TXT_PRTY_RIGHT}; \
     static D4D_CONST D4D_LABEL name##_params = \
     { \
         { text, D4D_TEXT_LEN(text), fontId, &name##_strPrties, D4D_OBJECT_MAX_TEXT_LEN(text), 0} /* textBuff */ \
     }; \
     \
-    D4D_DECLARE_OBJECT(D4D_CONST, name, x, y, cx, cy, 0, NULL, NULL, NULL, &d4d_labelSysFunc, &(name##_params), (D4D_LBL_F_DEFAULT), NULL, NULL)
+    D4D_DECLARE_OBJECT(D4D_CONST, name, x, y, cx, cy, 0, NULL, NULL, NULL, &d4d_labelSysFunc, &(name##_params), (D4D_LBL_F_DEFAULT), NULL, pScheme)
 
 
 
-#define D4D_DECLARE_STD_LABEL_CENTER(name, text, x, y, cx, cy, fontId) \
+#define D4D_DECLARE_STD_LABEL_CENTER(name, text, x, y, cx, cy, fontId, pScheme) \
     static D4D_STR_PROPERTIES name##_strPrties = { D4D_LBL_FNT_PRTY_DEFAULT, D4D_LBL_TXT_PRTY_CENTER}; \
     static D4D_CONST D4D_LABEL name##_params = \
     { \
         { text, D4D_TEXT_LEN(text), fontId, &name##_strPrties, D4D_OBJECT_MAX_TEXT_LEN(text), 0} /* textBuff */ \
     }; \
     \
-    D4D_DECLARE_OBJECT(D4D_CONST, name, x, y, cx, cy, 0, NULL, NULL, NULL, &d4d_labelSysFunc, &(name##_params), (D4D_LBL_F_DEFAULT), NULL, NULL)
+    D4D_DECLARE_OBJECT(D4D_CONST, name, x, y, cx, cy, 0, NULL, NULL, NULL, &d4d_labelSysFunc, &(name##_params), (D4D_LBL_F_DEFAULT), NULL, pScheme)
 
 
 

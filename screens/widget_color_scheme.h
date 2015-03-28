@@ -28,6 +28,9 @@
 #include "d4d.h"
 
 
+#define INACTIVE_BG_COLOR D4D_COLOR_RGB(112,138,144)
+#define ACTIVE_BG_COLOR D4D_COLOR_RGB(250,128,114)
+
 
 /**
  * The core colors for a simple widget. Most widgets use only these core color values
@@ -37,13 +40,33 @@
 typedef struct WIDGET_COLOR_SCHEME {
   D4D_COLOR bckg;                       ///< The object background color in standard state
   D4D_COLOR bckgDis;                    ///< The object background color in disabled state
+  D4D_COLOR bckgFocus;                  ///< The object background color in focused state
+  D4D_COLOR bckgCapture;                ///< The object background color in captured state
   D4D_COLOR fore;                       ///< The object fore color in standard state
   D4D_COLOR foreDis;                    ///< The object fore color in disabled state
+  D4D_COLOR foreFocus;                  ///< The object fore color in focused state
+  D4D_COLOR foreCapture;                ///< The object fore color in captured state
 } WIDGET_COLOR_SCHEME;
 
-#define AS_D4D_COLOR_SCHEME(c) \
-    ((D4D_CLR_SCHEME*)(((uint8_t*)c)-offsetof(D4D_CLR_SCHEME, bckg)))
 
+#define D4D_DECLARE_FORE_SCHEME(name, fore) \
+    D4D_DECLARE_CLR_SCHEME(name, \
+        D4D_COLOR_SCR_DESKTOP, D4D_COLOR_SCR_OUTLINE, D4D_COLOR_SCR_TITLEBAR, D4D_COLOR_SCR_TILTLETEXT, D4D_COLOR_SCR_EXIT_BTN_FORE, D4D_COLOR_SCR_EXIT_BTN_BCKG,\
+        D4D_COLOR_BCKG_NORM, D4D_COLOR_BCKG_DISABLED, D4D_COLOR_BCKG_FOCUS, D4D_COLOR_BCKG_CAPTURE,\
+        fore, D4D_COLOR_FORE_DISABLED, D4D_COLOR_FORE_FOCUS, D4D_COLOR_FORE_CAPTURE,\
+        D4D_COLOR_GAUG_HUB, D4D_COLOR_GAUG_POINTER,\
+        D4D_COLOR_SLDR_BAR_BCKG, D4D_COLOR_SLDR_BAR_FORE, D4D_COLOR_SLDR_BAR_START, D4D_COLOR_SLDR_BAR_END,\
+        D4D_COLOR_CHECKBOX_ICON_BCKG,\
+        D4D_COLOR_GRAPH_GRID,\
+        D4D_COLOR_PRGRS_BAR_BAR_BCKG, D4D_COLOR_PRGRS_BAR_BAR_FORE, D4D_COLOR_PRGRS_BAR_BAR_END \
+    )
+
+
+D4D_DECLARE_FORE_SCHEME(scheme_grey, D4D_COLOR_RGB(170,170,170));
+D4D_DECLARE_FORE_SCHEME(scheme_darkgrey, D4D_COLOR_RGB(128,128,128));
+D4D_DECLARE_FORE_SCHEME(scheme_red, D4D_COLOR_RED);
+D4D_DECLARE_FORE_SCHEME(scheme_green, D4D_COLOR_GREEN);
+            
 
 #endif	/* WIDGET_COLOR_SCHEME_H */
 

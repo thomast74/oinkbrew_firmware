@@ -25,18 +25,19 @@
 
 #include "Screen.h"
 #include "Buzzer.h"
-#include "eGuiSettings.h"
+#include "Configuration.h"
+#include "DeviceInfo.h"
 #include "Helper.h"
 #include "Settings.h"
 
 extern "C" {
+#include "d4d.h"
 #include "startup_screen.h"
 #include "info_screen.h"
 #include "brew_screen.h"
 #include "common_screen.h"
 }
 
-eGuiSettingsClass eGuiSettings;
 
 void Screen::init() {        
     
@@ -48,7 +49,7 @@ void Screen::init() {
     buzzer.init();
     buzzer.beep(1, 100);
     
-    if (!eGuiSettings.loadTouchCalib()) {
+    if (!conf.loadEguiSettings()) {
         calibrateTouchScreen();
     }    
 }
@@ -76,12 +77,24 @@ void Screen::startupFinished()
 
 void Screen::showInformationScreen()
 {
-    D4D_ActivateScreen(&screen_info, D4D_TRUE);    
+    D4D_ActivateScreen(&screen_info, D4D_TRUE);
+    updateLabel((D4D_OBJECT*)&scrInfo_valName, (D4D_CHAR*)deviceInfo.name);
+    updateLabel((D4D_OBJECT*)&scrInfo_valMode, (D4D_CHAR*)deviceInfo.mode);
+    updateLabel((D4D_OBJECT*)&scrInfo_valId, (D4D_CHAR*)Spark.deviceID().c_str());
+    updateLabel((D4D_OBJECT*)&scrInfo_valConfig, (D4D_CHAR*)deviceInfo.config);
+    updateLabel((D4D_OBJECT*)&scrInfo_valTemp, (D4D_CHAR*)deviceInfo.tempType);
+    updateLabel((D4D_OBJECT*)&scrInfo_valFirmware, (D4D_CHAR*)OINK_BREW_VERSION);
+    updateLabel((D4D_OBJECT*)&scrInfo_valIp, (D4D_CHAR*)Helper::getLocalIPStr().c_str());
+    updateLabel((D4D_OBJECT*)&scrInfo_valWeb, (D4D_CHAR*)deviceInfo.oinkWeb);
 }
 
 void Screen::showBrewScreen()
 {
     D4D_ActivateScreen(&screen_brew, D4D_TRUE);
+
+    updateLabel((D4D_OBJECT*)&scrBrew_curHltOut, (D4D_CHAR*)"74.0 C");
+    updateLabel((D4D_OBJECT*)&scrBrew_curMashOut, (D4D_CHAR*)"72.0 C");
+    updateLabel((D4D_OBJECT*)&scrBrew_tarMashOut, (D4D_CHAR*)"72.0 C");
 }
 
 void Screen::showFerm1Screen()
@@ -108,7 +121,7 @@ void Screen::update()
 
 void Screen::calibrateTouchScreen() {
     D4D_CalibrateTouchScreen();
-    eGuiSettings.storeTouchCalib();
+    conf.storeEguiSettings();
 }
 
 extern "C" void menuButtonClicked(D4D_OBJECT* pThis)

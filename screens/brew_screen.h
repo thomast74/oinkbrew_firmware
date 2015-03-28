@@ -34,6 +34,22 @@ extern "C" {
     
 D4D_EXTERN_SCREEN(screen_brew);
 
+D4D_EXTERN_OBJECT(scrBrew_curHltIn);
+D4D_EXTERN_OBJECT(scrBrew_curHltOut);
+D4D_EXTERN_OBJECT(scrBrew_curMashIn);
+D4D_EXTERN_OBJECT(scrBrew_curMashOut);
+D4D_EXTERN_OBJECT(scrBrew_curBoilIn);
+D4D_EXTERN_OBJECT(scrBrew_curBoilInside);
+D4D_EXTERN_OBJECT(scrBrew_curBoilOut);
+
+D4D_EXTERN_OBJECT(scrBrew_tarHltIn);
+D4D_EXTERN_OBJECT(scrBrew_tarHltOut);
+D4D_EXTERN_OBJECT(scrBrew_tarMashIn);
+D4D_EXTERN_OBJECT(scrBrew_tarMashOut);
+D4D_EXTERN_OBJECT(scrBrew_tarBoilIn);
+D4D_EXTERN_OBJECT(scrBrew_tarBoilInside);
+D4D_EXTERN_OBJECT(scrBrew_tarBoilOut);
+
 
 #ifdef	__cplusplus
 }

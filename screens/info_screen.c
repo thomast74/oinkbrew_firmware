@@ -28,16 +28,38 @@
 #include "fonts.h"
 #include "oink_logo.h"
 #include "common_screen.h"
-        
+#include "widget_color_scheme.h"
 
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblMode, "Mode:",         10, 65,  110, 20, FONT_ARIAL_12);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblId, "Id:",             10, 85,  110, 20, FONT_ARIAL_12);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblName, "Name:",         10, 45,  110, 20, FONT_ARIAL_12);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblConfig, "Config:",     10, 105, 110, 20, FONT_ARIAL_12);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblTemp, "Temp. Type:",   10, 130, 110, 20, FONT_ARIAL_12);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblFirmware, "Firmware:", 10, 165, 110, 20, FONT_ARIAL_12);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblIp, "IP Address:",     10, 190, 110, 20, FONT_ARIAL_12);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblWeb, "Oink Web:",      10, 215, 110, 20, FONT_ARIAL_12);
+
+D4D_CHAR str_name[31] = "";
+D4D_CHAR str_mode[10] = "";
+D4D_CHAR str_id[31] = "";
+D4D_CHAR str_config[5] = "";
+D4D_CHAR str_TempType[2] = "";
+D4D_CHAR str_Firmware[5] = "";
+D4D_CHAR str_IpAddress[16] = "";
+D4D_CHAR str_OinkWeb[16] = "";
+
+
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblName,     "Name:",       5, 45,  95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblMode,     "Mode:",       5, 65,  95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblId,       "Id:",         5, 85,  95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblConfig,   "Config:",     5, 105, 95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblTemp,     "Temp. Type:", 5, 130, 95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblFirmware, "Firmware:",   5, 165, 95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblIp,       "IP Address:", 5, 190, 95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblWeb,      "Oink Web:",   5, 215, 95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
+
+
+D4D_DECLARE_STD_LABEL(scrInfo_valName,     str_name,      110, 45,  200, 20, FONT_ARIAL_11);
+D4D_DECLARE_STD_LABEL(scrInfo_valMode,     str_mode,      110, 65,  200, 20, FONT_ARIAL_11);
+D4D_DECLARE_STD_LABEL(scrInfo_valId,       str_id,        110, 85,  200, 20, FONT_ARIAL_11);
+D4D_DECLARE_STD_LABEL(scrInfo_valConfig,   str_config,    110, 105, 200, 20, FONT_ARIAL_11);
+D4D_DECLARE_STD_LABEL(scrInfo_valTemp,     str_TempType,  110, 130, 200, 20, FONT_ARIAL_11);
+D4D_DECLARE_STD_LABEL(scrInfo_valFirmware, str_Firmware,  110, 165, 200, 20, FONT_ARIAL_11);
+D4D_DECLARE_STD_LABEL(scrInfo_valIp,       str_IpAddress, 110, 190, 200, 20, FONT_ARIAL_11);
+D4D_DECLARE_STD_LABEL(scrInfo_valWeb,      str_OinkWeb,   110, 215, 200, 20, FONT_ARIAL_11);
+
 
 
 D4D_DECLARE_STD_SCREEN_BEGIN(screen_info, ScreenInfo_)
@@ -53,7 +75,14 @@ D4D_DECLARE_STD_SCREEN_BEGIN(screen_info, ScreenInfo_)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblFirmware)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblIp)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblWeb)
-
+    D4D_DECLARE_SCREEN_OBJECT(scrInfo_valName)
+    D4D_DECLARE_SCREEN_OBJECT(scrInfo_valMode)
+    D4D_DECLARE_SCREEN_OBJECT(scrInfo_valId)
+    D4D_DECLARE_SCREEN_OBJECT(scrInfo_valConfig)
+    D4D_DECLARE_SCREEN_OBJECT(scrInfo_valTemp)
+    D4D_DECLARE_SCREEN_OBJECT(scrInfo_valFirmware)
+    D4D_DECLARE_SCREEN_OBJECT(scrInfo_valIp)
+    D4D_DECLARE_SCREEN_OBJECT(scrInfo_valWeb)
 D4D_DECLARE_SCREEN_END()    
 
 static void ScreenInfo_OnInit()

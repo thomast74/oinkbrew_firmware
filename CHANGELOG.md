@@ -6,4 +6,6 @@ v0.1
 - udp broadcast status message to make itself known to the Oink Brew web application
 - Application start shows startup screen with progress information
 - Application start will show a calibration screen if no calibration settings found in EEPROM
-
+- Implemented Information Screen with device information shown to user
+- Implemented Brew Screen that can show all temp sensors and also which temp sensor is the acting one
+- Load Device Information from EEPROM during startup

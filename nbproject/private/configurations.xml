@@ -289,6 +289,9 @@
         <in>Pins.h</in>
       </df>
       <df name="oinkbrew">
+        <in>Configuration.cpp</in>
+        <in>Configuration.h</in>
+        <in>DeviceInfo.h</in>
         <in>Helper.cpp</in>
         <in>Helper.h</in>
         <in>Screen.cpp</in>

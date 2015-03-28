@@ -27,10 +27,6 @@
 #ifndef SCREEN_H
 #define	SCREEN_H
 
-extern "C" {
-#include "d4d.h"
-}
-
 
 struct Screen {
     /**
