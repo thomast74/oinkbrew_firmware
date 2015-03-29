@@ -26,15 +26,10 @@
 #ifndef STATUSMESSAGE_H
 #define	STATUSMESSAGE_H
 
-#include "spark_wiring_ipaddress.h"
-#include "spark_wiring_print.h"
 
 class StatusMessage {
 public:
     static void send();
-private:
-    static String getLocalIPStr();
-    static IPAddress getBroadcastAddress();
 };
 
 extern StatusMessage status;

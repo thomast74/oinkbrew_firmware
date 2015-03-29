@@ -24,6 +24,7 @@
  */
 
 #include "Settings.h"
+#include "spark_wiring_ipaddress.h"
 
 
 const char OINK_BREW_VERSION[] = "0.1";
@@ -36,4 +37,5 @@ const short REMOTE_LISTENER_PORT = 7872;
 const short LOCAL_LISTENER_PORT = 7873;
 
 
-const unsigned long DURATION_MESSAGE = 300000;
+const unsigned long DURATION_RUN = 1000;
+const unsigned long DURATION_MESSAGE = 120000;

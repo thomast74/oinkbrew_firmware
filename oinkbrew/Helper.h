@@ -26,14 +26,20 @@
 #ifndef HELPER_H
 #define	HELPER_H
 
+
 #include "spark_wiring_string.h"
+#include "spark_wiring_ipaddress.h"
+
 
 class Helper {
-public:
+public:   
     static bool isDebug();
     static void serialDebug(const char* message, bool lineFeed = true);
+    static void serialDebug(int8_t message, bool lineFeed = true);
 
-    static String getLocalIPStr();
+    static IPAddress getLocalIp();
+    static IPAddress getBroadcastAddress();
+    static String getLocalIpStr();
 };
 
 extern Helper helper;

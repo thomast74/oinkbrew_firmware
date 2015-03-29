@@ -25,10 +25,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "StatusMessage.h"
+#include "DeviceInfo.h"
 #include "Helper.h"
 #include "Settings.h"
 #include "spark_wiring_udp.h"
 #include "spark_wiring_wifi.h"
+
 
 /*******************************************************************************
  * Function Name  : send
@@ -41,50 +43,33 @@ void StatusMessage::send() {
     
     if (!spark::WiFi.ready())
         return;
-
+    
     Helper::serialDebug("Create Json Status Message");
     String jsonMessage = "{\"device_id\":\"";
     jsonMessage.concat(Spark.deviceID().c_str());
     jsonMessage.concat("\",\"device_mode\":\"");
-    jsonMessage.concat("MANUAL");
+    jsonMessage.concat(reinterpret_cast<const char*>(deviceInfo.mode));
     jsonMessage.concat("\",\"device_config\":\"");
-    jsonMessage.concat("0.0");
+    jsonMessage.concat(reinterpret_cast<const char*>(deviceInfo.config));
     jsonMessage.concat("\", \"firmware_version\":\"");
     jsonMessage.concat(OINK_BREW_VERSION);
     jsonMessage.concat("\",\"board_revision\":\"");
     jsonMessage.concat(BREWPI_SPARK_REVISION);
     jsonMessage.concat("\",\"ip_address\":\"");
-    jsonMessage.concat(Helper::getLocalIPStr());
+    jsonMessage.concat(Helper::getLocalIpStr().c_str());
+    jsonMessage.concat("\",\"web_address\":\"");
+    jsonMessage.concat(reinterpret_cast<const char*>(deviceInfo.oinkWeb));
     jsonMessage.concat("\"}");
 
     Helper::serialDebug("Send status message");
     UDP udp;
     udp.begin(REMOTE_LISTENER_PORT);
-    udp.beginPacket(StatusMessage::getBroadcastAddress(), REMOTE_LISTENER_PORT);
+    udp.beginPacket(Helper::getBroadcastAddress(), REMOTE_LISTENER_PORT);
 
     udp.write(jsonMessage.c_str());
 
     udp.endPacket();
+    udp.stop();
+    
     Helper::serialDebug("Status message sent");
-}
-
-/*******************************************************************************
- * Function Name  : getBroadcastAddress
- * Description    : calculate the broadcast address from localIP and subnetmask
- * Input          : 
- * Output         : broadcast address as IPAddress
- * Return         : 
- ******************************************************************************/
-IPAddress StatusMessage::getBroadcastAddress()
-{
-    IPAddress local_ip = spark::WiFi.localIP();
-    IPAddress network_mask = spark::WiFi.subnetMask();
-    IPAddress broadcast_addr;
-    
-    int i;
-    for( i=0; i<=3; i++) {
-        broadcast_addr[i] = local_ip[i] | (~ network_mask[i]);
-    }
-    
-    return broadcast_addr;    
 }

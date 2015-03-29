@@ -1,3 +1,5 @@
+- receive RESET message to clear all configuration (except calibration)
+
 - get connected devices
 - send list of connected devices when requested via TCP
   (how do i detect Actuators? or are they just named)

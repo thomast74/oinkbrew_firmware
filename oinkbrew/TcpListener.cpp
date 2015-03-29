@@ -36,7 +36,6 @@ TCPServer server = TCPServer(LOCAL_LISTENER_PORT);
 TCPClient client;
 
 void TcpListener::init() {
-    Helper::serialDebug("Start TCP Server");
     server.begin();
 }
 
@@ -47,6 +46,8 @@ bool TcpListener::connected() {
     if (client.connected()) {
         if (client.available()) {
             needsScreenUpdate = processRequest(client.read());
+            client.flush();
+            client.stop();
         }
     } else {
         client = server.available();

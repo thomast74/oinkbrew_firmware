@@ -27,6 +27,12 @@
 #include "Helper.h"
 #include "spark_wiring_usbserial.h"
 #include "spark_wiring_wifi.h"
+#include "Settings.h"
+
+
+static IPAddress NO_IP = IPAddress(0, 0, 0, 0);
+static IPAddress LOCAL_ADDR = IPAddress(0, 0, 0, 0);
+static IPAddress BROADCAST_ADDR = IPAddress(0, 0, 0, 0);
 
 
 /*******************************************************************************
@@ -60,6 +66,15 @@ void Helper::serialDebug(const char* message, bool lineFeed) {
     }
 }
 
+void Helper::serialDebug(int8_t message, bool lineFeed) {
+    if (Helper::isDebug()) {
+        if (lineFeed)
+            Serial.println(message);
+        else
+            Serial.print(message);
+    }
+}
+
 /*******************************************************************************
  * Function Name  : getLocalIPStr
  * Description    : convert WiFi.localIP into a string
@@ -67,9 +82,27 @@ void Helper::serialDebug(const char* message, bool lineFeed) {
  * Output         : broadcast address as IPAddress
  * Return         : 
  ******************************************************************************/
-String Helper::getLocalIPStr()
+IPAddress Helper::getLocalIp()
 {
-    uint8_t* address = spark::WiFi.localIP().raw_address();
+    if (LOCAL_ADDR == NO_IP) 
+    {
+        LOCAL_ADDR = spark::WiFi.localIP();
+    }
+    
+    return LOCAL_ADDR;
+}
+
+
+/*******************************************************************************
+ * Function Name  : getLocalIPStr
+ * Description    : convert WiFi.localIP into a string
+ * Input          : 
+ * Output         : broadcast address as IPAddress
+ * Return         : 
+ ******************************************************************************/
+String Helper::getLocalIpStr()
+{
+    uint8_t* address = getLocalIp().raw_address();        
     
     String ipAddressStr = "";
     ipAddressStr.concat(address[0]);
@@ -81,4 +114,25 @@ String Helper::getLocalIPStr()
     ipAddressStr.concat(address[3]);
     
     return ipAddressStr;
+}
+
+/*******************************************************************************
+ * Function Name  : getBroadcastAddress
+ * Description    : calculate the broadcast address from localIP and subnetmask
+ * Input          : 
+ * Output         : broadcast address as IPAddress
+ * Return         : 
+ ******************************************************************************/
+IPAddress Helper::getBroadcastAddress()
+{
+    if (BROADCAST_ADDR == NO_IP) {
+        IPAddress network_mask = spark::WiFi.subnetMask();
+
+        int i;
+        for( i=0; i<=3; i++) {
+            BROADCAST_ADDR[i] = getLocalIp()[i] | (~ network_mask[i]);
+        }
+    }
+    
+    return BROADCAST_ADDR;
 }

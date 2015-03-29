@@ -30,7 +30,7 @@
 struct DeviceInfo {
     unsigned char name[31] = "";
     unsigned char mode[10] = "MANUAL";
-    unsigned char config[5] = "";
+    unsigned char config[9] = "";
     unsigned char tempType[2] = "C";
     unsigned char oinkWeb[16] = "";
 };

@@ -114,7 +114,7 @@
 
 //#define D4D_UNICODE                   // Enables Unicode support
 
-#define D4D_SCREEN_HISTORY 5         // This option define depth of history of screens
+#define D4D_SCREEN_HISTORY 2         // This option define depth of history of screens
 
 #define D4D_SCREEN_SIZE_LONGER_SIDE  320  // The maximum resolution of longer longer side of physical LCD
 

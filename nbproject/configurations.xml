@@ -245,8 +245,6 @@
         <in>StatusMessage.h</in>
         <in>TcpListener.cpp</in>
         <in>TcpListener.h</in>
-        <in>Version.cpp</in>
-        <in>Version.h</in>
         <in>application.cpp</in>
         <in>d4d_user_cfg_app.h</in>
       </df>
@@ -1038,10 +1036,6 @@
       </item>
       <item path="oinkbrew/TcpListener.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="oinkbrew/Version.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="oinkbrew/Version.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="oinkbrew/application.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="oinkbrew/d4d_user_cfg_app.h" ex="false" tool="3" flavor2="0">
@@ -1810,10 +1804,6 @@
       <item path="oinkbrew/TcpListener.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="oinkbrew/TcpListener.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="oinkbrew/Version.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="oinkbrew/Version.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="oinkbrew/application.cpp" ex="false" tool="1" flavor2="0">
       </item>

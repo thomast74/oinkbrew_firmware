@@ -40,10 +40,11 @@ void applicationInit();
 void wifiInit();
 
 
-SYSTEM_MODE(MANUAL);
+static unsigned long lastStatus = -1000;
+static unsigned long lastStatusMessage = -121000;
 
-/* Global Variables ----------------------------------------------------------*/
-static unsigned long lastStatusMessage = -295000;
+
+SYSTEM_MODE(MANUAL);
 
 
 Configuration conf;
@@ -87,22 +88,26 @@ void setup()
  ******************************************************************************/
 void loop()
 {
-    // send status message every 5 minutes
+     // update screen and check for touch input
+    screen.ticks();    
+   
+    if((millis() - lastStatus) >= DURATION_RUN)
+    {
+        lastStatus = millis();
+        
+        // check for client connectivity
+        if (listener.connected())
+        {
+            screen.update();
+        }
+    }
+
     if((millis() - lastStatusMessage) >= DURATION_MESSAGE)
     {
         Helper::serialDebug("Loop wants to send status message");
         lastStatusMessage = millis();
         StatusMessage::send();
-    }
-    
-    // check for client connectivity
-    if (listener.connected())
-    {
-        screen.update();
-    }
-    
-    // update screen and check for touch input
-    screen.ticks();    
+    }    
 }
 
 /*******************************************************************************
@@ -147,5 +152,6 @@ void wifiInit()
         delay(500);
     }
     
+    delay(1000);        
     screen.printStatusMessage("WiFi ready");
 }

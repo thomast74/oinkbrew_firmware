@@ -95,7 +95,7 @@ static void ScreenInfo_OnMain()
 
 static void ScreenInfo_OnActivate()
 {
-    changeMenuButtonState((D4D_OBJECT*)&scr_btnInfo, D4D_TRUE, "i");
+    changeMenuButtonState((D4D_OBJECT*)&scr_btnInfo, D4D_TRUE, "Info");
     changeMenuButtonState((D4D_OBJECT*)&scr_btnBrew, D4D_FALSE, "Brew");
     changeMenuButtonState((D4D_OBJECT*)&scr_btnFerm1, D4D_FALSE, "Ferm 1");
     changeMenuButtonState((D4D_OBJECT*)&scr_btnFerm2, D4D_FALSE, "Ferm 2");

@@ -123,7 +123,7 @@ void updateInformationScreen() {
     updateLabel((D4D_OBJECT*)&scrInfo_valConfig, (D4D_CHAR*)deviceInfo.config);
     updateLabel((D4D_OBJECT*)&scrInfo_valTemp, (D4D_CHAR*)deviceInfo.tempType);
     updateLabel((D4D_OBJECT*)&scrInfo_valFirmware, (D4D_CHAR*)OINK_BREW_VERSION);
-    updateLabel((D4D_OBJECT*)&scrInfo_valIp, (D4D_CHAR*)Helper::getLocalIPStr().c_str());
+    updateLabel((D4D_OBJECT*)&scrInfo_valIp, (D4D_CHAR*)Helper::getLocalIpStr().c_str());
     updateLabel((D4D_OBJECT*)&scrInfo_valWeb, (D4D_CHAR*)deviceInfo.oinkWeb);    
 }
 

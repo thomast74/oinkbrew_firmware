@@ -126,7 +126,7 @@ static void ScreenBrew_OnMain()
 
 static void ScreenBrew_OnActivate()
 {
-    changeMenuButtonState((D4D_OBJECT*)&scr_btnInfo, D4D_FALSE, "i");
+    changeMenuButtonState((D4D_OBJECT*)&scr_btnInfo, D4D_FALSE, "Info");
     changeMenuButtonState((D4D_OBJECT*)&scr_btnBrew, D4D_TRUE, "Brew");
     changeMenuButtonState((D4D_OBJECT*)&scr_btnFerm1, D4D_FALSE, "Ferm 1");
     changeMenuButtonState((D4D_OBJECT*)&scr_btnFerm2, D4D_FALSE, "Ferm 2");    
