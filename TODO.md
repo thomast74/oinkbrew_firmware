@@ -1,4 +1,4 @@
-- receive RESET message to clear all configuration (except calibration)
+- allow to set mode of the device
 
 - get connected devices
 - send list of connected devices when requested via TCP
