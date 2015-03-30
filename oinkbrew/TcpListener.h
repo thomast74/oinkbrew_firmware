@@ -33,6 +33,7 @@ public:
     void init();
     bool connected();
 private:
+    void resetSettings();
     bool processRequest(char action);
 
     

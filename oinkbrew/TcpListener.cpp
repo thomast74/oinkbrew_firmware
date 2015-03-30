@@ -63,10 +63,14 @@ bool TcpListener::processRequest(char action) {
         case '\n':
         case '\r':
             break;
-            // status message receiving
+        // status message receiving
         case 'd':
             parseJson(&TcpListener::processDeviceInfo, NULL);
             conf.storeDeviceInfo();
+            return true;
+        // reset device settings to default values
+        case 'r':
+            resetSettings();
             return true;
     }
     
@@ -84,6 +88,15 @@ void TcpListener::processDeviceInfo(const char * key, const char * val, void* pv
         memcpy(&deviceInfo.tempType, val, strlen(val) + 1);
     else if (strcmp(key, "oinkweb") == 0)
         memcpy(&deviceInfo.oinkWeb, val, strlen(val) + 1);
+}
+
+void TcpListener::resetSettings() {
+    memcpy(&deviceInfo.name, "", 1);
+    memcpy(&deviceInfo.mode, "MANUAL", 7);
+    memcpy(&deviceInfo.config, "", 1);
+    memcpy(&deviceInfo.tempType, "C", 2);
+    memcpy(&deviceInfo.oinkWeb, "", 1);
+    conf.storeDeviceInfo();
 }
 
 void TcpListener::parseJson(ParseJsonCallback fn, void* data) {
