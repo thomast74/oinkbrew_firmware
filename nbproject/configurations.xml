@@ -258,6 +258,7 @@
         <in>startup_screen.c</in>
         <in>startup_screen.h</in>
       </df>
+      <in>DOCS-LISTENER.md</in>
     </df>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -312,6 +313,8 @@
           </ccTool>
         </makeTool>
       </makefileType>
+      <item path="DOCS-LISTENER.md" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="modules/Actuator.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="modules/Adafruit_ILI9341/Adafruit_ILI9341.cpp"
@@ -1081,6 +1084,8 @@
           </ccTool>
         </makeTool>
       </makefileType>
+      <item path="DOCS-LISTENER.md" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="modules/Actuator.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="modules/Adafruit_ILI9341/Adafruit_ILI9341.cpp"

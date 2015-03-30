@@ -11,3 +11,4 @@ v0.1
 - Load Device Information from EEPROM during startup
 - Receive Device Information via TCP, stored in EEPROM and refresh screen with active information
 - Receive Reset via TCP, reset all Device Info to default values and update EEPROM
+- Receive new device mode [MANUAL,LOGGING,AUTOMATIC] to let device act with different behaviour

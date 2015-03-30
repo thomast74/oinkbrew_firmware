@@ -46,6 +46,7 @@ private:
 
     
     static void processDeviceInfo(const char * key, const char * val, void* pv);
+    static void setDeviceMode(const char * key, const char * val, void* pv);
     
 };
 

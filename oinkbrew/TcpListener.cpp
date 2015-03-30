@@ -72,6 +72,10 @@ bool TcpListener::processRequest(char action) {
         case 'r':
             resetSettings();
             return true;
+        // set device mode
+        case 'm':
+            parseJson(&TcpListener::processDeviceInfo, NULL);
+            return true;
     }
     
     return false;
@@ -88,6 +92,13 @@ void TcpListener::processDeviceInfo(const char * key, const char * val, void* pv
         memcpy(&deviceInfo.tempType, val, strlen(val) + 1);
     else if (strcmp(key, "oinkweb") == 0)
         memcpy(&deviceInfo.oinkWeb, val, strlen(val) + 1);
+}
+
+void TcpListener::setDeviceMode(const char * key, const char * val, void* pv) {
+    if (strcmp(key, "mode") == 0 && (strcmp(val, "MANUAL") == 0 || strcmp(val, "LOGGING") == 0 || strcmp(val, "AUTOMATIC") == 0)) {
+        memcpy(&deviceInfo.mode, val, strlen(val) + 1);
+        conf.storeDeviceInfo();
+    }    
 }
 
 void TcpListener::resetSettings() {
