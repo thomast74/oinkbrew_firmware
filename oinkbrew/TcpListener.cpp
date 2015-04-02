@@ -30,6 +30,15 @@
 #include "Settings.h"
 #include "spark_wiring_tcpclient.h"
 #include "spark_wiring_tcpserver.h"
+#include "rgbled.h"
+#include <stdint.h>
+
+
+extern "C" {
+#include "ota_flash_hal.h"
+}
+
+#define MAX_DATA_BYTES 4096
 
 
 TCPServer server = TCPServer(LOCAL_LISTENER_PORT);
@@ -76,6 +85,10 @@ bool TcpListener::processRequest(char action) {
         case 'm':
             parseJson(&TcpListener::processDeviceInfo, NULL);
             return true;
+        // receive new firmware
+        case 'f':
+            updateFirmware();
+            break;
     }
     
     return false;
@@ -109,6 +122,79 @@ void TcpListener::resetSettings() {
     memcpy(&deviceInfo.oinkWeb, "", 1);
     conf.storeDeviceInfo();
 }
+
+void TcpListener::updateFirmware() {
+    
+        
+    begin_flash_file(1, HAL_OTA_FlashAddress(), 120000);
+    
+    byte buffer[MAX_DATA_BYTES+1];        
+    int available = client.available();
+
+    while (available > 0) {        
+        int bytesRead = 0;
+
+        for (int i = 0; i < available && i < MAX_DATA_BYTES - bytesRead; i++) {
+            buffer[bytesRead++] = client.read();
+        }
+        buffer[bytesRead+1] = '\0';
+                
+        if (bytesRead >= 0) {
+            save_flash_file_chunk(buffer, bytesRead);        
+            client.write("!");
+            
+            available = client.available();            
+            
+            uint32_t startTime = millis();
+            while(available == 0 && (millis() - startTime) < 5000);
+
+            available = client.available();                        
+        }
+        else {
+            available = 0;
+        }
+       
+        if (available == 0) {
+            client.write("-");
+        }        
+    }        
+    
+    finish_flash_file();
+}
+
+void TcpListener::begin_flash_file(int flashType, uint32_t sFlashAddress, uint32_t fileSize) 
+{
+    RGB.control(true);
+    RGB.color(RGB_COLOR_MAGENTA);
+
+    TimingFlashUpdateTimeout = 0;
+    HAL_FLASH_Begin(sFlashAddress, fileSize);  
+   
+    client.write("!");
+    
+    uint32_t startTime = millis();
+    while((millis() - startTime) < 100);
+}
+
+uint16_t TcpListener::save_flash_file_chunk(unsigned char *buf, uint32_t buflen) {
+    uint16_t chunkUpdatedIndex;
+
+    TimingFlashUpdateTimeout = 0;
+    chunkUpdatedIndex = HAL_FLASH_Update(buf, buflen);
+
+    return chunkUpdatedIndex;    
+}
+
+void TcpListener::finish_flash_file() 
+{
+    RGB.color(RGB_COLOR_CYAN);
+    
+    HAL_FLASH_End();
+    
+    RGB.control(false);
+}
+
+
 
 void TcpListener::parseJson(ParseJsonCallback fn, void* data) {
     char key[30];
@@ -154,12 +240,11 @@ bool TcpListener::parseJsonToken(char* val) {
 int TcpListener::readNext() {
     uint8_t retries = 0;
     while (client.available() == 0) {
-        delay(100);
+        delay(50);
         retries++;
-        if (retries >= 10) {
+        if (retries >= 20) {
             return -1;
         }
     }
     return client.read();
 }
-

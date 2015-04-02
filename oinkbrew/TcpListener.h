@@ -28,6 +28,10 @@
 #define	TCPLISTENER_H
 
 
+#include <stddef.h>
+#include <stdint.h>
+
+
 class TcpListener {
 public:
     void init();
@@ -35,7 +39,12 @@ public:
 private:
     void resetSettings();
     bool processRequest(char action);
-
+    
+    void updateFirmware();
+    void begin_flash_file(int flashType, uint32_t sFlashAddress, uint32_t fileSize);
+    uint16_t save_flash_file_chunk(unsigned char *buf, uint32_t buflen);
+    void finish_flash_file();
+    
     
     typedef void (*ParseJsonCallback)(const char* key, const char* val, void* data);
 
@@ -43,7 +52,6 @@ private:
     void parseJson(ParseJsonCallback fn, void* data);
     bool parseJsonToken(char* val);
     int readNext();
-
     
     static void processDeviceInfo(const char * key, const char * val, void* pv);
     static void setDeviceMode(const char * key, const char * val, void* pv);
