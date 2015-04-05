@@ -47,7 +47,9 @@ void StatusMessage::send() {
     Helper::serialDebug("Create Json Status Message");
     String jsonMessage = "{\"device_id\":\"";
     jsonMessage.concat(Spark.deviceID().c_str());
-    jsonMessage.concat("\",\"device_mode\":\"");
+    jsonMessage.concat("\",\"datetime\":");
+    jsonMessage.concat(Time.now());
+    jsonMessage.concat(",\"device_mode\":\"");
     jsonMessage.concat(reinterpret_cast<const char*>(sparkInfo.mode));
     jsonMessage.concat("\",\"device_config\":\"");
     jsonMessage.concat(reinterpret_cast<const char*>(sparkInfo.config));

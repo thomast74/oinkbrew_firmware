@@ -12,3 +12,6 @@ v0.1
 - Receive Device Information via TCP, stored in EEPROM and refresh screen with active information
 - Receive Reset via TCP, reset all Device Info to default values and update EEPROM
 - Receive new device mode [MANUAL,LOGGING,AUTOMATIC] to let device act with different behaviour
+- Send by request all connected devices (OneWire Sensors and Actuators) in Json format
+- Send current date time as part of the status broadcast messages
+- Receive and set the oink web server date time as part of the Spark Info message

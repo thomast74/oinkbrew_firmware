@@ -109,6 +109,9 @@ void TcpListener::processSparkInfo(const char * key, const char * val, void* pv)
         memcpy(&sparkInfo.tempType, val, strlen(val) + 1);
     else if (strcmp(key, "oinkweb") == 0)
         memcpy(&sparkInfo.oinkWeb, val, strlen(val) + 1);
+    else if (strcmp(key, "datetime") == 0) {
+    	Time.setTime(atoi (val));
+    }
 }
 
 void TcpListener::setDeviceMode(const char * key, const char * val, void* pv) {
