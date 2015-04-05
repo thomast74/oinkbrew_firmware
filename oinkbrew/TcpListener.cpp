@@ -25,14 +25,14 @@
 
 #include "TcpListener.h"
 #include "Configuration.h"
-#include "DeviceInfo.h"
+#include "devices/DeviceManager.h"
 #include "Helper.h"
 #include "Settings.h"
+#include "SparkInfo.h"
 #include "spark_wiring_tcpclient.h"
 #include "spark_wiring_tcpserver.h"
 #include "rgbled.h"
 #include <stdint.h>
-
 
 extern "C" {
 #include "ota_flash_hal.h"
@@ -51,7 +51,7 @@ void TcpListener::init() {
 bool TcpListener::connected() {
 
     bool needsScreenUpdate = false;
-    
+
     if (client.connected()) {
         if (client.available()) {
             needsScreenUpdate = processRequest(client.read());
@@ -61,7 +61,7 @@ bool TcpListener::connected() {
     } else {
         client = server.available();
     }
-    
+
     return needsScreenUpdate;
 }
 
@@ -72,108 +72,110 @@ bool TcpListener::processRequest(char action) {
         case '\n':
         case '\r':
             break;
-        // status message receiving
-        case 'd':
-            parseJson(&TcpListener::processDeviceInfo, NULL);
-            conf.storeDeviceInfo();
-            return true;
-        // reset device settings to default values
-        case 'r':
-            resetSettings();
-            return true;
-        // set device mode
-        case 'm':
-            parseJson(&TcpListener::processDeviceInfo, NULL);
-            return true;
-        // receive new firmware
+		// request the device list
+		case 'd':
+			deviceManager.printDeviceList(client);
+			break;
+		// receive new firmware
         case 'f':
             updateFirmware();
             break;
+        // receive and set device mode
+        case 'm':
+            parseJson(&TcpListener::processSparkInfo, NULL);
+            return true;
+        // reset settings
+        case 'r':
+            resetSettings();
+            return true;
+		// receive and process spark info
+		case 's':
+			parseJson(&TcpListener::processSparkInfo, NULL);
+			conf.storeSparkInfo();
+			return true;
     }
-    
+
     return false;
 }
 
-void TcpListener::processDeviceInfo(const char * key, const char * val, void* pv) {
+void TcpListener::processSparkInfo(const char * key, const char * val, void* pv) {
     if (strcmp(key, "name") == 0)
-        memcpy(&deviceInfo.name, val, strlen(val) + 1);
+        memcpy(&sparkInfo.name, val, strlen(val) + 1);
     else if (strcmp(key, "mode") == 0)
-        memcpy(&deviceInfo.mode, val, strlen(val) + 1);
+        memcpy(&sparkInfo.mode, val, strlen(val) + 1);
     else if (strcmp(key, "config") == 0)
-        memcpy(&deviceInfo.config, val, strlen(val) + 1);
+        memcpy(&sparkInfo.config, val, strlen(val) + 1);
     else if (strcmp(key, "tempType") == 0)
-        memcpy(&deviceInfo.tempType, val, strlen(val) + 1);
+        memcpy(&sparkInfo.tempType, val, strlen(val) + 1);
     else if (strcmp(key, "oinkweb") == 0)
-        memcpy(&deviceInfo.oinkWeb, val, strlen(val) + 1);
+        memcpy(&sparkInfo.oinkWeb, val, strlen(val) + 1);
 }
 
 void TcpListener::setDeviceMode(const char * key, const char * val, void* pv) {
     if (strcmp(key, "mode") == 0 && (strcmp(val, "MANUAL") == 0 || strcmp(val, "LOGGING") == 0 || strcmp(val, "AUTOMATIC") == 0)) {
-        memcpy(&deviceInfo.mode, val, strlen(val) + 1);
-        conf.storeDeviceInfo();
-    }    
+        memcpy(&sparkInfo.mode, val, strlen(val) + 1);
+        conf.storeSparkInfo();
+    }
 }
 
 void TcpListener::resetSettings() {
-    memcpy(&deviceInfo.name, "", 1);
-    memcpy(&deviceInfo.mode, "MANUAL", 7);
-    memcpy(&deviceInfo.config, "", 1);
-    memcpy(&deviceInfo.tempType, "C", 2);
-    memcpy(&deviceInfo.oinkWeb, "", 1);
-    conf.storeDeviceInfo();
+    memcpy(&sparkInfo.name, "", 1);
+    memcpy(&sparkInfo.mode, "MANUAL", 7);
+    memcpy(&sparkInfo.config, "", 1);
+    memcpy(&sparkInfo.tempType, "C", 2);
+    memcpy(&sparkInfo.oinkWeb, "", 1);
+    conf.storeSparkInfo();
 }
 
 void TcpListener::updateFirmware() {
-    
-        
+
+
     begin_flash_file(1, HAL_OTA_FlashAddress(), 120000);
-    
-    byte buffer[MAX_DATA_BYTES+1];        
+
+    byte buffer[MAX_DATA_BYTES + 1];
     int available = client.available();
 
-    while (available > 0) {        
+    while (available > 0) {
         int bytesRead = 0;
 
         for (int i = 0; i < available && i < MAX_DATA_BYTES - bytesRead; i++) {
             buffer[bytesRead++] = client.read();
         }
-        buffer[bytesRead+1] = '\0';
-                
-        if (bytesRead >= 0) {
-            save_flash_file_chunk(buffer, bytesRead);        
-            client.write("!");
-            
-            available = client.available();            
-            
-            uint32_t startTime = millis();
-            while(available == 0 && (millis() - startTime) < 5000);
+        buffer[bytesRead + 1] = '\0';
 
-            available = client.available();                        
-        }
-        else {
+        if (bytesRead >= 0) {
+            save_flash_file_chunk(buffer, bytesRead);
+            client.write("!");
+
+            available = client.available();
+
+            uint32_t startTime = millis();
+            while (available == 0 && (millis() - startTime) < 5000);
+
+            available = client.available();
+        } else {
             available = 0;
         }
-       
+
         if (available == 0) {
             client.write("-");
-        }        
-    }        
-    
+        }
+    }
+
     finish_flash_file();
 }
 
-void TcpListener::begin_flash_file(int flashType, uint32_t sFlashAddress, uint32_t fileSize) 
-{
+void TcpListener::begin_flash_file(int flashType, uint32_t sFlashAddress, uint32_t fileSize) {
     RGB.control(true);
     RGB.color(RGB_COLOR_MAGENTA);
 
     TimingFlashUpdateTimeout = 0;
-    HAL_FLASH_Begin(sFlashAddress, fileSize);  
-   
+    HAL_FLASH_Begin(sFlashAddress, fileSize);
+
     client.write("!");
-    
+
     uint32_t startTime = millis();
-    while((millis() - startTime) < 100);
+    while ((millis() - startTime) < 100);
 }
 
 uint16_t TcpListener::save_flash_file_chunk(unsigned char *buf, uint32_t buflen) {
@@ -182,19 +184,16 @@ uint16_t TcpListener::save_flash_file_chunk(unsigned char *buf, uint32_t buflen)
     TimingFlashUpdateTimeout = 0;
     chunkUpdatedIndex = HAL_FLASH_Update(buf, buflen);
 
-    return chunkUpdatedIndex;    
+    return chunkUpdatedIndex;
 }
 
-void TcpListener::finish_flash_file() 
-{
+void TcpListener::finish_flash_file() {
     RGB.color(RGB_COLOR_CYAN);
-    
+
     HAL_FLASH_End();
-    
+
     RGB.control(false);
 }
-
-
 
 void TcpListener::parseJson(ParseJsonCallback fn, void* data) {
     char key[30];

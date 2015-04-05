@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    DeviceInfo.h
+ * @file    Device.h
  * @authors Thomas Trageser
  * @version V0.1
- * @date    2015-03-27
+ * @date    2015-04-03
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
   Copyright (c) 2015 Oink Brew;  All rights reserved.
@@ -24,24 +24,36 @@
  */
 
 
-#ifndef CONFIGURATION_H
-#define	CONFIGURATION_H
-
-#include "flashee-eeprom.h"
+#ifndef DEVICE_H
+#define	DEVICE_H
 
 
-class Configuration {
-public:
-    static void init();
-    static bool loadDeviceInfo();
-    static void storeSparkInfo();
-    static bool loadEguiSettings();
-    static void storeEguiSettings();
+#include <stdint.h>
 
-    static void clear(uint8_t* p, uint8_t size);
+
+typedef uint8_t DeviceAddress[8];
+
+
+enum DeviceType : uint8_t {
+	DEVICE_HARDWARE_NONE=0,
+	DEVICE_HARDWARE_PIN=1,				// a digital pin, either input or output
+	DEVICE_HARDWARE_ONEWIRE_TEMP=2,		// a onewire temperature sensor
 };
 
-extern Configuration conf;
 
-#endif	/* CONFIGURATION_H */
+struct Device {
 
+	DeviceType type;
+	char value[10];
+
+	struct Hardware {
+		uint8_t pin_nr;			// the arduino pin nr this device is connected to
+		DeviceAddress address;	// for onewire devices, if address[0]==0 then use the first matching device type, otherwise use the device with the specific address
+		int32_t offset;			// calibrated offset for temperatur sensor
+		bool is_invert;			// for actuators/sensors, controls if the signal value is inverted.
+		bool is_deactivate;		// In case device is deactivated. no logging or data collection will be done
+	} hardware;
+
+};
+
+#endif	/* DEVICE_H */

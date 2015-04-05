@@ -45,7 +45,6 @@ private:
     uint16_t save_flash_file_chunk(unsigned char *buf, uint32_t buflen);
     void finish_flash_file();
     
-    
     typedef void (*ParseJsonCallback)(const char* key, const char* val, void* data);
 
     
@@ -53,7 +52,7 @@ private:
     bool parseJsonToken(char* val);
     int readNext();
     
-    static void processDeviceInfo(const char * key, const char * val, void* pv);
+    static void processSparkInfo(const char * key, const char * val, void* pv);
     static void setDeviceMode(const char * key, const char * val, void* pv);
     
 };

@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    DeviceInfo.h
+ * @file    DeviceManager.cpp
  * @authors Thomas Trageser
  * @version V0.1
- * @date    2015-03-27
+ * @date    2015-04-03
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
   Copyright (c) 2015 Oink Brew;  All rights reserved.
@@ -24,24 +24,21 @@
  */
 
 
-#ifndef CONFIGURATION_H
-#define	CONFIGURATION_H
+#ifndef OINKBREW_PLATFORM_H_
+#define OINKBREW_PLATFORM_H_
 
-#include "flashee-eeprom.h"
+#include <stdio.h>
 
 
-class Configuration {
-public:
-    static void init();
-    static bool loadDeviceInfo();
-    static void storeSparkInfo();
-    static bool loadEguiSettings();
-    static void storeEguiSettings();
+#define strcpy_P strcpy
+#define strlcpy_P strncpy
+#define sprintf_P sprintf
+#define strcmp_P strcmp
+#define memcpy_P memcpy
+#define vsnprintf_P vsnprintf
+#define PROGMEM
+#define PSTR
+#define pgm_read_byte(x)  (*(x))
 
-    static void clear(uint8_t* p, uint8_t size);
-};
 
-extern Configuration conf;
-
-#endif	/* CONFIGURATION_H */
-
+#endif /* OINKBREW_PLATFORM_H_ */

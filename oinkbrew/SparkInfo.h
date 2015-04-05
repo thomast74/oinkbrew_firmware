@@ -24,10 +24,10 @@
  */
 
 
-#ifndef DEVICEINFO_H
-#define	DEVICEINFO_H
+#ifndef SPARKINFO_H
+#define	SPARKINFO_H
 
-struct DeviceInfo {
+struct SparkInfo {
     unsigned char name[31] = "";
     unsigned char mode[10] = "MANUAL";
     unsigned char config[9] = "";
@@ -35,7 +35,7 @@ struct DeviceInfo {
     unsigned char oinkWeb[16] = "";
 };
 
-extern DeviceInfo deviceInfo;
+extern SparkInfo sparkInfo;
 
-#endif	/* DEVICEINFO_H */
+#endif	/* SPARKINFO_H */
 

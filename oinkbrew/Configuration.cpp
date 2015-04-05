@@ -25,7 +25,8 @@
 
 
 #include "Configuration.h"
-#include "DeviceInfo.h"
+
+#include "SparkInfo.h"
 
 extern "C" {
 #include "d4d.h"
@@ -36,6 +37,8 @@ extern "C" {
 #define EEPROM_EGUI_SETTINGS_START_BLOCK 32
 #define EEPROM_EGUI_SETTINGS_END_BLOCK 36
 
+static Flashee::FlashDevice* deviceInfoFlash;
+static Flashee::FlashDevice* eguiFlash;
 
 
 /*******************************************************************************
@@ -45,10 +48,10 @@ extern "C" {
  * Output         : 
  * Return         : 
  ******************************************************************************/
-Configuration::Configuration() {
-    deviceInfoFlash = Flashee::Devices::createAddressErase(4096 * EEPROM_DEVICE_INFO_START_BLOCK, 4096 * EEPROM_DEVICE_INFO_END_BLOCK);
-    eguiFlash = Flashee::Devices::createAddressErase(4096 * EEPROM_EGUI_SETTINGS_START_BLOCK, 4096 * EEPROM_EGUI_SETTINGS_END_BLOCK);
-};
+void Configuration::init() {
+	deviceInfoFlash = Flashee::Devices::createAddressErase(4096 * EEPROM_DEVICE_INFO_START_BLOCK, 4096 * EEPROM_DEVICE_INFO_END_BLOCK);
+	eguiFlash = Flashee::Devices::createAddressErase(4096 * EEPROM_EGUI_SETTINGS_START_BLOCK, 4096 * EEPROM_EGUI_SETTINGS_END_BLOCK);
+}
 
 /*******************************************************************************
  * Function Name  : loadDeviceInfo
@@ -58,11 +61,11 @@ Configuration::Configuration() {
  * Return         : 
  ******************************************************************************/
 bool Configuration::loadDeviceInfo() {
-   if (deviceInfoFlash->read(&deviceInfo, 0, sizeof(DeviceInfo)))
+   if (deviceInfoFlash->read(&sparkInfo, 0, sizeof(SparkInfo)))
         return true;
    else
         return false;
-};
+}
 
 /*******************************************************************************
  * Function Name  : storeDeviceInfo
@@ -71,8 +74,8 @@ bool Configuration::loadDeviceInfo() {
  * Output         : 
  * Return         : 
  ******************************************************************************/
-void Configuration::storeDeviceInfo() {
-    deviceInfoFlash->write(&deviceInfo, 0, sizeof (DeviceInfo));
+void Configuration::storeSparkInfo() {
+    deviceInfoFlash->write(&sparkInfo, 0, sizeof (SparkInfo));
 }
 
 /*******************************************************************************
@@ -91,7 +94,7 @@ bool Configuration::loadEguiSettings() {
     }
     D4D_TCH_SetCalibration(calib);
     return true;
-};
+}
 
 /*******************************************************************************
  * Function Name  : storeEguiSettings
@@ -103,4 +106,15 @@ bool Configuration::loadEguiSettings() {
 void Configuration::storeEguiSettings() {
     D4D_TOUCHSCREEN_CALIB calib = D4D_TCH_GetCalibration();
     eguiFlash->write(&calib, 0, sizeof (D4D_TOUCHSCREEN_CALIB));
-};
+}
+
+/*******************************************************************************
+ * Function Name  : clear
+ * Description    : clear variable of values
+ * Input          :
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void Configuration::clear(uint8_t* p, uint8_t size) {
+	while (size-->0) *p++ = 0;
+}

@@ -31,7 +31,7 @@
 #include "Settings.h"
 #include "StatusMessage.h"
 #include "Screen.h"
-#include "DeviceInfo.h"
+#include "SparkInfo.h"
 #include "TcpListener.h"
 
 
@@ -47,8 +47,7 @@ static unsigned long lastStatusMessage = -121000;
 SYSTEM_MODE(MANUAL);
 
 
-Configuration conf;
-DeviceInfo deviceInfo;
+SparkInfo sparkInfo;
 TcpListener listener;
 
 
@@ -67,6 +66,8 @@ void setup()
         delay(2000);
     }
     
+    conf.init();
+
     screen.init();
     screen.showStartupScreen();
     

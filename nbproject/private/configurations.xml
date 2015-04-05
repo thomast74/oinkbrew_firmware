@@ -287,15 +287,30 @@
         <in>Pins.h</in>
       </df>
       <df name="oinkbrew">
+        <df name="devices">
+          <in>DS2482.cpp</in>
+          <in>DS2482.h</in>
+          <in>DallasTemperature.cpp</in>
+          <in>DallasTemperature.h</in>
+          <in>Device.h</in>
+          <in>DeviceManager.cpp</in>
+          <in>DeviceManager.h</in>
+          <in>OneWire.cpp</in>
+          <in>OneWire.h</in>
+          <in>OneWireImpl.h</in>
+          <in>OneWireLowLevelInterface.h</in>
+        </df>
         <in>Configuration.cpp</in>
         <in>Configuration.h</in>
         <in>DeviceInfo.h</in>
         <in>Helper.cpp</in>
         <in>Helper.h</in>
+        <in>Platform.h</in>
         <in>Screen.cpp</in>
         <in>Screen.h</in>
         <in>Settings.cpp</in>
         <in>Settings.h</in>
+        <in>SparkInfo.h</in>
         <in>StatusMessage.cpp</in>
         <in>StatusMessage.h</in>
         <in>TcpListener.cpp</in>
@@ -411,6 +426,8 @@
             </df>
           </df>
           <df name="oinkbrew">
+            <df name="devices">
+            </df>
           </df>
           <df name="screens">
           </df>

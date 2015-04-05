@@ -25,11 +25,11 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "StatusMessage.h"
-#include "DeviceInfo.h"
 #include "Helper.h"
 #include "Settings.h"
 #include "spark_wiring_udp.h"
 #include "spark_wiring_wifi.h"
+#include "SparkInfo.h"
 
 
 /*******************************************************************************
@@ -48,9 +48,9 @@ void StatusMessage::send() {
     String jsonMessage = "{\"device_id\":\"";
     jsonMessage.concat(Spark.deviceID().c_str());
     jsonMessage.concat("\",\"device_mode\":\"");
-    jsonMessage.concat(reinterpret_cast<const char*>(deviceInfo.mode));
+    jsonMessage.concat(reinterpret_cast<const char*>(sparkInfo.mode));
     jsonMessage.concat("\",\"device_config\":\"");
-    jsonMessage.concat(reinterpret_cast<const char*>(deviceInfo.config));
+    jsonMessage.concat(reinterpret_cast<const char*>(sparkInfo.config));
     jsonMessage.concat("\", \"firmware_version\":\"");
     jsonMessage.concat(OINK_BREW_VERSION);
     jsonMessage.concat("\",\"board_revision\":\"");
@@ -58,7 +58,7 @@ void StatusMessage::send() {
     jsonMessage.concat("\",\"ip_address\":\"");
     jsonMessage.concat(Helper::getLocalIpStr().c_str());
     jsonMessage.concat("\",\"web_address\":\"");
-    jsonMessage.concat(reinterpret_cast<const char*>(deviceInfo.oinkWeb));
+    jsonMessage.concat(reinterpret_cast<const char*>(sparkInfo.oinkWeb));
     jsonMessage.concat("\"}");
 
     Helper::serialDebug("Send status message");

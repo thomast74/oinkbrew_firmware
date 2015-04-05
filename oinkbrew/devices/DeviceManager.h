@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    DeviceInfo.h
+ * @file    DeviceManager.h
  * @authors Thomas Trageser
  * @version V0.1
- * @date    2015-03-27
+ * @date    2015-04-03
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
   Copyright (c) 2015 Oink Brew;  All rights reserved.
@@ -24,24 +24,33 @@
  */
 
 
-#ifndef CONFIGURATION_H
-#define	CONFIGURATION_H
+#ifndef OINKBREW_DEVICES_DEVICEMANAGER_H_
+#define OINKBREW_DEVICES_DEVICEMANAGER_H_
 
-#include "flashee-eeprom.h"
+#include "Device.h"
+#include "spark_wiring_tcpclient.h"
 
 
-class Configuration {
+const int ACK = 6;
+
+
+class DeviceManager {
 public:
-    static void init();
-    static bool loadDeviceInfo();
-    static void storeSparkInfo();
-    static bool loadEguiSettings();
-    static void storeEguiSettings();
+	static void printDeviceList(TCPClient& client);
+private:
+	static void processOneWire(TCPClient& client, bool& first);
+	static void processActuators(TCPClient& client, bool& first);
 
-    static void clear(uint8_t* p, uint8_t size);
+	static int8_t enumOneWirePins(uint8_t offset);
+	static int8_t enumerateActuatorPins(uint8_t offset);
+
+	static void printDevice(TCPClient& client, Device& device, bool& first);
+	static void printTouple(TCPClient& client, const char* name, const char* value, bool first);
+	static void printTouple(TCPClient& client, const char* name, int32_t value, bool first);
+	static void printTouple(TCPClient& client, const char* name, bool value, bool first);
+	static void getBytes(const uint8_t* data, uint8_t len, char* buf);
 };
 
-extern Configuration conf;
+extern DeviceManager deviceManager;
 
-#endif	/* CONFIGURATION_H */
-
+#endif /* OINKBREW_DEVICES_DEVICEMANAGER_H_ */

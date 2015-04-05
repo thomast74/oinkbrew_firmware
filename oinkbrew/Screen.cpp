@@ -24,11 +24,12 @@
  */
 
 #include "Screen.h"
-#include "Buzzer.h"
+#include "devices/Buzzer.h"
 #include "Configuration.h"
-#include "DeviceInfo.h"
 #include "Helper.h"
 #include "Settings.h"
+#include "SparkInfo.h"
+
 
 extern "C" {
 #include "d4d.h"
@@ -38,12 +39,12 @@ extern "C" {
 #include "common_screen.h"
 }
 
+
 void updateInformationScreen();
 
 
 void Screen::init() {        
-    
-    if (!D4D_Init(NULL))
+    if (!D4D_Init((D4D_SCREEN*)NULL))
         return;
     
     D4D_SetOrientation(D4D_ORIENT_LANDSCAPE);
@@ -53,7 +54,7 @@ void Screen::init() {
     
     if (!conf.loadEguiSettings()) {
         calibrateTouchScreen();
-    }    
+    }
 }
 
 void Screen::showStartupScreen()
@@ -99,7 +100,7 @@ void Screen::showFerm1Screen()
 
 void Screen::showFerm2Screen()
 {
-    D4D_ActivateScreen(&screen_info, D4D_TRUE);    
+    D4D_ActivateScreen(&screen_info, D4D_TRUE);
 }
 
 void Screen::ticks()
@@ -117,23 +118,24 @@ void Screen::update()
 }
 
 void updateInformationScreen() {
-    updateLabel((D4D_OBJECT*)&scrInfo_valName, (D4D_CHAR*)deviceInfo.name);
-    updateLabel((D4D_OBJECT*)&scrInfo_valMode, (D4D_CHAR*)deviceInfo.mode);
+    updateLabel((D4D_OBJECT*)&scrInfo_valName, (D4D_CHAR*)sparkInfo.name);
+    updateLabel((D4D_OBJECT*)&scrInfo_valMode, (D4D_CHAR*)sparkInfo.mode);
     updateLabel((D4D_OBJECT*)&scrInfo_valId, (D4D_CHAR*)Spark.deviceID().c_str());
-    updateLabel((D4D_OBJECT*)&scrInfo_valConfig, (D4D_CHAR*)deviceInfo.config);
-    updateLabel((D4D_OBJECT*)&scrInfo_valTemp, (D4D_CHAR*)deviceInfo.tempType);
+    updateLabel((D4D_OBJECT*)&scrInfo_valConfig, (D4D_CHAR*)sparkInfo.config);
+    updateLabel((D4D_OBJECT*)&scrInfo_valTemp, (D4D_CHAR*)sparkInfo.tempType);
     updateLabel((D4D_OBJECT*)&scrInfo_valFirmware, (D4D_CHAR*)OINK_BREW_VERSION);
     updateLabel((D4D_OBJECT*)&scrInfo_valIp, (D4D_CHAR*)Helper::getLocalIpStr().c_str());
-    updateLabel((D4D_OBJECT*)&scrInfo_valWeb, (D4D_CHAR*)deviceInfo.oinkWeb);    
+    updateLabel((D4D_OBJECT*)&scrInfo_valWeb, (D4D_CHAR*)sparkInfo.oinkWeb);    
 }
 
 void Screen::calibrateTouchScreen() {
-    D4D_CalibrateTouchScreen();
+	D4D_CalibrateTouchScreen();
     conf.storeEguiSettings();
 }
 
 extern "C" void menuButtonClicked(D4D_OBJECT* pThis)
 {
+
     if (pThis==&scr_btnInfo)
         Screen::showInformationScreen();        
     else if (pThis==&scr_btnBrew)
