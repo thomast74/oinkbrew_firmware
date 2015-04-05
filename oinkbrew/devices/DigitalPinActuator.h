@@ -29,6 +29,11 @@ public:
 		digitalWrite(pin, active ^ invert ? HIGH : LOW);
 	}
 
+	bool toggle() {
+		setActive(!active);
+		return active;
+	}
+
 	bool isActive() {
 		return active;
 	}

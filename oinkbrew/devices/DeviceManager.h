@@ -33,10 +33,15 @@
 
 const int ACK = 6;
 
+struct DeviceToggleRequest {
+	uint8_t pin_nr;
+	bool is_invert;
+};
 
 class DeviceManager {
 public:
 	static void printDeviceList(TCPClient& client);
+	static const char* toggleActuator(DeviceToggleRequest& toggleRequest);
 private:
 	static void processOneWire(TCPClient& client, bool& first);
 	static void processActuators(TCPClient& client, bool& first);

@@ -93,6 +93,11 @@ bool TcpListener::processRequest(char action) {
 			parseJson(&TcpListener::processSparkInfo, NULL);
 			conf.storeSparkInfo();
 			return true;
+		// toggle actuator
+		case 't':
+			DeviceToggleRequest toggleRequest;
+			parseJson(&TcpListener::receiveToggleRequest, &toggleRequest);
+			client.write(deviceManager.toggleActuator(toggleRequest));
     }
 
     return false;
@@ -128,6 +133,15 @@ void TcpListener::resetSettings() {
     memcpy(&sparkInfo.tempType, "C", 2);
     memcpy(&sparkInfo.oinkWeb, "", 1);
     conf.storeSparkInfo();
+}
+
+void TcpListener::receiveToggleRequest(const char * key, const char * val, void* pv) {
+	DeviceToggleRequest *pToggleRequest = static_cast<DeviceToggleRequest*>(pv);
+
+	if (strcmp(key, "pin_nr") == 0)
+		pToggleRequest->pin_nr = atoi(val);
+	else if (strcmp(key, "is_invert") == 0)
+		pToggleRequest->is_invert = atoi(val);
 }
 
 void TcpListener::updateFirmware() {

@@ -27,7 +27,7 @@
 #ifndef TCPLISTENER_H
 #define	TCPLISTENER_H
 
-
+#include "devices/DeviceManager.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -54,6 +54,7 @@ private:
     
     static void processSparkInfo(const char * key, const char * val, void* pv);
     static void setDeviceMode(const char * key, const char * val, void* pv);
+    static void receiveToggleRequest(const char * key, const char * val, void* pv);
     
 };
 

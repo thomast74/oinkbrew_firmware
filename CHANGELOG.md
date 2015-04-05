@@ -15,3 +15,6 @@ v0.1
 - Send by request all connected devices (OneWire Sensors and Actuators) in Json format
 - Send current date time as part of the status broadcast messages
 - Receive and set the oink web server date time as part of the Spark Info message
+- Toggle a specific actuator on a specific Spark
+
+

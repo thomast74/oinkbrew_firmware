@@ -1,6 +1,4 @@
-
-- turn Actuator on/off based on TCP request received
-- request latest reading from temp sensor
+- request latest reading from one specific temp sensor
 
 
 - allow the configuration of device with alias

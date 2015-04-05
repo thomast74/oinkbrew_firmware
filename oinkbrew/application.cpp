@@ -95,12 +95,6 @@ void loop()
     if((millis() - lastStatus) >= DURATION_RUN)
     {
         lastStatus = millis();
-        
-        // check for client connectivity
-        if (listener.connected())
-        {
-            screen.update();
-        }
     }
 
     if((millis() - lastStatusMessage) >= DURATION_MESSAGE)
@@ -109,6 +103,12 @@ void loop()
         lastStatusMessage = millis();
         StatusMessage::send();
     }    
+
+    // check for client connectivity
+	if (listener.connected())
+	{
+		screen.update();
+	}
 }
 
 /*******************************************************************************

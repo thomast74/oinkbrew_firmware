@@ -44,6 +44,13 @@ void DeviceManager::printDeviceList(TCPClient& client) {
 	client.write("]");
 }
 
+const char* DeviceManager::toggleActuator(DeviceToggleRequest& toggleRequest) {
+
+	DigitalPinActuator actuator(toggleRequest.pin_nr, toggleRequest.is_invert);
+
+	return actuator.toggle() ? "On" : "Off";
+}
+
 void DeviceManager::processOneWire(TCPClient& client, bool& first) {
 
 	int8_t pin;
