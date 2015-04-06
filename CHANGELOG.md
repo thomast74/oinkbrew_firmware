@@ -16,5 +16,4 @@ v0.1
 - Send current date time as part of the status broadcast messages
 - Receive and set the oink web server date time as part of the Spark Info message
 - Toggle a specific actuator on a specific Spark
-
-
+- Send one sensor/actuator information by request

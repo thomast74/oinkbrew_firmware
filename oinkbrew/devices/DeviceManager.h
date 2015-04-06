@@ -33,15 +33,17 @@
 
 const int ACK = 6;
 
-struct DeviceToggleRequest {
+struct DeviceRequest {
 	uint8_t pin_nr;
+	DeviceAddress address;
 	bool is_invert;
 };
 
 class DeviceManager {
 public:
-	static void printDeviceList(TCPClient& client);
-	static const char* toggleActuator(DeviceToggleRequest& toggleRequest);
+	static void sendDevice(TCPClient& client, DeviceRequest& deviceRequest);
+	static void sendDeviceList(TCPClient& client);
+	static const char* toggleActuator(DeviceRequest& toggleRequest);
 private:
 	static void processOneWire(TCPClient& client, bool& first);
 	static void processActuators(TCPClient& client, bool& first);
@@ -53,7 +55,6 @@ private:
 	static void printTouple(TCPClient& client, const char* name, const char* value, bool first);
 	static void printTouple(TCPClient& client, const char* name, int32_t value, bool first);
 	static void printTouple(TCPClient& client, const char* name, bool value, bool first);
-	static void getBytes(const uint8_t* data, uint8_t len, char* buf);
 };
 
 extern DeviceManager deviceManager;

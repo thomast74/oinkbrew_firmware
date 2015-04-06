@@ -72,9 +72,15 @@ bool TcpListener::processRequest(char action) {
         case '\n':
         case '\r':
             break;
+        // request one sensor data
+        case 'a':
+        	DeviceRequest deviceRequest;
+        	parseJson(&TcpListener::receiveToggleRequest, &deviceRequest);
+        	deviceManager.sendDevice(client, deviceRequest);
+        	break;
 		// request the device list
 		case 'd':
-			deviceManager.printDeviceList(client);
+			deviceManager.sendDeviceList(client);
 			break;
 		// receive new firmware
         case 'f':
@@ -88,14 +94,14 @@ bool TcpListener::processRequest(char action) {
         case 'r':
             resetSettings();
             return true;
-		// receive and process spark info
+		// receive and process spark infoclient.write(
 		case 's':
 			parseJson(&TcpListener::processSparkInfo, NULL);
 			conf.storeSparkInfo();
 			return true;
 		// toggle actuator
 		case 't':
-			DeviceToggleRequest toggleRequest;
+			DeviceRequest toggleRequest;
 			parseJson(&TcpListener::receiveToggleRequest, &toggleRequest);
 			client.write(deviceManager.toggleActuator(toggleRequest));
     }
@@ -136,12 +142,14 @@ void TcpListener::resetSettings() {
 }
 
 void TcpListener::receiveToggleRequest(const char * key, const char * val, void* pv) {
-	DeviceToggleRequest *pToggleRequest = static_cast<DeviceToggleRequest*>(pv);
+	DeviceRequest *pDeviceRequest = static_cast<DeviceRequest*>(pv);
 
 	if (strcmp(key, "pin_nr") == 0)
-		pToggleRequest->pin_nr = atoi(val);
+		pDeviceRequest->pin_nr = atoi(val);
+	else if (strcmp(key, "hw_address") == 0)
+		Helper::setBytes(pDeviceRequest->address, val, 8);
 	else if (strcmp(key, "is_invert") == 0)
-		pToggleRequest->is_invert = atoi(val);
+		pDeviceRequest->is_invert = strcmp(val, "1") == 0 ? true : false;
 }
 
 void TcpListener::updateFirmware() {

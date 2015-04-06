@@ -21,16 +21,20 @@ public:
 
 		pinMode(pin, OUTPUT);
 
-		this->active = digitalRead(pin) == HIGH ? true : false;
+		this->active = digitalRead(pin) == HIGH
+				? true ^ this->invert
+				: false ^ this->invert;
 	}
 
 	inline ACTUATOR_METHOD void setActive(bool active) {
 		this->active = active;
+
 		digitalWrite(pin, active ^ invert ? HIGH : LOW);
 	}
 
 	bool toggle() {
-		setActive(!active);
+		setActive(active ? false : true);
+
 		return active;
 	}
 

@@ -26,13 +26,57 @@
 
 #include "DeviceManager.h"
 #include "../Configuration.h"
+#include "../Helper.h"
 #include "OneWireTempSensor.h"
 #include "DigitalPinActuator.h"
 #include "OneWire.h"
 #include "Pins.h"
+#include <string.h>
 
 
-void DeviceManager::printDeviceList(TCPClient& client) {
+void DeviceManager::sendDevice(TCPClient& client, DeviceRequest& deviceRequest) {
+
+	Device device;
+	conf.clear((uint8_t*) &device, sizeof(device));
+
+	device.hardware.pin_nr = deviceRequest.pin_nr;
+	device.hardware.is_invert = deviceRequest.is_invert;
+	device.hardware.is_deactivate = false;
+	memcpy(&device.hardware.address, deviceRequest.address, 8);
+
+	if (deviceRequest.pin_nr == oneWirePin) {
+
+		switch (device.hardware.address[0]) {
+			case DS18B20MODEL:
+				device.type = DEVICE_HARDWARE_ONEWIRE_TEMP;
+				break;
+			default:
+				device.type = DEVICE_HARDWARE_NONE;
+		}
+
+		OneWire* wire = new OneWire(deviceRequest.pin_nr);
+
+		if (device.type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
+			OneWireTempSensor sensor(wire, device.hardware.address, 0);
+			if (sensor.init()) {
+				if (!sensor.isParasitePowerMode()) {
+					temperature temp = sensor.read();
+					tempToString(device.value, temp, 3, 9);
+				}
+			}
+		}
+	}
+	else {
+		device.type = DEVICE_HARDWARE_PIN;
+		DigitalPinActuator actuator(device.hardware.pin_nr, device.hardware.is_invert);
+		strcpy(device.value, (actuator.isActive() ? "On" : "Off"));
+	}
+
+	bool first = true;
+	printDevice(client, device, first);
+}
+
+void DeviceManager::sendDeviceList(TCPClient& client) {
 
 	client.write("[");
 
@@ -44,7 +88,7 @@ void DeviceManager::printDeviceList(TCPClient& client) {
 	client.write("]");
 }
 
-const char* DeviceManager::toggleActuator(DeviceToggleRequest& toggleRequest) {
+const char* DeviceManager::toggleActuator(DeviceRequest& toggleRequest) {
 
 	DigitalPinActuator actuator(toggleRequest.pin_nr, toggleRequest.is_invert);
 
@@ -111,7 +155,7 @@ void DeviceManager::processActuators(TCPClient& client, bool& first) {
 	for (uint8_t count = 0; (pin = enumerateActuatorPins(count)) >= 0; count++) {
 
 		device.hardware.pin_nr = pin;
-		device.hardware.is_invert = true;
+		device.hardware.is_invert = false;
 		device.hardware.is_deactivate = false;
 
 		DigitalPinActuator actuator(device.hardware.pin_nr, device.hardware.is_invert);
@@ -161,7 +205,7 @@ void DeviceManager::printDevice(TCPClient& client, Device& device, bool& first) 
 	printTouple(client, "is_deactivate", device.hardware.is_deactivate, false);
 
 	client.write(",\"hw_address\":\"");
-	getBytes(device.hardware.address, 8, buf);
+	Helper::getBytes(device.hardware.address, 8, buf);
 	client.write(buf);
 	client.write('"');
 
@@ -197,15 +241,4 @@ void DeviceManager::printTouple(TCPClient& client, const char* name, bool value,
 	char tempString[32];
 	sprintf(tempString, "\"%s\":%s", name, value ? "true": "false");
 	client.write(tempString);
-}
-
-void DeviceManager::getBytes(const uint8_t* data, uint8_t len, char* buf)
-		{
-	for (int i = 0; i < len; i++) {
-		uint8_t b = (data[i] >> 4) & 0x0f;
-		*buf++ = (b > 9 ? b - 10 + 'A' : b + '0');
-		b = data[i] & 0x0f;
-		*buf++ = (b > 9 ? b - 10 + 'A' : b + '0');
-	}
-	*buf = 0;
 }

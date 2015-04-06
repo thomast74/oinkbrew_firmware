@@ -40,6 +40,9 @@ public:
     static IPAddress getLocalIp();
     static IPAddress getBroadcastAddress();
     static String getLocalIpStr();
+
+    static void getBytes(const uint8_t* data, uint8_t len, char* buf);
+    static void setBytes(uint8_t* data, const char* s, uint8_t len);
 };
 
 extern Helper helper;

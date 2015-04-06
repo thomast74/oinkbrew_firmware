@@ -37,7 +37,7 @@ D4D_DECLARE_STD_PICTURE(scrStartup_bmpLogo, 100, 10, 120, 101, &bmp_oink_logo);
 
 D4D_DECLARE_STD_LABEL_CENTER(scrStartup_message, str_message, 40, 140, 240, 20, FONT_ARIAL_11, NULL);
 D4D_DECLARE_STD_LABEL(scrStartup_version, str_version, 5, 220, 80, 20, FONT_ARIAL_11);
-D4D_DECLARE_STD_LABEL_RIGHT(scrStartup_copyright, "(c) 2015 by Oink Brew", 175, 220, 140, 20, FONT_ARIAL_11, NULL);
+D4D_DECLARE_STD_LABEL_RIGHT(scrStartup_copyright, "(c) 2015 by Oink Brew", 170, 220, 145, 20, FONT_ARIAL_11, NULL);
 
 
 D4D_DECLARE_STD_SCREEN_BEGIN(screen_startup, ScreenStartup_)
