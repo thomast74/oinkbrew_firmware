@@ -33,7 +33,7 @@ D4D_CHAR str_message[50] = "Starting up...";
 D4D_CHAR str_version[15] = "";
         
         
-D4D_DECLARE_STD_PICTURE(scrStartup_bmpLogo, 100, 10, 120, 101, &bmp_oink_logo);
+D4D_DECLARE_STD_PICTURE(scrStartup_bmpLogo, 120, 10, 80, 68, &bmp_oink_logo);
 
 D4D_DECLARE_STD_LABEL_CENTER(scrStartup_message, str_message, 40, 140, 240, 20, FONT_ARIAL_11, NULL);
 D4D_DECLARE_STD_LABEL(scrStartup_version, str_version, 5, 220, 80, 20, FONT_ARIAL_11);
