@@ -17,3 +17,10 @@ v0.1
 - Receive and set the oink web server date time as part of the Spark Info message
 - Toggle a specific actuator on a specific Spark
 - Send one sensor/actuator information by request
+- Request device list will look for existing device information and update them and stores all found devices in EEPROM
+- Request a single device information catches information from EEPROM and updates before returning to web app
+- Toggle Actuator checks the type of hardware and for Digital turns off/on for PWM sets the provided value
+
+- During startup load devices from EEPROM and initialise actuators and sensors
+- Read sensor values every second
+- Remove a device from Active Devices and EEPROM, onl a rescan will add his device again

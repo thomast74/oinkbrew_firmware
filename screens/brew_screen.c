@@ -50,34 +50,34 @@ D4D_CHAR str_tarBoilInside[8] = "";
 D4D_CHAR str_tarBoilOut[8] = "";
 
 
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_Process,    "Process:",     5,  40, 100, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_CENTER(scrBrew_Current,   "Current",    130,  65,  70, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_darkgrey);
-D4D_DECLARE_STD_LABEL_CENTER(scrBrew_Target,    "Target",     220,  65,  70, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_darkgrey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_HltIn,      "HLT In:",      5,  90,  90, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_HltOut,     "HLT Out:",     5, 110,  90, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_MashIn,     "Mash In:",     5, 135,  90, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_MashOut,    "Mash Out:",    5, 155,  90, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_BoilIn,     "Boil In:",     5, 180,  90, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_BoilInside, "Boil Inside:", 5, 200,  90, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_BoilOut,    "Boil Out:",    5, 220,  90, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_Process,    "Process:",     5,  40, 100, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_Current,   "Current",    130,  65,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_Target,    "Target",     220,  65,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_HltIn,      "HLT In:",      5,  90,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_HltOut,     "HLT Out:",     5, 110,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_MashIn,     "Mash In:",     5, 135,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_MashOut,    "Mash Out:",    5, 155,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_BoilIn,     "Boil In:",     5, 180,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_BoilInside, "Boil Inside:", 5, 200,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_BoilOut,    "Boil Out:",    5, 220,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
 
 D4D_DECLARE_STD_LABEL(scrBrew_valProcess,       str_Process,       110,  40, 100, 20, FONT_ARIAL_11);
 
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curHltIn,      str_curHltIn,      130,  90,  70, 20, FONT_ARIAL_11, NULL);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curHltOut,     str_curHltOut,     130, 110,  70, 20, FONT_ARIAL_11, NULL);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curMashIn,     str_curMashIn,     130, 135,  70, 20, FONT_ARIAL_11, NULL);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curMashOut,    str_curMashOut,    130, 155,  70, 20, FONT_ARIAL_11, NULL);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curBoilIn,     str_curBoilIn,     130, 180,  70, 20, FONT_ARIAL_11, NULL);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curBoilInside, str_curBoilInside, 130, 200,  70, 20, FONT_ARIAL_11, NULL);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curBoilOut,    str_curBoilOut,    130, 220,  70, 20, FONT_ARIAL_11, NULL);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curHltIn,      str_curHltIn,      130,  90,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curHltOut,     str_curHltOut,     130, 110,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curMashIn,     str_curMashIn,     130, 135,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curMashOut,    str_curMashOut,    130, 155,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curBoilIn,     str_curBoilIn,     130, 180,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curBoilInside, str_curBoilInside, 130, 200,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curBoilOut,    str_curBoilOut,    130, 220,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
 
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarHltIn,      str_tarHltIn,      220,  90,  70, 20, FONT_ARIAL_11, NULL);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarHltOut,     str_tarHltOut,     220, 110,  70, 20, FONT_ARIAL_11, NULL);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarMashIn,     str_tarMashIn,     220, 135,  70, 20, FONT_ARIAL_11, NULL);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarMashOut,    str_tarMashOut,    220, 155,  70, 20, FONT_ARIAL_11, NULL);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarBoilIn,     str_tarBoilIn,     220, 180,  70, 20, FONT_ARIAL_11, NULL);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarBoilInside, str_tarBoilInside, 220, 200,  70, 20, FONT_ARIAL_11, NULL);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarBoilOut,    str_tarBoilOut,    220, 220,  70, 20, FONT_ARIAL_11, NULL);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarHltIn,      str_tarHltIn,      220,  90,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarHltOut,     str_tarHltOut,     220, 110,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarMashIn,     str_tarMashIn,     220, 135,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarMashOut,    str_tarMashOut,    220, 155,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarBoilIn,     str_tarBoilIn,     220, 180,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarBoilInside, str_tarBoilInside, 220, 200,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarBoilOut,    str_tarBoilOut,    220, 220,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
 
         
 D4D_DECLARE_STD_SCREEN_BEGIN(screen_brew, ScreenBrew_)

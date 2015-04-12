@@ -31,27 +31,40 @@
 #include "spark_wiring_tcpclient.h"
 
 
-const int ACK = 6;
+const int8_t MAX_DEVICES = 16;
+
 
 struct DeviceRequest {
 	uint8_t pin_nr;
-	DeviceAddress address;
+	DeviceAddress hw_address;
 	bool is_invert;
+	uint8_t value;
 };
 
-class DeviceManager {
-public:
-	static void sendDevice(TCPClient& client, DeviceRequest& deviceRequest);
-	static void sendDeviceList(TCPClient& client);
-	static const char* toggleActuator(DeviceRequest& toggleRequest);
-private:
-	static void processOneWire(TCPClient& client, bool& first);
-	static void processActuators(TCPClient& client, bool& first);
 
-	static int8_t enumOneWirePins(uint8_t offset);
+class DeviceManager {
+private:
+	static ActiveDevice activeDevices[MAX_DEVICES];
+public:
+
+	static void loadDevicesFromEEPROM();
+	static void getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, ActiveDevice& active);
+	static void readValues();
+
+	static void removeDevice(DeviceRequest& deviceRequest, char* response);
+
+	static void sendDevice(TCPClient& client, DeviceRequest& deviceRequest);
+	static void searchAndSendDeviceList(TCPClient& client);
+	static void toggleActuator(DeviceRequest& deviceRequest, char* response);
+private:
+	static void processActuators(TCPClient& client, Device devices[], ActiveDevice activeDevices[], uint8_t& slot, bool& first);
+	static void processOneWire(TCPClient& client, Device devices[], ActiveDevice activeDevices[], uint8_t& slot, bool& first);
+
+	static void fetchDeviceFromConfig(Device& device);
+
 	static int8_t enumerateActuatorPins(uint8_t offset);
 
-	static void printDevice(TCPClient& client, Device& device, bool& first);
+	static void printDevice(TCPClient& client, Device& device, ActiveDevice& active, bool& first);
 	static void printTouple(TCPClient& client, const char* name, const char* value, bool first);
 	static void printTouple(TCPClient& client, const char* name, int32_t value, bool first);
 	static void printTouple(TCPClient& client, const char* name, bool value, bool first);

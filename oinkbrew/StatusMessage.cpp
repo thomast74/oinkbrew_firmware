@@ -51,12 +51,8 @@ void StatusMessage::send() {
     jsonMessage.concat(Time.now());
     jsonMessage.concat(",\"device_mode\":\"");
     jsonMessage.concat(reinterpret_cast<const char*>(sparkInfo.mode));
-    jsonMessage.concat("\",\"device_config\":\"");
-    jsonMessage.concat(reinterpret_cast<const char*>(sparkInfo.config));
     jsonMessage.concat("\", \"firmware_version\":\"");
     jsonMessage.concat(OINK_BREW_VERSION);
-    jsonMessage.concat("\",\"board_revision\":\"");
-    jsonMessage.concat(BREWPI_SPARK_REVISION);
     jsonMessage.concat("\",\"ip_address\":\"");
     jsonMessage.concat(Helper::getLocalIpStr().c_str());
     jsonMessage.concat("\",\"web_address\":\"");
@@ -65,12 +61,13 @@ void StatusMessage::send() {
 
     Helper::serialDebug("Send status message");
     UDP udp;
-    udp.begin(REMOTE_LISTENER_PORT);
+    udp.begin(REMOTE_LISTENER_PORT-1);
     udp.beginPacket(Helper::getBroadcastAddress(), REMOTE_LISTENER_PORT);
 
     udp.write(jsonMessage.c_str());
 
     udp.endPacket();
+    udp.flush();
     udp.stop();
     
     Helper::serialDebug("Status message sent");

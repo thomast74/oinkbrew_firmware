@@ -25,19 +25,29 @@
 
 
 #include "Configuration.h"
-
+#include "Helper.h"
 #include "SparkInfo.h"
+#include "devices/DeviceManager.h"
 
 extern "C" {
 #include "d4d.h"
 }
 
-#define EEPROM_DEVICE_INFO_START_BLOCK 0
-#define EEPROM_DEVICE_INFO_END_BLOCK 4
+#define EEPROM_SPARK_INFO_START_BLOCK 0
+#define EEPROM_SPARK_INFO_END_BLOCK 4
+
+#define EEPROM_DEVICE_SETTINGS_START_BLOCK 4
+#define EEPROM_DEVICE_SETTINGS_END_BLOCK 18
+
 #define EEPROM_EGUI_SETTINGS_START_BLOCK 32
 #define EEPROM_EGUI_SETTINGS_END_BLOCK 36
 
-static Flashee::FlashDevice* deviceInfoFlash;
+
+#define pointerOffset(x) offsetof(EepromFormat, x)
+
+
+static Flashee::FlashDevice* sparkInfoFlash;
+static Flashee::FlashDevice* deviceSettingsFlash;
 static Flashee::FlashDevice* eguiFlash;
 
 
@@ -49,7 +59,8 @@ static Flashee::FlashDevice* eguiFlash;
  * Return         : 
  ******************************************************************************/
 void Configuration::init() {
-	deviceInfoFlash = Flashee::Devices::createAddressErase(4096 * EEPROM_DEVICE_INFO_START_BLOCK, 4096 * EEPROM_DEVICE_INFO_END_BLOCK);
+	sparkInfoFlash = Flashee::Devices::createAddressErase(4096 * EEPROM_SPARK_INFO_START_BLOCK, 4096 * EEPROM_SPARK_INFO_END_BLOCK);
+	deviceSettingsFlash = Flashee::Devices::createAddressErase(4096 * EEPROM_DEVICE_SETTINGS_START_BLOCK, 4096 * EEPROM_DEVICE_SETTINGS_END_BLOCK);
 	eguiFlash = Flashee::Devices::createAddressErase(4096 * EEPROM_EGUI_SETTINGS_START_BLOCK, 4096 * EEPROM_EGUI_SETTINGS_END_BLOCK);
 }
 
@@ -61,7 +72,7 @@ void Configuration::init() {
  * Return         : 
  ******************************************************************************/
 bool Configuration::loadDeviceInfo() {
-   if (deviceInfoFlash->read(&sparkInfo, 0, sizeof(SparkInfo)))
+   if (sparkInfoFlash->read(&sparkInfo, 0, sizeof(SparkInfo)))
         return true;
    else
         return false;
@@ -75,7 +86,148 @@ bool Configuration::loadDeviceInfo() {
  * Return         : 
  ******************************************************************************/
 void Configuration::storeSparkInfo() {
-    deviceInfoFlash->write(&sparkInfo, 0, sizeof (SparkInfo));
+    sparkInfoFlash->write(&sparkInfo, 0, sizeof (SparkInfo));
+}
+
+/*******************************************************************************
+ * Function Name  : fetchDevice
+ * Description    : search if there is an existing
+ * Input          : pin_nr and hw_adress to look for
+ * Output         : true if found, false if not found
+ * Return         :
+ ******************************************************************************/
+uint8_t Configuration::fetchDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Device& device) {
+
+	uint8_t max_slots;
+	uint32_t offset = sizeof(int8_t);
+	uint32_t size_device = sizeof(Device);
+	Device device_search;
+
+	conf.clear((uint8_t*) &device_search, sizeof(device_search));
+
+	deviceSettingsFlash->read(&max_slots, 0, offset);
+
+	for(uint8_t slot = 0; slot < max_slots; slot++) {
+		deviceSettingsFlash->read(&device_search, (size_device*slot) + offset, size_device);
+		if (device_search.hardware.pin_nr == pin_nr && Helper::matchAddress(hw_address, device_search.hardware.hw_address, 8)) {
+			memcpy(&device, &device_search, size_device);
+			return slot;
+		}
+	}
+
+	return -1;
+}
+
+/*******************************************************************************
+ * Function Name  : getNumberDevices
+ * Description    : get the number of devices stored in EEPROM
+ * Input          :
+ * Output         :
+ * Return         : number of devices stored in EEPROM
+ ******************************************************************************/
+uint8_t Configuration::getNumberDevices() {
+
+	uint8_t no_devices;
+	uint32_t offset = sizeof(int8_t);
+
+	deviceSettingsFlash->read(&no_devices, 0, offset);
+
+	return no_devices;
+}
+
+/*******************************************************************************
+ * Function Name  : fetchDevices
+ * Description    : load all devices from EEPROM
+ * Input          :
+ * Output         : Devices array with all stored devices
+ * Return         :
+ ******************************************************************************/
+void Configuration::fetchDevices(Device devices[]) {
+
+	uint8_t no_devices;
+	uint32_t offset = sizeof(int8_t);
+	uint32_t size_device = sizeof(Device);
+
+	deviceSettingsFlash->read(&no_devices, 0, offset);
+
+	for(uint8_t slot = 0; slot < no_devices; slot++) {
+		deviceSettingsFlash->read(&devices[slot], (size_device*slot) + offset, size_device);
+	}
+}
+
+/*******************************************************************************
+ * Function Name  : removeDevice
+ * Description    : remove a specific device from EEPROM
+ * Input          : pin nr and hardware address of the device to delete
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void Configuration::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
+
+	uint8_t no_devices;
+	uint32_t offset = sizeof(int8_t);
+	uint32_t size_device = sizeof(Device);
+	Device device;
+
+	conf.clear((uint8_t*) &device, sizeof(device));
+
+	deviceSettingsFlash->read(&no_devices, 0, offset);
+
+	for(uint8_t slot = 0; slot < no_devices; slot++) {
+		deviceSettingsFlash->read(&device, (size_device*slot) + offset, size_device);
+		if (device.hardware.pin_nr == pin_nr && Helper::matchAddress(hw_address, device.hardware.hw_address, 8)) {
+			conf.clear((uint8_t*) &device, sizeof(device));
+			deviceSettingsFlash->write(&device, (size_device*slot) + offset, size_device);
+			return;
+		}
+	}
+}
+
+/*******************************************************************************
+ * Function Name  : storeDevice
+ * Description    : save device to EEPROM, if exists overwrite, if new add to the end
+ * Input          :
+ * Output         : Device to store in EEPROM
+ * Return         :
+ ******************************************************************************/
+void Configuration::storeDevice(Device& device) {
+
+	uint32_t offset = sizeof(int8_t);
+	uint32_t size_device = sizeof(Device);
+
+	Device device_search;
+	conf.clear((uint8_t*) &device_search, sizeof(device_search));
+
+	uint8_t slot = fetchDevice(device.hardware.pin_nr, device.hardware.hw_address, device_search);
+	if (slot != -1) {
+		deviceSettingsFlash->write(&device, (size_device*slot) + offset, size_device);
+	}
+	else {
+		uint8_t max_slots;
+		deviceSettingsFlash->read(&max_slots, 0, offset);
+		max_slots++;
+		deviceSettingsFlash->write(&max_slots, 0, offset);
+		deviceSettingsFlash->write(&device, (size_device*max_slots) + offset, size_device);
+	}
+}
+
+/*******************************************************************************
+ * Function Name  : storeDevices
+ * Description    : save devices in array to EEPROM for restart
+ * Input          :
+ * Output         : true if found, false if not found
+ * Return         :
+ ******************************************************************************/
+void Configuration::storeDevices(Device devices[], uint8_t& no_devices) {
+
+	uint32_t offset = sizeof(int8_t);
+	uint32_t size_device = sizeof(Device);
+
+	deviceSettingsFlash->write(&no_devices, 0, offset);
+
+	for(uint8_t slot = 0; slot < no_devices; slot++) {
+		deviceSettingsFlash->write(&devices[slot], (size_device*slot) + offset, size_device);
+	}
 }
 
 /*******************************************************************************

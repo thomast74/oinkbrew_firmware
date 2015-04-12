@@ -30,7 +30,6 @@
 struct SparkInfo {
     unsigned char name[31] = "";
     unsigned char mode[10] = "MANUAL";
-    unsigned char config[9] = "";
     unsigned char tempType[2] = "C";
     unsigned char oinkWeb[16] = "";
 };

@@ -28,13 +28,24 @@
 #define	CONFIGURATION_H
 
 #include "flashee-eeprom.h"
+#include "devices/Device.h"
+#include <stddef.h>
 
 
 class Configuration {
 public:
     static void init();
+
     static bool loadDeviceInfo();
     static void storeSparkInfo();
+
+    static uint8_t getNumberDevices();
+    static uint8_t fetchDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Device& device);
+    static void fetchDevices(Device devices[]);
+    static void storeDevice(Device& device);
+    static void storeDevices(Device devices[], uint8_t& no_devices);
+    static void removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address);
+
     static bool loadEguiSettings();
     static void storeEguiSettings();
 

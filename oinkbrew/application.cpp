@@ -95,6 +95,7 @@ void loop()
     if((millis() - lastStatus) >= DURATION_RUN)
     {
         lastStatus = millis();
+        deviceManager.readValues();
     }
 
     if((millis() - lastStatusMessage) >= DURATION_MESSAGE)
@@ -125,6 +126,9 @@ void applicationInit()
     
     screen.printStatusMessage("Load configuration data");
     conf.loadDeviceInfo();
+
+    screen.printStatusMessage("Initialise actuators and sensors");
+    deviceManager.loadDevicesFromEEPROM();
 }
 
 /*******************************************************************************

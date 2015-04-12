@@ -41,20 +41,18 @@ D4D_CHAR str_IpAddress[16] = "";
 D4D_CHAR str_OinkWeb[16] = "";
 
 
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblName,     "Name:",       5, 45,  95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblMode,     "Mode:",       5, 65,  95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblId,       "Id:",         5, 85,  95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblConfig,   "Config:",     5, 105, 95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblTemp,     "Temp. Type:", 5, 130, 95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblFirmware, "Firmware:",   5, 165, 95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblIp,       "IP Address:", 5, 190, 95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblWeb,      "Oink Web:",   5, 215, 95, 20, FONT_ARIAL_11, (D4D_CLR_SCHEME*)&scheme_grey);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblName,     "Name:",       5, 45,  95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblMode,     "Mode:",       5, 65,  95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblId,       "Id:",         5, 85,  95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblTemp,     "Temp. Type:", 5, 130, 95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblFirmware, "Firmware:",   5, 165, 95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblIp,       "IP Address:", 5, 190, 95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblWeb,      "Oink Web:",   5, 215, 95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
 
 
 D4D_DECLARE_STD_LABEL(scrInfo_valName,     str_name,      110, 45,  200, 20, FONT_ARIAL_11);
 D4D_DECLARE_STD_LABEL(scrInfo_valMode,     str_mode,      110, 65,  200, 20, FONT_ARIAL_11);
 D4D_DECLARE_STD_LABEL(scrInfo_valId,       str_id,        110, 85,  200, 20, FONT_ARIAL_11);
-D4D_DECLARE_STD_LABEL(scrInfo_valConfig,   str_config,    110, 105, 200, 20, FONT_ARIAL_11);
 D4D_DECLARE_STD_LABEL(scrInfo_valTemp,     str_TempType,  110, 130, 200, 20, FONT_ARIAL_11);
 D4D_DECLARE_STD_LABEL(scrInfo_valFirmware, str_Firmware,  110, 165, 200, 20, FONT_ARIAL_11);
 D4D_DECLARE_STD_LABEL(scrInfo_valIp,       str_IpAddress, 110, 190, 200, 20, FONT_ARIAL_11);
@@ -70,7 +68,6 @@ D4D_DECLARE_STD_SCREEN_BEGIN(screen_info, ScreenInfo_)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblName)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblMode)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblId)
-    D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblConfig)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblTemp)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblFirmware)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblIp)
@@ -78,7 +75,6 @@ D4D_DECLARE_STD_SCREEN_BEGIN(screen_info, ScreenInfo_)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_valName)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_valMode)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_valId)
-    D4D_DECLARE_SCREEN_OBJECT(scrInfo_valConfig)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_valTemp)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_valFirmware)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_valIp)

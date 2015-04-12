@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    Buzzer.h
+ * @file    PwmActuator.h
  * @authors Thomas Trageser
  * @version V0.1
  * @date    2015-03-27
@@ -23,51 +23,35 @@
  ******************************************************************************
  */
 
-
 #pragma once
 
-#include "../Platform.h"
-#include "spark_wiring.h"
-#include <stdint.h>
-
-
-#define BEEP_ON() digitalWrite(BUZZER_PIN, LOW);
-#define BEEP_OFF() digitalWrite(BUZZER_PIN, HIGH);
-
-
-class Buzzer {
+class PwmActuator {
 private:
-	bool active;
+	uint8_t pin;
+	uint8_t value;
 public:
-	Buzzer() {
-		pinMode(BUZZER_PIN, OUTPUT);
+	PwmActuator(uint8_t pin) {
+		this->pin = pin;
+
+		pinMode(pin, OUTPUT);
+
+		this->value = analogRead(this->pin);
 	}
 
-	void beep(uint8_t numBeeps, uint16_t duration) {
-	    for (uint8_t beepCount = 0; beepCount < numBeeps; beepCount++) {
-	        BEEP_ON();
-	        delay(duration);
-	        BEEP_OFF();
-	        if (beepCount < numBeeps - 1) {
-	            delay(duration);
-	        }
-	    }
+	uint8_t getValue() {
+		return value;
 	}
 
-	void setActive(bool active) {
-	    if (active != this->active) {
-	        this->active = active;
-	        if (active) {
-	            BEEP_ON();
-	        } else {
-	            BEEP_OFF();
-	        }
-	    }
+	void setValue(uint8_t value) {
+		if (value < 0 || value > 255)
+			return;
+
+		this->value = value;
+
+		analogWrite(this->pin, value);
 	}
 
 	bool isActive() {
-		return active;
+		return value > 0;
 	}
 };
-
-extern Buzzer buzzer;

@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    Buzzer.h
+ * @file    DigitalActuator.h
  * @authors Thomas Trageser
  * @version V0.1
  * @date    2015-03-27
@@ -23,51 +23,38 @@
  ******************************************************************************
  */
 
-
 #pragma once
 
-#include "../Platform.h"
-#include "spark_wiring.h"
-#include <stdint.h>
-
-
-#define BEEP_ON() digitalWrite(BUZZER_PIN, LOW);
-#define BEEP_OFF() digitalWrite(BUZZER_PIN, HIGH);
-
-
-class Buzzer {
+class DigitalActuator {
 private:
+	bool invert;
+	uint8_t pin;
 	bool active;
 public:
-	Buzzer() {
-		pinMode(BUZZER_PIN, OUTPUT);
-	}
+	DigitalActuator(uint8_t pin, bool invert) {
+		this->pin = pin;
+		this->invert = invert;
 
-	void beep(uint8_t numBeeps, uint16_t duration) {
-	    for (uint8_t beepCount = 0; beepCount < numBeeps; beepCount++) {
-	        BEEP_ON();
-	        delay(duration);
-	        BEEP_OFF();
-	        if (beepCount < numBeeps - 1) {
-	            delay(duration);
-	        }
-	    }
+		pinMode(pin, OUTPUT);
+
+		this->active =
+				digitalRead(pin) == HIGH ?
+						true ^ this->invert : false ^ this->invert;
 	}
 
 	void setActive(bool active) {
-	    if (active != this->active) {
-	        this->active = active;
-	        if (active) {
-	            BEEP_ON();
-	        } else {
-	            BEEP_OFF();
-	        }
-	    }
+		this->active = active;
+
+		digitalWrite(pin, active ^ invert ? HIGH : LOW);
+	}
+
+	bool toggle() {
+		setActive(!this->active);
+
+		return this->active;
 	}
 
 	bool isActive() {
 		return active;
 	}
 };
-
-extern Buzzer buzzer;

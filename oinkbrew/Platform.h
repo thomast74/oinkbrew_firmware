@@ -30,6 +30,14 @@
 #include <stdio.h>
 
 
+#define ONE_WIRE_PIN 0x0
+#define ACTUATOR_PIN_1 A0
+#define ACTUATOR_PIN_2 A1
+#define ACTUATOR_PIN_3 A6
+#define BUZZER_PIN A2
+
+
+
 #define strcpy_P strcpy
 #define strlcpy_P strncpy
 #define sprintf_P sprintf

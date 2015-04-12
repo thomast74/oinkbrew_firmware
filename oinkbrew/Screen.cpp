@@ -49,7 +49,6 @@ void Screen::init() {
     
     D4D_SetOrientation(D4D_ORIENT_LANDSCAPE);
     
-    buzzer.init();
     buzzer.beep(1, 100);
     
     if (!conf.loadEguiSettings()) {
@@ -121,7 +120,6 @@ void updateInformationScreen() {
     updateLabel((D4D_OBJECT*)&scrInfo_valName, (D4D_CHAR*)sparkInfo.name);
     updateLabel((D4D_OBJECT*)&scrInfo_valMode, (D4D_CHAR*)sparkInfo.mode);
     updateLabel((D4D_OBJECT*)&scrInfo_valId, (D4D_CHAR*)Spark.deviceID().c_str());
-    updateLabel((D4D_OBJECT*)&scrInfo_valConfig, (D4D_CHAR*)sparkInfo.config);
     updateLabel((D4D_OBJECT*)&scrInfo_valTemp, (D4D_CHAR*)sparkInfo.tempType);
     updateLabel((D4D_OBJECT*)&scrInfo_valFirmware, (D4D_CHAR*)OINK_BREW_VERSION);
     updateLabel((D4D_OBJECT*)&scrInfo_valIp, (D4D_CHAR*)Helper::getLocalIpStr().c_str());

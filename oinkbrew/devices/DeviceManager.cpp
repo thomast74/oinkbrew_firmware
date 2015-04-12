@@ -27,164 +27,263 @@
 #include "DeviceManager.h"
 #include "../Configuration.h"
 #include "../Helper.h"
-#include "OneWireTempSensor.h"
-#include "DigitalPinActuator.h"
+#include "../Platform.h"
+#include "DS18B20.h"
 #include "OneWire.h"
-#include "Pins.h"
+#include "DigitalActuator.h"
+#include "PwmActuator.h"
 #include <string.h>
 
+ActiveDevice DeviceManager::activeDevices[MAX_DEVICES] = {};
+
+void DeviceManager::loadDevicesFromEEPROM() {
+
+	uint8_t no_devices = conf.getNumberDevices();
+	Device devices[no_devices];
+
+	conf.fetchDevices(devices);
+
+	for(uint8_t i=0; i < no_devices; i++) {
+
+		activeDevices[i].pin_nr = devices[i].hardware.pin_nr;
+		memcpy(activeDevices[i].hw_address, devices[i].hardware.hw_address, 8);
+		activeDevices[i].pin_nr = devices[i].hardware.pin_nr;
+
+		if (devices[i].type == DEVICE_HARDWARE_ACTUATOR_DIGITAL) {
+			DigitalActuator actuator = DigitalActuator(devices[i].hardware.pin_nr, devices[i].hardware.is_invert);
+			activeDevices[i].device = &actuator;
+			activeDevices[i].value = actuator.isActive() ? 1 : 0;
+		}
+		else if (devices[i].type == DEVICE_HARDWARE_ACTUATOR_PWM) {
+			PwmActuator actuator = PwmActuator(devices[i].hardware.pin_nr);
+			activeDevices[i].device = &actuator;
+			activeDevices[i].value = actuator.getValue()/255*100;
+		}
+		else if (devices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
+			DS18B20 sensor = DS18B20(ONE_WIRE_PIN, devices[i].hardware.hw_address);
+			activeDevices[i].device = &sensor;
+			activeDevices[i].value = sensor.getTemperature();
+		}
+	}
+
+	for(; no_devices < MAX_DEVICES; no_devices++) {
+		conf.clear((uint8_t*) &activeDevices[no_devices], sizeof(activeDevices[no_devices]));
+		activeDevices[no_devices].type = DEVICE_HARDWARE_NONE;
+	}
+}
+
+void DeviceManager::readValues() {
+	for(uint8_t i=0; i < MAX_DEVICES; i++) {
+		if (activeDevices[i].type == DEVICE_HARDWARE_ACTUATOR_DIGITAL) {
+			DigitalActuator *actuator = static_cast<DigitalActuator*>(activeDevices[i].device);
+			activeDevices[i].value = actuator->isActive() ? 1 : 0;
+		}
+		else if (activeDevices[i].type == DEVICE_HARDWARE_ACTUATOR_PWM) {
+			PwmActuator *actuator = static_cast<PwmActuator*>(activeDevices[i].device);
+			activeDevices[i].value = actuator->getValue()/255*100;
+		}
+		else if (activeDevices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
+			DS18B20 *sensor = static_cast<DS18B20*>(activeDevices[i].device);
+			activeDevices[i].value = sensor->getTemperature();
+		}
+	}
+}
+
+void DeviceManager::removeDevice(DeviceRequest& deviceRequest, char* response) {
+	// check if part of any configuration
+	// if yes return error
+
+	for(uint8_t i=0;i < MAX_DEVICES; i++) {
+		if (activeDevices[i].pin_nr == deviceRequest.pin_nr && Helper::matchAddress(deviceRequest.hw_address, activeDevices[i].hw_address, 8)) {
+			ActiveDevice activeDevice;
+			conf.clear((uint8_t*) &activeDevice, sizeof(activeDevice));
+
+			conf.clear((uint8_t*) &activeDevices[i].device, sizeof(activeDevices[i].device));
+			activeDevices[i] = activeDevice;
+
+			conf.removeDevice(deviceRequest.pin_nr, deviceRequest.hw_address);
+
+			strcpy(response, "OK");
+
+			return;
+		}
+	}
+
+	strcpy(response, "Device not found");
+}
 
 void DeviceManager::sendDevice(TCPClient& client, DeviceRequest& deviceRequest) {
 
 	Device device;
+	ActiveDevice active;
+
 	conf.clear((uint8_t*) &device, sizeof(device));
 
 	device.hardware.pin_nr = deviceRequest.pin_nr;
-	device.hardware.is_invert = deviceRequest.is_invert;
-	device.hardware.is_deactivate = false;
-	memcpy(&device.hardware.address, deviceRequest.address, 8);
+	memcpy(&device.hardware.hw_address, deviceRequest.hw_address, 8);
 
-	if (deviceRequest.pin_nr == oneWirePin) {
-
-		switch (device.hardware.address[0]) {
-			case DS18B20MODEL:
-				device.type = DEVICE_HARDWARE_ONEWIRE_TEMP;
-				break;
-			default:
-				device.type = DEVICE_HARDWARE_NONE;
-		}
-
-		OneWire* wire = new OneWire(deviceRequest.pin_nr);
-
-		if (device.type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
-			OneWireTempSensor sensor(wire, device.hardware.address, 0);
-			if (sensor.init()) {
-				if (!sensor.isParasitePowerMode()) {
-					temperature temp = sensor.read();
-					tempToString(device.value, temp, 3, 9);
-				}
-			}
-		}
-	}
-	else {
-		device.type = DEVICE_HARDWARE_PIN;
-		DigitalPinActuator actuator(device.hardware.pin_nr, device.hardware.is_invert);
-		strcpy(device.value, (actuator.isActive() ? "On" : "Off"));
-	}
+	fetchDeviceFromConfig(device);
+	getDevice(device.hardware.pin_nr, device.hardware.hw_address, active);
 
 	bool first = true;
-	printDevice(client, device, first);
+	printDevice(client, device, active, first);
+
+	conf.storeDevice(device);
 }
 
-void DeviceManager::sendDeviceList(TCPClient& client) {
+void DeviceManager::searchAndSendDeviceList(TCPClient& client) {
 
 	client.write("[");
 
 	bool first = true;
+	uint8_t slot = 0;
+	Device devices[MAX_DEVICES];
+	ActiveDevice actives[MAX_DEVICES];
 
-	processOneWire(client, first);
-	processActuators(client, first);
+	processActuators(client, devices, actives, slot, first);
+	processOneWire(client, devices, actives, slot, first);
 
 	client.write("]");
+
+	memcpy(activeDevices, actives, sizeof(actives));
+	conf.storeDevices(devices, slot);
 }
 
-const char* DeviceManager::toggleActuator(DeviceRequest& toggleRequest) {
+void DeviceManager::toggleActuator(DeviceRequest& deviceRequest, char* response) {
 
-	DigitalPinActuator actuator(toggleRequest.pin_nr, toggleRequest.is_invert);
+	ActiveDevice active;
 
-	return actuator.toggle() ? "On" : "Off";
-}
+	getDevice(deviceRequest.pin_nr, deviceRequest.hw_address, active);
 
-void DeviceManager::processOneWire(TCPClient& client, bool& first) {
-
-	int8_t pin;
-
-	for (uint8_t count = 0; (pin = enumOneWirePins(count)) >= 0; count++) {
-
-		OneWire* wire = new OneWire(pin);
-
-		if (wire != NULL) {
-
-			Device device;
-			conf.clear((uint8_t*) &device, sizeof(device));
-
-			device.hardware.pin_nr = pin;
-			device.hardware.is_invert = false;
-			device.hardware.is_deactivate = false;
-
-			wire->reset_search();
-
-			while (wire->search(device.hardware.address)) {
-
-				switch (device.hardware.address[0]) {
-					case DS18B20MODEL:
-						device.type = DEVICE_HARDWARE_ONEWIRE_TEMP;
-						break;
-					default:
-						device.type = DEVICE_HARDWARE_NONE;
-				}
-
-				if (client) {
-					if (device.type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
-						OneWireTempSensor sensor(wire, device.hardware.address, 0);
-						if (sensor.init()) {
-							if (!sensor.isParasitePowerMode()) {
-								temperature temp = sensor.read();
-								tempToString(device.value, temp, 3, 9);
-								printDevice(client, device, first);
-							}
-						}
-					}
-					else {
-						printDevice(client, device, first);
-					}
-				}
-			}
-		}
+	if (active.type == DEVICE_HARDWARE_ACTUATOR_DIGITAL) {
+		DigitalActuator *actuator = static_cast<DigitalActuator*>(active.device);
+		actuator->toggle();
+		strcpy(response, actuator->isActive() ? "1" : "0");
+	}
+	else if (active.type == DEVICE_HARDWARE_ACTUATOR_PWM) {
+		PwmActuator *actuator = static_cast<PwmActuator*>(active.device);
+		actuator->setValue(deviceRequest.value*2.55);
+		sprintf(response, "%2.2f", ((double)actuator->getValue() / 255) * 100);
 	}
 }
 
-void DeviceManager::processActuators(TCPClient& client, bool& first) {
+void DeviceManager::processActuators(TCPClient& client, Device devices[], ActiveDevice actives[], uint8_t& slot, bool& first) {
 
 	Device device;
+	ActiveDevice active;
+
 	conf.clear((uint8_t*) &device, sizeof(device));
 
-	device.type = DEVICE_HARDWARE_PIN;
+	int8_t pin_nr;
+	for (uint8_t count = 0; (pin_nr = enumerateActuatorPins(count)) >= 0; count++) {
 
-	int8_t pin;
-	for (uint8_t count = 0; (pin = enumerateActuatorPins(count)) >= 0; count++) {
+		device.hardware.pin_nr = pin_nr;
 
-		device.hardware.pin_nr = pin;
-		device.hardware.is_invert = false;
-		device.hardware.is_deactivate = false;
+		fetchDeviceFromConfig(device);
+		getDevice(device.hardware.pin_nr, device.hardware.hw_address, active);
 
-		DigitalPinActuator actuator(device.hardware.pin_nr, device.hardware.is_invert);
-		strcpy(device.value, (actuator.isActive() ? "On" : "Off"));
+		if (active.type == DEVICE_HARDWARE_NONE) {
+			active.pin_nr = device.hardware.pin_nr;
+			active.type = device.type;
+			DigitalActuator actuator = DigitalActuator(device.hardware.pin_nr, false);
+			active.device = &actuator;
+			active.value = 0;
+		}
 
 		if (client) {
-			printDevice(client, device, first);
+			printDevice(client, device, active, first);
 		}
+
+		devices[slot] = device;
+		actives[slot] = active;
+		slot++;
 	}
 }
 
-int8_t DeviceManager::enumOneWirePins(uint8_t offset)
-{
-    if (offset==0)
-        return oneWirePin;
-    return -1;
+void DeviceManager::processOneWire(TCPClient& client, Device devices[], ActiveDevice actives[], uint8_t& slot, bool& first) {
+	OneWire* wire = new OneWire(ONE_WIRE_PIN);
+
+	if (wire != NULL) {
+
+		Device device;
+		ActiveDevice active;
+		conf.clear((uint8_t*) &device, sizeof(device));
+
+		device.hardware.pin_nr = ONE_WIRE_PIN;
+		device.hardware.is_invert = false;
+
+		wire->reset_search();
+
+		while (wire->search(device.hardware.hw_address)) {
+
+			fetchDeviceFromConfig(device);
+			getDevice(device.hardware.pin_nr, device.hardware.hw_address, active);
+
+			// if not in active devices already, add it and read initial value
+			if (active.type == DEVICE_HARDWARE_NONE) {
+				active.pin_nr = device.hardware.pin_nr;
+				memcpy(active.hw_address, device.hardware.hw_address, 8);
+				active.type = device.type;
+				if (device.type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
+					DS18B20 sensor = DS18B20(device.hardware.pin_nr, device.hardware.hw_address);
+					active.device = &sensor;
+				}
+				active.value = 0;
+			}
+
+			if (client) {
+				printDevice(client, device, active, first);
+			}
+
+			devices[slot] = device;
+			slot++;
+		}
+	}
 }
 
 int8_t DeviceManager::enumerateActuatorPins(uint8_t offset)
 {
     switch (offset) {
-        case 0: return actuatorPin1;
-        case 1: return actuatorPin2;
-        case 2: return actuatorPin3;
+        case 0: return ACTUATOR_PIN_1;
+        case 1: return ACTUATOR_PIN_2;
+        case 2: return ACTUATOR_PIN_3;
         default: return -1;
     }
 }
 
-void DeviceManager::printDevice(TCPClient& client, Device& device, bool& first) {
+void DeviceManager::getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, ActiveDevice& active) {
+	for(uint8_t i=0;i < MAX_DEVICES; i++) {
+		if (activeDevices[i].pin_nr == pin_nr && Helper::matchAddress(hw_address, activeDevices[i].hw_address, 8)) {
+			memcpy(&active, &activeDevices[i], sizeof(activeDevices[i]));
+			return;
+		}
+	}
+	conf.clear((uint8_t*) &active, sizeof(active));
+	active.type = DEVICE_HARDWARE_NONE;
+}
+
+void DeviceManager::fetchDeviceFromConfig(Device& device) {
+	if (conf.fetchDevice(device.hardware.pin_nr, device.hardware.hw_address, device) == -1) {
+		if (device.hardware.pin_nr == ONE_WIRE_PIN) {
+
+			device.function = DEVICE_FUNCTION_NONE;
+
+			switch (device.hardware.hw_address[0]) {
+				case DS18B20MODEL:
+					device.type = DEVICE_HARDWARE_ONEWIRE_TEMP;
+					break;
+				default:
+					device.type = DEVICE_HARDWARE_NONE;
+			}
+		}
+		else {
+			device.type = DEVICE_HARDWARE_ACTUATOR_DIGITAL;
+			device.function = DEVICE_FUNCTION_NONE;
+		}
+	}
+}
+
+void DeviceManager::printDevice(TCPClient& client, Device& device, ActiveDevice& active, bool& first) {
 
 	char buf[17];
 
@@ -196,7 +295,9 @@ void DeviceManager::printDevice(TCPClient& client, Device& device, bool& first) 
 	client.write('{');
 
 	printTouple(client, "type", (int32_t)device.type, true);
-	printTouple(client, "value", device.value, false);
+	char value[10];
+	sprintf(value, "%2.2f", active.value);
+	printTouple(client, "value", value, false);
 
 	client.write(",\"hardware\":{");
 	printTouple(client, "pin_nr", (int32_t)device.hardware.pin_nr, true);
@@ -205,7 +306,7 @@ void DeviceManager::printDevice(TCPClient& client, Device& device, bool& first) 
 	printTouple(client, "is_deactivate", device.hardware.is_deactivate, false);
 
 	client.write(",\"hw_address\":\"");
-	Helper::getBytes(device.hardware.address, 8, buf);
+	Helper::getBytes(device.hardware.hw_address, 8, buf);
 	client.write(buf);
 	client.write('"');
 

@@ -66,6 +66,9 @@ bool TcpListener::connected() {
 }
 
 bool TcpListener::processRequest(char action) {
+	char response[50];
+	DeviceRequest deviceRequest;
+
     switch (action) {
             // do nothing wrong request
         case ' ':
@@ -74,13 +77,18 @@ bool TcpListener::processRequest(char action) {
             break;
         // request one sensor data
         case 'a':
-        	DeviceRequest deviceRequest;
-        	parseJson(&TcpListener::receiveToggleRequest, &deviceRequest);
+        	parseJson(&TcpListener::receiveDeviceRequest, &deviceRequest);
         	deviceManager.sendDevice(client, deviceRequest);
         	break;
 		// request the device list
 		case 'd':
-			deviceManager.sendDeviceList(client);
+			deviceManager.searchAndSendDeviceList(client);
+			break;
+		// remoe device from Spark
+		case 'e':
+			parseJson(&TcpListener::receiveDeviceRequest, &deviceRequest);
+			deviceManager.removeDevice(deviceRequest, response);
+			client.write(response);
 			break;
 		// receive new firmware
         case 'f':
@@ -101,9 +109,9 @@ bool TcpListener::processRequest(char action) {
 			return true;
 		// toggle actuator
 		case 't':
-			DeviceRequest toggleRequest;
-			parseJson(&TcpListener::receiveToggleRequest, &toggleRequest);
-			client.write(deviceManager.toggleActuator(toggleRequest));
+			parseJson(&TcpListener::receiveDeviceRequest, &deviceRequest);
+			deviceManager.toggleActuator(deviceRequest, response);
+			client.write(response);
     }
 
     return false;
@@ -114,8 +122,6 @@ void TcpListener::processSparkInfo(const char * key, const char * val, void* pv)
         memcpy(&sparkInfo.name, val, strlen(val) + 1);
     else if (strcmp(key, "mode") == 0)
         memcpy(&sparkInfo.mode, val, strlen(val) + 1);
-    else if (strcmp(key, "config") == 0)
-        memcpy(&sparkInfo.config, val, strlen(val) + 1);
     else if (strcmp(key, "tempType") == 0)
         memcpy(&sparkInfo.tempType, val, strlen(val) + 1);
     else if (strcmp(key, "oinkweb") == 0)
@@ -135,21 +141,22 @@ void TcpListener::setDeviceMode(const char * key, const char * val, void* pv) {
 void TcpListener::resetSettings() {
     memcpy(&sparkInfo.name, "", 1);
     memcpy(&sparkInfo.mode, "MANUAL", 7);
-    memcpy(&sparkInfo.config, "", 1);
     memcpy(&sparkInfo.tempType, "C", 2);
     memcpy(&sparkInfo.oinkWeb, "", 1);
     conf.storeSparkInfo();
 }
 
-void TcpListener::receiveToggleRequest(const char * key, const char * val, void* pv) {
+void TcpListener::receiveDeviceRequest(const char * key, const char * val, void* pv) {
 	DeviceRequest *pDeviceRequest = static_cast<DeviceRequest*>(pv);
 
 	if (strcmp(key, "pin_nr") == 0)
 		pDeviceRequest->pin_nr = atoi(val);
 	else if (strcmp(key, "hw_address") == 0)
-		Helper::setBytes(pDeviceRequest->address, val, 8);
+		Helper::setBytes(pDeviceRequest->hw_address, val, 8);
 	else if (strcmp(key, "is_invert") == 0)
 		pDeviceRequest->is_invert = strcmp(val, "1") == 0 ? true : false;
+	else if (strcmp(key, "value") == 0)
+		pDeviceRequest->value = atoi(val);
 }
 
 void TcpListener::updateFirmware() {

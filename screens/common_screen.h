@@ -45,25 +45,25 @@ D4D_EXTERN_OBJECT(scr_btnFerm1);
 D4D_EXTERN_OBJECT(scr_btnFerm2);
 
 
-#define D4D_DECLARE_STD_LABEL_RIGHT(name, text, x, y, cx, cy, fontId, pScheme) \
+#define D4D_DECLARE_STD_LABEL_RIGHT(name, text, x, y, cx, cy, fontId, bg, fg) \
     static D4D_STR_PROPERTIES name##_strPrties = { D4D_LBL_FNT_PRTY_DEFAULT, D4D_LBL_TXT_PRTY_RIGHT}; \
     static D4D_CONST D4D_LABEL name##_params = \
     { \
         { text, D4D_TEXT_LEN(text), fontId, &name##_strPrties, D4D_OBJECT_MAX_TEXT_LEN(text), 0} /* textBuff */ \
     }; \
-    \
-    D4D_DECLARE_OBJECT(D4D_CONST, name, x, y, cx, cy, 0, NULL, NULL, NULL, &d4d_labelSysFunc, &(name##_params), (D4D_LBL_F_DEFAULT), NULL, pScheme)
+	WIDGET_COLOR_SCHEME name##_color = { bg, bg, bg, bg, fg, fg, fg, fg }; \
+    D4D_DECLARE_OBJECT(D4D_CONST, name, x, y, cx, cy, 0, NULL, NULL, NULL, &d4d_labelSysFunc, &(name##_params), (D4D_LBL_F_DEFAULT), NULL, AS_D4D_COLOR_SCHEME(&name##_color))
 
 
-
-#define D4D_DECLARE_STD_LABEL_CENTER(name, text, x, y, cx, cy, fontId, pScheme) \
+#define D4D_DECLARE_STD_LABEL_CENTER(name, text, x, y, cx, cy, fontId, bg, fg) \
     static D4D_STR_PROPERTIES name##_strPrties = { D4D_LBL_FNT_PRTY_DEFAULT, D4D_LBL_TXT_PRTY_CENTER}; \
     static D4D_CONST D4D_LABEL name##_params = \
     { \
         { text, D4D_TEXT_LEN(text), fontId, &name##_strPrties, D4D_OBJECT_MAX_TEXT_LEN(text), 0} /* textBuff */ \
     }; \
     \
-    D4D_DECLARE_OBJECT(D4D_CONST, name, x, y, cx, cy, 0, NULL, NULL, NULL, &d4d_labelSysFunc, &(name##_params), (D4D_LBL_F_DEFAULT), NULL, pScheme)
+	WIDGET_COLOR_SCHEME name##_color = { bg, bg, bg, bg, fg, fg, fg, fg }; \
+    D4D_DECLARE_OBJECT(D4D_CONST, name, x, y, cx, cy, 0, NULL, NULL, NULL, &d4d_labelSysFunc, &(name##_params), (D4D_LBL_F_DEFAULT), NULL, AS_D4D_COLOR_SCHEME(&name##_color))
 
 
 

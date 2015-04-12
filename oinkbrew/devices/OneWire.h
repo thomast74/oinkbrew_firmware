@@ -52,44 +52,44 @@
 class OneWire {
 public:
     // Argument is PinNr for OneWirePin device, address for bus master IC
-
     OneWire(uint8_t pa) : driver(pa) {
-        // base class OneWireLowLevelInterface configures pin or bus master IC
-#if ONEWIRE_SEARCH
-        reset_search();
-#endif
+    	reset_search();
     }
 
 private:
-#if ONEWIRE_SEARCH
     // global search state
     uint8_t ROM_NO[8];
     uint8_t LastDiscrepancy;
     uint8_t LastFamilyDiscrepancy;
     uint8_t LastDeviceFlag;
     OneWireDriver driver;
-#endif
 
 public:
-    // wrappers for low level functions
+
     bool init(){
         return driver.init();
     }    
+
     uint8_t read(){
         return driver.read();
     }
+
     void write(uint8_t b, uint8_t power = 0){
         driver.write(b, power);
     }
+
     void write_bit(uint8_t bit){
         driver.write_bit(bit);
     }
+
     uint8_t read_bit(){
         return driver.read_bit();
     }    
+
     uint8_t pinNr(){
         return driver.pinNr(); // return pin number or lower bits of I2C address
     }
+
     bool reset(){
         return driver.reset();
     }  
@@ -106,7 +106,6 @@ public:
 
     void read_bytes(uint8_t *buf, uint16_t count);
 
-#if ONEWIRE_SEARCH
     // Clear the search state so that if will start from the beginning again.
     void reset_search();
 
@@ -121,14 +120,11 @@ public:
     // get garbage.  The order is deterministic. You will always get
     // the same devices in the same order.
     uint8_t search(uint8_t *newAddr);
-#endif
 
-#if ONEWIRE_CRC
     // Compute a Dallas Semiconductor 8 bit CRC, these are used in the
     // ROM and scratchpad registers.
     static uint8_t crc8(const uint8_t *addr, uint8_t len);
 
-#if ONEWIRE_CRC16
     // Compute the 1-Wire CRC16 and compare it against the received CRC.
     // Example usage (reading a DS2408):
     //    // Put everything in a buffer so we can compute the CRC easily.
@@ -164,8 +160,6 @@ public:
     // @param crc - The crc starting value (optional)
     // @return The CRC16, as defined by Dallas Semiconductor.
     static uint16_t crc16(const uint8_t* input, uint16_t len, uint16_t crc = 0);
-#endif
-#endif
 };
 
 #endif

@@ -47,7 +47,7 @@
 #define DS2482_1WT	0x78 // 1-Wire Triplet
 
 
-class DS2482 /*: public OneWireLowLevelInterface */ {
+class DS2482 {
 public:
     //Address is 0-3
 
