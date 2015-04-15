@@ -63,6 +63,7 @@ void Helper::serialDebug(const char* message, bool lineFeed) {
             Serial.println(message);
         else
             Serial.print(message);
+        Serial.flush();
     }
 }
 
@@ -72,6 +73,7 @@ void Helper::serialDebug(int8_t message, bool lineFeed) {
             Serial.println(message);
         else
             Serial.print(message);
+        Serial.flush();
     }
 }
 

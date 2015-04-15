@@ -39,11 +39,11 @@ public:
     static bool loadDeviceInfo();
     static void storeSparkInfo();
 
-    static uint8_t getNumberDevices();
-    static uint8_t fetchDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Device& device);
+    static short getNumberDevices();
+    static short fetchDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Device& device);
     static void fetchDevices(Device devices[]);
     static void storeDevice(Device& device);
-    static void storeDevices(Device devices[], uint8_t& no_devices);
+    static void storeDevices(Device devices[], short no_devices);
     static void removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address);
 
     static bool loadEguiSettings();

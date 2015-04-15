@@ -112,6 +112,15 @@ bool TcpListener::processRequest(char action) {
 			parseJson(&TcpListener::receiveDeviceRequest, &deviceRequest);
 			deviceManager.toggleActuator(deviceRequest, response);
 			client.write(response);
+			break;
+		// bootloader mode
+		case '$':
+			System.bootloader();
+			break;
+		// reset spark
+		case '!':
+			System.reset();
+			break;
     }
 
     return false;

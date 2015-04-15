@@ -31,7 +31,7 @@
 #include "spark_wiring_tcpclient.h"
 
 
-const int8_t MAX_DEVICES = 16;
+const short MAX_DEVICES = 16;
 
 
 struct DeviceRequest {
@@ -45,8 +45,9 @@ struct DeviceRequest {
 class DeviceManager {
 private:
 	static ActiveDevice activeDevices[MAX_DEVICES];
+	static short registered_devices;
 public:
-
+	static void init();
 	static void loadDevicesFromEEPROM();
 	static void getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, ActiveDevice& active);
 	static void readValues();

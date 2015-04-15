@@ -1,165 +1,99 @@
-#pragma once
+#ifndef __ONEWIRE_H__
+#define __ONEWIRE_H__
+
+#include <inttypes.h>
+
+// Chose between a table based CRC (flash expensive, fast)
+// or a computed CRC (smaller, slow)
+#define ONEWIRE_CRC8_TABLE 			1
+
+#define DS2482_COMMAND_RESET		0xF0	// Device reset
+
+#define DS2482_COMMAND_SRP			0xE1 	// Set read pointer
+#define DS2482_POINTER_STATUS		0xF0
+#define DS2482_STATUS_BUSY			(1<<0)
+#define DS2482_STATUS_PPD			(1<<1)
+#define DS2482_STATUS_SD			(1<<2)
+#define DS2482_STATUS_LL			(1<<3)
+#define DS2482_STATUS_RST 			(1<<4)
+#define DS2482_STATUS_SBR			(1<<5)
+#define DS2482_STATUS_TSB 			(1<<6)
+#define DS2482_STATUS_DIR 			(1<<7)
+#define DS2482_POINTER_DATA			0xE1
+#define DS2482_POINTER_CONFIG		0xC3
+#define DS2482_CONFIG_APU			(1<<0)
+#define DS2482_CONFIG_SPU			(1<<2)
+#define DS2482_CONFIG_1WS			(1<<3)
 
 
-#ifndef OINKBREW_DEVICES_ONEWIRE_H_
-#define OINKBREW_DEVICES_ONEWIRE_H_
+#define DS2482_COMMAND_WRITECONFIG	0xD2
+#define DS2482_COMMAND_RESETWIRE	0xB4
+#define DS2482_COMMAND_WRITEBYTE	0xA5
+#define DS2482_COMMAND_READBYTE		0x96
+#define DS2482_COMMAND_SINGLEBIT	0x87
+#define DS2482_COMMAND_TRIPLET		0x78
 
-#include <stdint.h>
-#include "OneWireImpl.h"
+#define WIRE_COMMAND_SKIP			0xCC
+#define WIRE_COMMAND_SELECT			0x55
+#define WIRE_COMMAND_SEARCH			0xF0
 
-// You can exclude certain features from OneWire.  In theory, this
-// might save some space.  In practice, the compiler automatically
-// removes unused code (technically, the linker, using -fdata-sections
-// and -ffunction-sections when compiling, and Wl,--gc-sections
-// when linking), so most of these will not result in any code size
-// reduction.  Well, unless you try to use the missing features
-// and redesign your program to not need them!  ONEWIRE_CRC8_TABLE
-// is the exception, because it selects a fast but large algorithm
-// or a small but slow algorithm.
+#define DS2482_ERROR_TIMEOUT		(1<<0)
+#define DS2482_ERROR_SHORT			(1<<1)
+#define DS2482_ERROR_CONFIG			(1<<2)
 
-// you can exclude onewire_search by defining that to 0
-#ifndef ONEWIRE_SEARCH
-#define ONEWIRE_SEARCH 1
-#endif
-
-// You can exclude CRC checks altogether by defining this to 0
-#ifndef ONEWIRE_CRC
-#define ONEWIRE_CRC 1
-#endif
-
-// Select the table-lookup method of computing the 8-bit CRC
-// by setting this to 1.  The lookup table enlarges code size by
-// about 250 bytes.  It does NOT consume RAM (but did in very
-// old versions of OneWire).  If you disable this, a slower
-// but very compact algorithm is used.
-#ifndef ONEWIRE_CRC8_TABLE
-#define ONEWIRE_CRC8_TABLE 1
-#endif
-
-// You can allow 16-bit CRC checks by defining this to 1
-// (Note that ONEWIRE_CRC must also be 1.)
-#ifndef ONEWIRE_CRC16
-#define ONEWIRE_CRC16 1
-#endif
-
-#define FALSE 0
-#define TRUE  1
-
-#ifndef ONEWIRE_PARASITE_SUPPORT
-#define ONEWIRE_PARASITE_SUPPORT 1
-#endif
-
-class OneWire {
+class OneWire
+{
 public:
-    // Argument is PinNr for OneWirePin device, address for bus master IC
-    OneWire(uint8_t pa) : driver(pa) {
-    	reset_search();
-    }
+	OneWire();
+	OneWire(uint8_t address);
+
+	uint8_t getAddress();
+	uint8_t getError();
+	uint8_t checkPresence();
+
+	void deviceReset();
+	void setReadPointer(uint8_t readPointer);
+	uint8_t readStatus();
+	uint8_t readData();
+	uint8_t waitOnBusy();
+	uint8_t readConfig();
+	void writeConfig(uint8_t config);
+	void setStrongPullup();
+	void clearStrongPullup();
+	uint8_t wireReset();
+	void wireWriteByte(uint8_t data, uint8_t power = 0);
+	uint8_t wireReadByte();
+	void wireWriteBit(uint8_t data, uint8_t power = 0);
+	uint8_t wireReadBit();
+	void wireSkip();
+	void wireSelect(const uint8_t rom[8]);
+	void wireResetSearch();
+	uint8_t wireSearch(uint8_t *address);
+
+	// emulation of original OneWire library
+	void reset_search();
+	uint8_t search(uint8_t *newAddr);
+	static uint8_t crc8(const uint8_t *addr, uint8_t len);
+	uint8_t reset(void);
+	void select(const uint8_t rom[8]);
+	void skip(void);
+	void write(uint8_t v, uint8_t power = 0);
+	uint8_t read(void);
+	uint8_t read_bit(void);
+	void write_bit(uint8_t v);
 
 private:
-    // global search state
-    uint8_t ROM_NO[8];
-    uint8_t LastDiscrepancy;
-    uint8_t LastFamilyDiscrepancy;
-    uint8_t LastDeviceFlag;
-    OneWireDriver driver;
+	void begin();
+	uint8_t end();
+	void writeByte(uint8_t);
+	uint8_t readByte();
 
-public:
+	uint8_t mAddress;
+	uint8_t mError;
 
-    bool init(){
-        return driver.init();
-    }    
-
-    uint8_t read(){
-        return driver.read();
-    }
-
-    void write(uint8_t b, uint8_t power = 0){
-        driver.write(b, power);
-    }
-
-    void write_bit(uint8_t bit){
-        driver.write_bit(bit);
-    }
-
-    uint8_t read_bit(){
-        return driver.read_bit();
-    }    
-
-    uint8_t pinNr(){
-        return driver.pinNr(); // return pin number or lower bits of I2C address
-    }
-
-    bool reset(){
-        return driver.reset();
-    }  
-    
-    // high level functions
-    
-    // Issue a 1-Wire rom select command, you do the reset first.
-    void select(const uint8_t rom[8]);
-
-    // Issue a 1-Wire rom skip command, to address all on bus.
-    void skip(void);
-
-    void write_bytes(const uint8_t *buf, uint16_t count);
-
-    void read_bytes(uint8_t *buf, uint16_t count);
-
-    // Clear the search state so that if will start from the beginning again.
-    void reset_search();
-
-    // Setup the search to find the device type 'family_code' on the next call
-    // to search(*newAddr) if it is present.
-    void target_search(uint8_t family_code);
-
-    // Look for the next device. Returns 1 if a new address has been
-    // returned. A zero might mean that the bus is shorted, there are
-    // no devices, or you have already retrieved all of them.  It
-    // might be a good idea to check the CRC to make sure you didn't
-    // get garbage.  The order is deterministic. You will always get
-    // the same devices in the same order.
-    uint8_t search(uint8_t *newAddr);
-
-    // Compute a Dallas Semiconductor 8 bit CRC, these are used in the
-    // ROM and scratchpad registers.
-    static uint8_t crc8(const uint8_t *addr, uint8_t len);
-
-    // Compute the 1-Wire CRC16 and compare it against the received CRC.
-    // Example usage (reading a DS2408):
-    //    // Put everything in a buffer so we can compute the CRC easily.
-    //    uint8_t buf[13];
-    //    buf[0] = 0xF0;    // Read PIO Registers
-    //    buf[1] = 0x88;    // LSB address
-    //    buf[2] = 0x00;    // MSB address
-    //    WriteBytes(net, buf, 3);    // Write 3 cmd bytes
-    //    ReadBytes(net, buf+3, 10);  // Read 6 data bytes, 2 0xFF, 2 CRC16
-    //    if (!CheckCRC16(buf, 11, &buf[11])) {
-    //        // Handle error.
-    //    }     
-    //          
-    // @param input - Array of bytes to checksum.
-    // @param len - How many bytes to use.
-    // @param inverted_crc - The two CRC16 bytes in the received data.
-    //                       This should just point into the received data,
-    //                       *not* at a 16-bit integer.
-    // @param crc - The crc starting value (optional)
-    // @return True, iff the CRC matches.
-    static bool check_crc16(const uint8_t* input, uint16_t len, const uint8_t* inverted_crc, uint16_t crc = 0);
-
-    // Compute a Dallas Semiconductor 16 bit CRC.  This is required to check
-    // the integrity of data received from many 1-Wire devices.  Note that the
-    // CRC computed here is *not* what you'll get from the 1-Wire network,
-    // for two reasons:
-    //   1) The CRC is transmitted bitwise inverted.
-    //   2) Depending on the endian-ness of your processor, the binary
-    //      representation of the two-byte return value may have a different
-    //      byte order than the two bytes you get from 1-Wire.
-    // @param input - Array of bytes to checksum.
-    // @param len - How many bytes to use.
-    // @param crc - The crc starting value (optional)
-    // @return The CRC16, as defined by Dallas Semiconductor.
-    static uint16_t crc16(const uint8_t* input, uint16_t len, uint16_t crc = 0);
+	uint8_t searchAddress[8];
+	uint8_t searchLastDiscrepancy;
+	uint8_t searchLastDeviceFlag;
 };
 
 #endif

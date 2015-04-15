@@ -72,15 +72,24 @@ void Configuration::init() {
  * Return         : 
  ******************************************************************************/
 bool Configuration::loadDeviceInfo() {
-   if (sparkInfoFlash->read(&sparkInfo, 0, sizeof(SparkInfo)))
-        return true;
-   else
-        return false;
+	SparkInfo si;
+
+	if (sparkInfoFlash->read(&si, 0, sizeof(SparkInfo))) {
+		if (si.check[0] != 'C') {
+			storeSparkInfo();
+		} else {
+			memcpy(&si, &sparkInfo, sizeof(SparkInfo));
+		}
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 /*******************************************************************************
- * Function Name  : storeDeviceInfo
- * Description    : stores device information in flash memory
+ * Function Name  : storeSparkInfo
+ * Description    : stores spark information in flash memory
  * Input          : 
  * Output         : 
  * Return         : 
@@ -90,24 +99,41 @@ void Configuration::storeSparkInfo() {
 }
 
 /*******************************************************************************
+ * Function Name  : getNumberDevices
+ * Description    : get the number of devices stored in EEPROM
+ * Input          :
+ * Output         :
+ * Return         : number of devices stored in EEPROM
+ ******************************************************************************/
+short Configuration::getNumberDevices() {
+
+	short no_devices;
+
+	deviceSettingsFlash->read(&no_devices, 0, sizeof(short));
+
+	if (no_devices < 0 || no_devices > MAX_DEVICES)
+		no_devices = 0;
+
+	return no_devices;
+}
+
+/*******************************************************************************
  * Function Name  : fetchDevice
  * Description    : search if there is an existing
  * Input          : pin_nr and hw_adress to look for
  * Output         : true if found, false if not found
  * Return         :
  ******************************************************************************/
-uint8_t Configuration::fetchDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Device& device) {
+short Configuration::fetchDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Device& device) {
 
-	uint8_t max_slots;
-	uint32_t offset = sizeof(int8_t);
+	short no_devices = getNumberDevices();
+	uint32_t offset = sizeof(short);
 	uint32_t size_device = sizeof(Device);
 	Device device_search;
 
 	conf.clear((uint8_t*) &device_search, sizeof(device_search));
 
-	deviceSettingsFlash->read(&max_slots, 0, offset);
-
-	for(uint8_t slot = 0; slot < max_slots; slot++) {
+	for(short slot = 0; slot < no_devices; slot++) {
 		deviceSettingsFlash->read(&device_search, (size_device*slot) + offset, size_device);
 		if (device_search.hardware.pin_nr == pin_nr && Helper::matchAddress(hw_address, device_search.hardware.hw_address, 8)) {
 			memcpy(&device, &device_search, size_device);
@@ -119,23 +145,6 @@ uint8_t Configuration::fetchDevice(uint8_t& pin_nr, DeviceAddress& hw_address, D
 }
 
 /*******************************************************************************
- * Function Name  : getNumberDevices
- * Description    : get the number of devices stored in EEPROM
- * Input          :
- * Output         :
- * Return         : number of devices stored in EEPROM
- ******************************************************************************/
-uint8_t Configuration::getNumberDevices() {
-
-	uint8_t no_devices;
-	uint32_t offset = sizeof(int8_t);
-
-	deviceSettingsFlash->read(&no_devices, 0, offset);
-
-	return no_devices;
-}
-
-/*******************************************************************************
  * Function Name  : fetchDevices
  * Description    : load all devices from EEPROM
  * Input          :
@@ -144,13 +153,12 @@ uint8_t Configuration::getNumberDevices() {
  ******************************************************************************/
 void Configuration::fetchDevices(Device devices[]) {
 
-	uint8_t no_devices;
-	uint32_t offset = sizeof(int8_t);
+	short no_devices = getNumberDevices();
+
+	uint32_t offset = sizeof(short);
 	uint32_t size_device = sizeof(Device);
 
-	deviceSettingsFlash->read(&no_devices, 0, offset);
-
-	for(uint8_t slot = 0; slot < no_devices; slot++) {
+	for(short slot = 0; slot < no_devices; slot++) {
 		deviceSettingsFlash->read(&devices[slot], (size_device*slot) + offset, size_device);
 	}
 }
@@ -164,16 +172,14 @@ void Configuration::fetchDevices(Device devices[]) {
  ******************************************************************************/
 void Configuration::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
 
-	uint8_t no_devices;
-	uint32_t offset = sizeof(int8_t);
+	short no_devices = getNumberDevices();
+	uint32_t offset = sizeof(short);
 	uint32_t size_device = sizeof(Device);
 	Device device;
 
 	conf.clear((uint8_t*) &device, sizeof(device));
 
-	deviceSettingsFlash->read(&no_devices, 0, offset);
-
-	for(uint8_t slot = 0; slot < no_devices; slot++) {
+	for(short slot = 0; slot < no_devices; slot++) {
 		deviceSettingsFlash->read(&device, (size_device*slot) + offset, size_device);
 		if (device.hardware.pin_nr == pin_nr && Helper::matchAddress(hw_address, device.hardware.hw_address, 8)) {
 			conf.clear((uint8_t*) &device, sizeof(device));
@@ -192,18 +198,18 @@ void Configuration::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
  ******************************************************************************/
 void Configuration::storeDevice(Device& device) {
 
-	uint32_t offset = sizeof(int8_t);
+	uint32_t offset = sizeof(short);
 	uint32_t size_device = sizeof(Device);
 
 	Device device_search;
 	conf.clear((uint8_t*) &device_search, sizeof(device_search));
 
-	uint8_t slot = fetchDevice(device.hardware.pin_nr, device.hardware.hw_address, device_search);
+	short slot = fetchDevice(device.hardware.pin_nr, device.hardware.hw_address, device_search);
 	if (slot != -1) {
 		deviceSettingsFlash->write(&device, (size_device*slot) + offset, size_device);
 	}
 	else {
-		uint8_t max_slots;
+		short max_slots;
 		deviceSettingsFlash->read(&max_slots, 0, offset);
 		max_slots++;
 		deviceSettingsFlash->write(&max_slots, 0, offset);
@@ -218,14 +224,14 @@ void Configuration::storeDevice(Device& device) {
  * Output         : true if found, false if not found
  * Return         :
  ******************************************************************************/
-void Configuration::storeDevices(Device devices[], uint8_t& no_devices) {
+void Configuration::storeDevices(Device devices[], short no_devices) {
 
-	uint32_t offset = sizeof(int8_t);
+	uint32_t offset = sizeof(short);
 	uint32_t size_device = sizeof(Device);
 
 	deviceSettingsFlash->write(&no_devices, 0, offset);
 
-	for(uint8_t slot = 0; slot < no_devices; slot++) {
+	for(short slot = 0; slot < no_devices; slot++) {
 		deviceSettingsFlash->write(&devices[slot], (size_device*slot) + offset, size_device);
 	}
 }

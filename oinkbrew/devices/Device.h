@@ -70,7 +70,7 @@ struct ActiveDevice {
 	uint8_t pin_nr;
 	DeviceAddress hw_address;
 	DeviceType type;
-	void* device;
+	DeviceFunction function;
 	float value;
 };
 

@@ -128,6 +128,7 @@ void applicationInit()
     conf.loadDeviceInfo();
 
     screen.printStatusMessage("Initialise actuators and sensors");
+    deviceManager.init();
     deviceManager.loadDevicesFromEEPROM();
 }
 
