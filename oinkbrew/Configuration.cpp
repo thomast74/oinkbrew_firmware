@@ -78,7 +78,7 @@ bool Configuration::loadDeviceInfo() {
 		if (si.check[0] != 'C') {
 			storeSparkInfo();
 		} else {
-			memcpy(&si, &sparkInfo, sizeof(SparkInfo));
+			memcpy(&sparkInfo, &si, sizeof(SparkInfo));
 		}
 		return true;
 	}
