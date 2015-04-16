@@ -123,7 +123,11 @@ void updateInformationScreen() {
     updateLabel((D4D_OBJECT*)&scrInfo_valTemp, (D4D_CHAR*)sparkInfo.tempType);
     updateLabel((D4D_OBJECT*)&scrInfo_valFirmware, (D4D_CHAR*)OINK_BREW_VERSION);
     updateLabel((D4D_OBJECT*)&scrInfo_valIp, (D4D_CHAR*)Helper::getLocalIpStr().c_str());
-    updateLabel((D4D_OBJECT*)&scrInfo_valWeb, (D4D_CHAR*)sparkInfo.oinkWeb);    
+
+    String oinkWeb = reinterpret_cast<const char*>(sparkInfo.oinkWeb);
+    oinkWeb.concat(":");
+    oinkWeb.concat(sparkInfo.oinkWebPort);
+    updateLabel((D4D_OBJECT*)&scrInfo_valWeb, (D4D_CHAR*)oinkWeb.c_str());
 }
 
 void Screen::calibrateTouchScreen() {
