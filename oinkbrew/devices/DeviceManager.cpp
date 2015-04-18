@@ -34,6 +34,7 @@
 #include "PwmActuator.h"
 #include <string.h>
 
+
 ActiveDevice DeviceManager::activeDevices[MAX_DEVICES] = {};
 short DeviceManager::registered_devices = 0;
 
@@ -84,8 +85,11 @@ void DeviceManager::loadDevicesFromEEPROM() {
 	}
 }
 
-void DeviceManager::readValues() {
+short DeviceManager::noRegisteredDevices() {
+	return registered_devices;
+}
 
+void DeviceManager::readValues() {
 	for(short i=0; i < registered_devices; i++) {
 		if (activeDevices[i].type == DEVICE_HARDWARE_ACTUATOR_DIGITAL) {
 			DigitalActuator actuator = DigitalActuator(activeDevices[i].pin_nr, false);
@@ -131,8 +135,6 @@ void DeviceManager::sendDevice(TCPClient& client, DeviceRequest& deviceRequest) 
 	Device device;
 	ActiveDevice active;
 
-	conf.clear((uint8_t*) &device, sizeof(device));
-
 	device.hardware.pin_nr = deviceRequest.pin_nr;
 	memcpy(&device.hardware.hw_address, deviceRequest.hw_address, 8);
 
@@ -158,11 +160,13 @@ void DeviceManager::searchAndSendDeviceList(TCPClient& client) {
 	processOneWire(client, devices, actives, slot, first);
 
 	client.write("]");
+	client.flush();
 
-	for(short i = 0; i < MAX_DEVICES; i++) {
+	registered_devices = slot;
+
+	for(short i = 0; i < registered_devices; i++) {
 		activeDevices[i] = actives[i];
 	}
-	registered_devices = slot;
 
 	conf.storeDevices(devices, slot);
 }
@@ -270,6 +274,12 @@ int8_t DeviceManager::enumerateActuatorPins(uint8_t offset)
         case 2: return ACTUATOR_PIN_3;
         default: return -1;
     }
+}
+
+void DeviceManager::getDevice(short index, ActiveDevice& active) {
+	if (index >=0 && index < MAX_DEVICES) {
+		active = activeDevices[index];
+	}
 }
 
 void DeviceManager::getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, ActiveDevice& active) {

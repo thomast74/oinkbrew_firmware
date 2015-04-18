@@ -38,7 +38,7 @@ D4D_CHAR str_config[5] = "";
 D4D_CHAR str_TempType[2] = "";
 D4D_CHAR str_Firmware[5] = "";
 D4D_CHAR str_IpAddress[16] = "";
-D4D_CHAR str_OinkWeb[16] = "";
+D4D_CHAR str_OinkWeb[21] = "";
 
 
 D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblName,     "Name:",       5, 45,  95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);

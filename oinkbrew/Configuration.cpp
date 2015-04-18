@@ -274,5 +274,5 @@ void Configuration::storeEguiSettings() {
  * Return         :
  ******************************************************************************/
 void Configuration::clear(uint8_t* p, uint8_t size) {
-	while (size-->0) *p++ = 0;
+	memset(p, 0, size);
 }

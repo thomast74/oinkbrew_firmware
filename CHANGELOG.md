@@ -24,3 +24,8 @@ v0.1
 - During startup load devices from EEPROM and initialise actuators and sensors
 - Read sensor values every second
 - Remove a device from Active Devices and EEPROM, onl a rescan will add his device again
+
+- Receive $ message to restart Spark in bootloader
+- Receive ! message to restart Spark
+
+- Send connected devices (actuator/sensor) data every 15 seconds to oink brew web app

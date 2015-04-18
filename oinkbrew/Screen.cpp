@@ -74,7 +74,8 @@ void Screen::printStatusMessage(const char* message)
 void Screen::startupFinished()
 {
     buzzer.beep(2, 250);
-    showInformationScreen();
+    printStatusMessage("Running");
+    //showInformationScreen();
 }
 
 void Screen::showInformationScreen()

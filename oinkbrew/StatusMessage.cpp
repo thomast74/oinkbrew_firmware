@@ -30,7 +30,7 @@
 #include "spark_wiring_udp.h"
 #include "spark_wiring_wifi.h"
 #include "SparkInfo.h"
-
+#include <stdio.h>
 
 /*******************************************************************************
  * Function Name  : send
@@ -56,7 +56,13 @@ void StatusMessage::send() {
     jsonMessage.concat("\",\"ip_address\":\"");
     jsonMessage.concat(Helper::getLocalIpStr().c_str());
     jsonMessage.concat("\",\"web_address\":\"");
-    jsonMessage.concat(reinterpret_cast<const char*>(sparkInfo.oinkWeb));
+
+    char buf[16];
+    sprintf(buf, "%i.%i.%i.%i", sparkInfo.oinkWeb[0], sparkInfo.oinkWeb[1], sparkInfo.oinkWeb[2], sparkInfo.oinkWeb[3]);
+    jsonMessage.concat(buf);
+
+    jsonMessage.concat("\",\"web_port\":\"");
+    jsonMessage.concat(sparkInfo.oinkWebPort);
     jsonMessage.concat("\"}");
 
     Helper::serialDebug("Send status message");
@@ -67,7 +73,7 @@ void StatusMessage::send() {
     udp.write(jsonMessage.c_str());
 
     udp.endPacket();
-    udp.flush();
+    delay(50);
     udp.stop();
     
     Helper::serialDebug("Status message sent");

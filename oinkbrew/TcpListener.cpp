@@ -39,7 +39,7 @@ extern "C" {
 }
 
 #define MAX_DATA_BYTES 4096
-
+#define ACK 6
 
 TCPServer server = TCPServer(LOCAL_LISTENER_PORT);
 TCPClient client;
@@ -55,8 +55,6 @@ bool TcpListener::connected() {
     if (client.connected()) {
         if (client.available()) {
             needsScreenUpdate = processRequest(client.read());
-            client.flush();
-            client.stop();
         }
     } else {
         client = server.available();
@@ -79,10 +77,12 @@ bool TcpListener::processRequest(char action) {
         case 'a':
         	parseJson(&TcpListener::receiveDeviceRequest, &deviceRequest);
         	deviceManager.sendDevice(client, deviceRequest);
+        	client.write(ACK);
         	break;
 		// request the device list
 		case 'd':
 			deviceManager.searchAndSendDeviceList(client);
+			client.write(ACK);
 			break;
 		// remoe device from Spark
 		case 'e':
@@ -97,15 +97,18 @@ bool TcpListener::processRequest(char action) {
         // receive and set device mode
         case 'm':
             parseJson(&TcpListener::processSparkInfo, NULL);
+            client.write("Ok");
             return true;
         // reset settings
         case 'r':
             resetSettings();
+            client.write("Ok");
             return true;
 		// receive and process spark infoclient.write(
 		case 's':
 			parseJson(&TcpListener::processSparkInfo, NULL);
 			conf.storeSparkInfo();
+			client.write("Ok");
 			return true;
 		// toggle actuator
 		case 't':
@@ -133,8 +136,13 @@ void TcpListener::processSparkInfo(const char * key, const char * val, void* pv)
         memcpy(&sparkInfo.mode, val, strlen(val) + 1);
     else if (strcmp(key, "tempType") == 0)
         memcpy(&sparkInfo.tempType, val, strlen(val) + 1);
-    else if (strcmp(key, "oinkweb") == 0)
-        memcpy(&sparkInfo.oinkWeb, val, strlen(val) + 1);
+    else if (strcmp(key, "oinkweb") == 0) {
+    	uint8_t address[4];
+    	Helper::getRawIp(val, address);
+        memcpy(&sparkInfo.oinkWeb, &address, 4);
+    }
+    else if (strcmp(key, "oinkwebport") == 0)
+        sparkInfo.oinkWebPort = atoi(val);
     else if (strcmp(key, "datetime") == 0) {
     	Time.setTime(atoi (val));
     }

@@ -25,6 +25,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "Helper.h"
+#include "spark_wiring_string.h"
 #include "spark_wiring_usbserial.h"
 #include "spark_wiring_wifi.h"
 #include "Settings.h"
@@ -116,6 +117,62 @@ String Helper::getLocalIpStr()
     ipAddressStr.concat(address[3]);
     
     return ipAddressStr;
+}
+
+/*******************************************************************************
+ * Function Name  : getIpStr
+ * Description    : convert IPAddress into a String object
+ * Input          : String representation of the IPAddress
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+String Helper::getIpStr(IPAddress ip)
+{
+    uint8_t* address = ip.raw_address();
+
+    String ipAddressStr = "";
+    ipAddressStr.concat(address[0]);
+    ipAddressStr.concat(".");
+    ipAddressStr.concat(address[1]);
+    ipAddressStr.concat(".");
+    ipAddressStr.concat(address[2]);
+    ipAddressStr.concat(".");
+    ipAddressStr.concat(address[3]);
+
+    return ipAddressStr;
+}
+
+/*******************************************************************************
+ * Function Name  : getIp
+ * Description    : Convert a char* into a IPAddress object
+ * Input          : IPAddress
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void Helper::getRawIp(const char * ipString, uint8_t* address) {
+
+	String strIpAddress = ipString;
+
+	int startIndex = 0;
+	int endIndex = strIpAddress.indexOf('.');
+	if (endIndex > 0) {
+		address[0] = strIpAddress.substring(startIndex, endIndex).toInt();
+		startIndex = endIndex + 1;
+	}
+
+	endIndex = strIpAddress.indexOf('.', startIndex);
+	if (endIndex > 0) {
+		address[1] = strIpAddress.substring(startIndex, endIndex).toInt();
+		startIndex = endIndex + 1;
+	}
+
+	endIndex = strIpAddress.indexOf('.', startIndex);
+	if (endIndex > 0) {
+		address[2] = strIpAddress.substring(startIndex, endIndex).toInt();
+		startIndex = endIndex + 1;
+	}
+	address[3] = strIpAddress.substring(startIndex).toInt();
+
 }
 
 /*******************************************************************************

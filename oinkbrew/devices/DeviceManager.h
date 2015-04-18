@@ -49,6 +49,8 @@ private:
 public:
 	static void init();
 	static void loadDevicesFromEEPROM();
+	static short noRegisteredDevices();
+	static void getDevice(short index, ActiveDevice& active);
 	static void getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, ActiveDevice& active);
 	static void readValues();
 

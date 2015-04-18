@@ -37,7 +37,8 @@ extern const short REMOTE_LISTENER_PORT;
 extern const short LOCAL_LISTENER_PORT;
 
 extern const unsigned long DURATION_RUN;
-extern const unsigned long DURATION_MESSAGE;
+extern const unsigned long DURATION_LOG;
+extern const unsigned long DURATION_MSG;
 
 
 #endif

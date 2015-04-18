@@ -37,6 +37,8 @@ public:
     static void serialDebug(const char* message, bool lineFeed = true);
     static void serialDebug(int8_t message, bool lineFeed = true);
 
+    static String getIpStr(IPAddress ip);
+    static void getRawIp(const char* ipString, uint8_t* address);
     static IPAddress getLocalIp();
     static IPAddress getBroadcastAddress();
     static String getLocalIpStr();

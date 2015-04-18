@@ -33,6 +33,7 @@
 #include "Screen.h"
 #include "SparkInfo.h"
 #include "TcpListener.h"
+#include "TcpLogger.h"
 
 
 /* Declarations --------------------------------------------------------------*/  
@@ -40,8 +41,9 @@ void applicationInit();
 void wifiInit();
 
 
-static unsigned long lastStatus = -1000;
-static unsigned long lastStatusMessage = -121000;
+static unsigned long lastRun = -1000;
+static unsigned long lastLog = 0;
+static unsigned long lastMsg = -121000;
 
 
 SYSTEM_MODE(MANUAL);
@@ -49,6 +51,7 @@ SYSTEM_MODE(MANUAL);
 
 SparkInfo sparkInfo;
 TcpListener listener;
+TcpLogger logger;
 
 
 /*******************************************************************************
@@ -89,26 +92,36 @@ void setup()
  ******************************************************************************/
 void loop()
 {
-     // update screen and check for touch input
-    screen.ticks();    
-   
-    if((millis() - lastStatus) >= DURATION_RUN)
+	long unsigned int time = millis();
+
+    // update screen and check for touch input
+    //screen.ticks();
+
+    // every second read actuator and sensor values
+    if((time - lastRun) >= DURATION_RUN)
     {
-        lastStatus = millis();
+        lastRun = time;
         deviceManager.readValues();
     }
 
-    if((millis() - lastStatusMessage) >= DURATION_MESSAGE)
+    // every 15 seconds log actuator and sensor values
+    if((time - lastLog) >= DURATION_LOG)
     {
-        Helper::serialDebug("Loop wants to send status message");
-        lastStatusMessage = millis();
+    	lastLog = time;
+    	logger.logDeviceValues();
+    }
+
+    // every 2 minutes send a status message
+    if((time - lastMsg) >= DURATION_MSG)
+    {
+        lastMsg = time;
         StatusMessage::send();
     }    
 
     // check for client connectivity
 	if (listener.connected())
 	{
-		screen.update();
+		//screen.update();
 	}
 }
 
@@ -121,11 +134,12 @@ void loop()
  ******************************************************************************/
 void applicationInit()
 {
-    screen.printStatusMessage("Start TCP Server");
-    listener.init();
-    
     screen.printStatusMessage("Load configuration data");
     conf.loadDeviceInfo();
+
+    screen.printStatusMessage("Start TCP Server");
+    listener.init();
+    logger.init();
 
     screen.printStatusMessage("Initialise actuators and sensors");
     deviceManager.init();

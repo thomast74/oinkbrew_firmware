@@ -28,11 +28,12 @@
 #define	SPARKINFO_H
 
 struct SparkInfo {
-	unsigned char check[2] = "C";
     unsigned char name[31] = "";
     unsigned char mode[10] = "MANUAL";
     unsigned char tempType[2] = "C";
-    unsigned char oinkWeb[16] = "";
+    uint8_t oinkWeb[4] = { 0, 0, 0, 0 };
+    int oinkWebPort = 80;
+	unsigned char check[2] = "C";
 };
 
 extern SparkInfo sparkInfo;
