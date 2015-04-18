@@ -51,12 +51,13 @@ void TcpLogger::init() {
 
 void TcpLogger::logDeviceValues() {
 
+	IPAddress oinkWebIp(sparkInfo.oinkWeb);
+
 	// only log if device is not in MANUAL mode
-	if (strcmp(reinterpret_cast<const char*>(sparkInfo.mode), "MANUAL") == 0)
+	if (strcmp(reinterpret_cast<const char*>(sparkInfo.mode), "MANUAL") == 0 || oinkWebIp == IPAddress(0, 0, 0, 0))
 		return;
 
-	IPAddress ipFromBytes(sparkInfo.oinkWeb);
-	request.ip = ipFromBytes;
+	request.ip = oinkWebIp;
 	request.port = sparkInfo.oinkWebPort;
 
 	ActiveDevice active;
