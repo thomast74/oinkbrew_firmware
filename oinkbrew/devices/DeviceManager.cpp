@@ -33,6 +33,7 @@
 #include "DigitalActuator.h"
 #include "PwmActuator.h"
 #include <string.h>
+#include <stddef.h>
 
 
 ActiveDevice DeviceManager::activeDevices[MAX_DEVICES] = {};
@@ -75,7 +76,6 @@ void DeviceManager::loadDevicesFromEEPROM() {
 		}
 		else if (devices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
 			activeDevices[i].value = sensors.getTempC(activeDevices[i].hw_address);
-			Helper::serialDebug(activeDevices[i].value);
 		}
 	}
 
@@ -90,6 +90,7 @@ short DeviceManager::noRegisteredDevices() {
 }
 
 void DeviceManager::readValues() {
+
 	for(short i=0; i < registered_devices; i++) {
 		if (activeDevices[i].type == DEVICE_HARDWARE_ACTUATOR_DIGITAL) {
 			DigitalActuator actuator = DigitalActuator(activeDevices[i].pin_nr, false);
@@ -115,6 +116,31 @@ void DeviceManager::readValues() {
 
 	// send request for sensor data so theya re available next round in a second
 	sensors.requestTemperatures();
+}
+
+bool DeviceManager::findNewDevices() {
+
+	bool new_device_found = false;
+	uint8_t no_found_devices = 0;
+	Device devices[MAX_DEVICES];
+	ActiveDevice actives[MAX_DEVICES];
+
+	processActuators(devices, actives, no_found_devices);
+	processOneWire(devices, actives, no_found_devices);
+
+	for(short i=0; i < no_found_devices;i++) {
+		if (actives[i].newly_found) {
+
+			actives[i].newly_found = false;
+
+			memcpy(&activeDevices[registered_devices], &actives[i], sizeof(actives[i]));
+			conf.storeDevice(devices[i]);
+			registered_devices++;
+			new_device_found = true;
+		}
+	}
+
+	return new_device_found;
 }
 
 void DeviceManager::removeDevice(DeviceRequest& deviceRequest, char* response) {
@@ -169,24 +195,25 @@ void DeviceManager::sendDevice(TCPClient& client, DeviceRequest& deviceRequest) 
 
 void DeviceManager::searchAndSendDeviceList(TCPClient& client) {
 
-	client.write("[");
-
-	bool first = true;
 	uint8_t slot = 0;
 	Device devices[MAX_DEVICES];
 	ActiveDevice actives[MAX_DEVICES];
 
-	processActuators(client, devices, actives, slot, first);
-	processOneWire(client, devices, actives, slot, first);
+	processActuators(devices, actives, slot);
+	processOneWire(devices, actives, slot);
+
+	registered_devices = slot;
+	bool first = true;
+
+	client.write("[");
+
+	for(short i = 0; i < registered_devices; i++) {
+		printDevice(client, devices[i], actives[i], first);
+		memcpy(&activeDevices[i], &actives[i], sizeof(actives[i]));
+	}
 
 	client.write("]");
 	client.flush();
-
-	registered_devices = slot;
-
-	for(short i = 0; i < registered_devices; i++) {
-		activeDevices[i] = actives[i];
-	}
 
 	conf.storeDevices(devices, slot);
 }
@@ -209,16 +236,12 @@ void DeviceManager::toggleActuator(DeviceRequest& deviceRequest, char* response)
 	}
 }
 
-void DeviceManager::processActuators(TCPClient& client, Device devices[], ActiveDevice actives[], uint8_t& slot, bool& first) {
+void DeviceManager::processActuators(Device devices[], ActiveDevice actives[], uint8_t& slot) {
 
 	int8_t pin_nr;
 	for (uint8_t count = 0; (pin_nr = enumerateActuatorPins(count)) >= 0; count++) {
-		Helper::serialDebug(pin_nr);
-
 		Device device;
 		ActiveDevice active;
-		conf.clear((uint8_t*) &device, sizeof(device));
-		conf.clear((uint8_t*) &active, sizeof(active));
 
 		device.hardware.pin_nr = pin_nr;
 
@@ -226,16 +249,11 @@ void DeviceManager::processActuators(TCPClient& client, Device devices[], Active
 		getDevice(device.hardware.pin_nr, device.hardware.hw_address, active);
 
 		if (active.type == DEVICE_HARDWARE_NONE) {
-			Helper::serialDebug("New actuator");
-
+			active.newly_found = true;
 			active.pin_nr = device.hardware.pin_nr;
 			active.type = device.type;
 			active.function = device.function;
 			active.value = 0;
-		}
-
-		if (client) {
-			printDevice(client, device, active, first);
 		}
 
 		memcpy(&devices[slot], &device, sizeof(device));
@@ -244,7 +262,7 @@ void DeviceManager::processActuators(TCPClient& client, Device devices[], Active
 	}
 }
 
-void DeviceManager::processOneWire(TCPClient& client, Device devices[], ActiveDevice actives[], uint8_t& slot, bool& first) {
+void DeviceManager::processOneWire(Device devices[], ActiveDevice actives[], uint8_t& slot) {
 
 	DeviceAddress hw_address;
 
@@ -263,18 +281,13 @@ void DeviceManager::processOneWire(TCPClient& client, Device devices[], ActiveDe
 
 		// if not in active devices already, add it and read initial value
 		if (active.type == DEVICE_HARDWARE_NONE) {
-			Helper::serialDebug("New active sensor");
-
+			active.newly_found = true;
 			active.pin_nr = device.hardware.pin_nr;
 			memcpy(active.hw_address, device.hardware.hw_address, 8);
 
 			active.type = device.type;
 			active.function = device.function;
 			active.value = 0;
-		}
-
-		if (client) {
-			printDevice(client, device, active, first);
 		}
 
 		memcpy(&devices[slot], &device, sizeof(device));
@@ -312,10 +325,6 @@ void DeviceManager::getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Active
 
 void DeviceManager::fetchDeviceFromConfig(Device& device) {
 	if (conf.fetchDevice(device.hardware.pin_nr, device.hardware.hw_address, device) == -1) {
-
-		Helper::serialDebug("Did not find device in EEPROM: ", false);
-		Helper::serialDebug(device.hardware.pin_nr);
-
 		if (device.hardware.pin_nr == ONE_WIRE_PIN) {
 
 			device.function = DEVICE_FUNCTION_NONE;

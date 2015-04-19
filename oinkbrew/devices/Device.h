@@ -72,6 +72,7 @@ struct ActiveDevice {
 	DeviceType type;
 	DeviceFunction function;
 	float value;
+	bool newly_found;
 };
 
 struct Device {

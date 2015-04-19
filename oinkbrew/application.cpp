@@ -108,6 +108,7 @@ void loop()
     if((time - lastLog) >= DURATION_LOG)
     {
     	lastLog = time;
+    	deviceManager.findNewDevices();
     	logger.logDeviceValues();
     }
 

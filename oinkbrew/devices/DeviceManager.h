@@ -55,7 +55,7 @@ public:
 	static void getDevice(short index, ActiveDevice& active);
 	static void getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, ActiveDevice& active);
 	static void readValues();
-
+	static bool findNewDevices();
 	static bool removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address);
 	static void removeDevice(DeviceRequest& deviceRequest, char* response);
 
@@ -63,8 +63,8 @@ public:
 	static void searchAndSendDeviceList(TCPClient& client);
 	static void toggleActuator(DeviceRequest& deviceRequest, char* response);
 private:
-	static void processActuators(TCPClient& client, Device devices[], ActiveDevice activeDevices[], uint8_t& slot, bool& first);
-	static void processOneWire(TCPClient& client, Device devices[], ActiveDevice activeDevices[], uint8_t& slot, bool& first);
+	static void processActuators(Device devices[], ActiveDevice activeDevices[], uint8_t& slot);
+	static void processOneWire(Device devices[], ActiveDevice activeDevices[], uint8_t& slot);
 
 	static void fetchDeviceFromConfig(Device& device);
 
