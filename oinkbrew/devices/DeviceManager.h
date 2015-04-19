@@ -31,6 +31,8 @@
 #include "spark_wiring_tcpclient.h"
 
 
+#define INVALID_TEMP -127.00000
+
 const short MAX_DEVICES = 16;
 
 
@@ -54,6 +56,7 @@ public:
 	static void getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, ActiveDevice& active);
 	static void readValues();
 
+	static bool removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address);
 	static void removeDevice(DeviceRequest& deviceRequest, char* response);
 
 	static void sendDevice(TCPClient& client, DeviceRequest& deviceRequest);

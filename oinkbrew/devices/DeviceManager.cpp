@@ -101,6 +101,15 @@ void DeviceManager::readValues() {
 		}
 		else if (activeDevices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
 			activeDevices[i].value = sensors.getTempC(activeDevices[i].hw_address);
+			if (activeDevices[i].value <= DEVICE_DISCONNECTED_C) {
+
+				conf.removeDevice(activeDevices[i].pin_nr, activeDevices[i].hw_address);
+
+				activeDevices[i].function = DEVICE_FUNCTION_NONE;
+				activeDevices[i].pin_nr = -1;
+				Helper::setBytes(activeDevices[i].hw_address, "9000000000000000", 8);
+				activeDevices[i].type = DEVICE_HARDWARE_NONE;
+			}
 		}
 	}
 
@@ -109,25 +118,36 @@ void DeviceManager::readValues() {
 }
 
 void DeviceManager::removeDevice(DeviceRequest& deviceRequest, char* response) {
+
 	// check if part of any configuration
 	// if yes return error
 
+	if (removeDevice(deviceRequest.pin_nr, deviceRequest.hw_address))
+		strcpy(response, "OK");
+	else
+		strcpy(response, "Device not found");
+}
+
+bool DeviceManager::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
+
 	for(uint8_t i=0;i < MAX_DEVICES; i++) {
-		if (activeDevices[i].pin_nr == deviceRequest.pin_nr && Helper::matchAddress(deviceRequest.hw_address, activeDevices[i].hw_address, 8)) {
+		if (activeDevices[i].pin_nr == pin_nr && Helper::matchAddress(hw_address, activeDevices[i].hw_address, 8)) {
 			ActiveDevice activeDevice;
 			conf.clear((uint8_t*) &activeDevice, sizeof(activeDevice));
 
+			activeDevices[i].pin_nr = -1;
+			Helper::setBytes(activeDevices[i].hw_address, "9000000000000000", 8);
 			activeDevices[i] = activeDevice;
+			activeDevices[i].type = DEVICE_HARDWARE_NONE;
+			activeDevices[i].function = DEVICE_FUNCTION_NONE;
 
-			conf.removeDevice(deviceRequest.pin_nr, deviceRequest.hw_address);
+			conf.removeDevice(pin_nr, hw_address);
 
-			strcpy(response, "OK");
-
-			return;
+			return true;
 		}
 	}
 
-	strcpy(response, "Device not found");
+	return false;
 }
 
 void DeviceManager::sendDevice(TCPClient& client, DeviceRequest& deviceRequest) {
@@ -218,8 +238,8 @@ void DeviceManager::processActuators(TCPClient& client, Device devices[], Active
 			printDevice(client, device, active, first);
 		}
 
-		devices[slot] = device;
-		actives[slot] = active;
+		memcpy(&devices[slot], &device, sizeof(device));
+		memcpy(&actives[slot], &active, sizeof(active));
 		slot++;
 	}
 }
@@ -233,10 +253,7 @@ void DeviceManager::processOneWire(TCPClient& client, Device devices[], ActiveDe
 	while (oneWire.search(hw_address)) {
 
 		Device device;
-		conf.clear((uint8_t*) &device, sizeof(device));
-
 		ActiveDevice active;
-		conf.clear((uint8_t*) &active, sizeof(active));
 
 		device.hardware.pin_nr = ONE_WIRE_PIN;
 		memcpy(device.hardware.hw_address, hw_address, 8);
@@ -260,8 +277,8 @@ void DeviceManager::processOneWire(TCPClient& client, Device devices[], ActiveDe
 			printDevice(client, device, active, first);
 		}
 
-		devices[slot] = device;
-		actives[slot] = active;
+		memcpy(&devices[slot], &device, sizeof(device));
+		memcpy(&actives[slot], &active, sizeof(active));
 		slot++;
 	}
 }

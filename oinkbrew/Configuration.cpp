@@ -182,7 +182,15 @@ void Configuration::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
 	for(short slot = 0; slot < no_devices; slot++) {
 		deviceSettingsFlash->read(&device, (size_device*slot) + offset, size_device);
 		if (device.hardware.pin_nr == pin_nr && Helper::matchAddress(hw_address, device.hardware.hw_address, 8)) {
-			conf.clear((uint8_t*) &device, sizeof(device));
+			device.function = DEVICE_FUNCTION_NONE;
+			device.type = DEVICE_HARDWARE_NONE;
+
+			device.hardware.pin_nr = -1;
+			Helper::setBytes(device.hardware.hw_address, "9000000000000000", 8);
+			device.hardware.offset = 0;
+			device.hardware.is_deactivate = false;
+			device.hardware.is_invert = false;
+
 			deviceSettingsFlash->write(&device, (size_device*slot) + offset, size_device);
 			return;
 		}

@@ -27,8 +27,8 @@
 #include "spark_wiring_ipaddress.h"
 
 
-const char OINK_BREW_VERSION[] = "0.1";
-const char OINK_BREW_VERSION_STRING[] = "Version: 0.1";
+const char OINK_BREW_VERSION[] = "0.2";
+const char OINK_BREW_VERSION_STRING[] = "Version: 0.2";
 
 
 const short REMOTE_LISTENER_PORT = 7872;
