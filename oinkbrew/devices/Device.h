@@ -83,7 +83,7 @@ struct Device {
 	struct Hardware {
 		uint8_t pin_nr;			// the arduino pin nr this device is connected to
 		DeviceAddress hw_address;	// for onewire devices, if address[0]==0 then use the first matching device type, otherwise use the device with the specific address
-		int32_t offset;			// calibrated offset for temperatur sensor
+		float offset;			// calibrated offset for temperatur sensor
 		bool is_invert;			// for actuators/sensors, controls if the signal value is inverted.
 		bool is_deactivate;		// In case device is deactivated. no logging or data collection will be done
 	} hardware;

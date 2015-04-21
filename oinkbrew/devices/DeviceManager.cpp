@@ -28,6 +28,7 @@
 #include "../Configuration.h"
 #include "../Helper.h"
 #include "../Platform.h"
+#include "../TcpLogger.h"
 #include "OneWire.h"
 #include "DallasTemperatureSensor.h"
 #include "DigitalActuator.h"
@@ -133,9 +134,12 @@ bool DeviceManager::findNewDevices() {
 
 			actives[i].newly_found = false;
 
-			memcpy(&activeDevices[registered_devices], &actives[i], sizeof(actives[i]));
+			memcpy(&activeDevices[registered_devices], &actives[i], sizeof(ActiveDevice));
 			conf.storeDevice(devices[i]);
 			registered_devices++;
+
+			logger.sendNewDevice(devices[i]);
+
 			new_device_found = true;
 		}
 	}
@@ -209,7 +213,7 @@ void DeviceManager::searchAndSendDeviceList(TCPClient& client) {
 
 	for(short i = 0; i < registered_devices; i++) {
 		printDevice(client, devices[i], actives[i], first);
-		memcpy(&activeDevices[i], &actives[i], sizeof(actives[i]));
+		memcpy(&activeDevices[i], &actives[i], sizeof(ActiveDevice));
 	}
 
 	client.write("]");
@@ -256,8 +260,8 @@ void DeviceManager::processActuators(Device devices[], ActiveDevice actives[], u
 			active.value = 0;
 		}
 
-		memcpy(&devices[slot], &device, sizeof(device));
-		memcpy(&actives[slot], &active, sizeof(active));
+		memcpy(&devices[slot], &device, sizeof(Device));
+		memcpy(&actives[slot], &active, sizeof(ActiveDevice));
 		slot++;
 	}
 }
@@ -290,8 +294,8 @@ void DeviceManager::processOneWire(Device devices[], ActiveDevice actives[], uin
 			active.value = 0;
 		}
 
-		memcpy(&devices[slot], &device, sizeof(device));
-		memcpy(&actives[slot], &active, sizeof(active));
+		memcpy(&devices[slot], &device, sizeof(Device));
+		memcpy(&actives[slot], &active, sizeof(ActiveDevice));
 		slot++;
 	}
 }
@@ -315,7 +319,7 @@ void DeviceManager::getDevice(short index, ActiveDevice& active) {
 void DeviceManager::getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, ActiveDevice& active) {
 	for(uint8_t i=0;i < MAX_DEVICES; i++) {
 		if (activeDevices[i].pin_nr == pin_nr && Helper::matchAddress(hw_address, activeDevices[i].hw_address, 8)) {
-			memcpy(&active, &activeDevices[i], sizeof(activeDevices[i]));
+			memcpy(&active, &activeDevices[i], sizeof(ActiveDevice));
 			return;
 		}
 	}
@@ -362,7 +366,9 @@ void DeviceManager::printDevice(TCPClient& client, Device& device, ActiveDevice&
 
 	client.write(",\"hardware\":{");
 	printTouple(client, "pin_nr", (int32_t)device.hardware.pin_nr, true);
-	printTouple(client, "offset", device.hardware.offset, false);
+
+	sprintf(value, "%2.2f", device.hardware.offset);
+	printTouple(client, "offset", value, false);
 	printTouple(client, "is_invert", device.hardware.is_invert, false);
 	printTouple(client, "is_deactivate", device.hardware.is_deactivate, false);
 

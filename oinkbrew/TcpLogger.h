@@ -27,12 +27,14 @@
 #define OINKBREW_TCPLOGGER_H_
 
 #include "HttpClient.h"
+#include "devices/Device.h"
 #include <stddef.h>
 
 class TcpLogger {
 public:
 	static void init();
 	static void logDeviceValues();
+	static void sendNewDevice(Device &device);
 };
 
 extern TcpLogger logger;
