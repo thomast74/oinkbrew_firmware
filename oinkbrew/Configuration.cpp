@@ -105,16 +105,42 @@ void Configuration::storeSparkInfo() {
  * Output         :
  * Return         : number of devices stored in EEPROM
  ******************************************************************************/
-short Configuration::getNumberDevices() {
+short Configuration::fetchNumberDevices() {
 
-	short no_devices;
+	char no_devices_char;
+	int no_devices;
 
-	deviceSettingsFlash->read(&no_devices, 0, sizeof(short));
+	deviceSettingsFlash->read(&no_devices_char, 0, sizeof(char));
+
+	no_devices = atoi(&no_devices_char);
 
 	if (no_devices < 0 || no_devices > MAX_DEVICES)
 		no_devices = 0;
 
+	String msg = "No devices: ";
+	msg.concat(no_devices);
+	Helper::serialDebug(msg.c_str());
+
 	return no_devices;
+}
+
+/*******************************************************************************
+ * Function Name  : storeNumberDevices
+ * Description    : saves number of devices in EEPROM
+ * Input          :
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void Configuration::storeNumberDevices(short no_devices) {
+
+	char no_devices_char;
+	itoa(no_devices, &no_devices_char, 10);
+
+	String msg = "New no devices: ";
+	msg.concat(no_devices_char);
+	Helper::serialDebug(msg.c_str());
+
+	deviceSettingsFlash->write(&no_devices_char, 0, sizeof(char));
 }
 
 /*******************************************************************************
@@ -126,11 +152,11 @@ short Configuration::getNumberDevices() {
  ******************************************************************************/
 short Configuration::fetchDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Device& device) {
 
-	short no_devices = getNumberDevices();
 	uint32_t offset = sizeof(short);
 	uint32_t size_device = sizeof(Device);
-	Device device_search;
+	short no_devices = fetchNumberDevices();
 
+	Device device_search;
 	conf.clear((uint8_t*) &device_search, sizeof(device_search));
 
 	for(short slot = 0; slot < no_devices; slot++) {
@@ -153,47 +179,13 @@ short Configuration::fetchDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Dev
  ******************************************************************************/
 void Configuration::fetchDevices(Device devices[]) {
 
-	short no_devices = getNumberDevices();
-
 	uint32_t offset = sizeof(short);
 	uint32_t size_device = sizeof(Device);
+	short no_devices = fetchNumberDevices();
+
 
 	for(short slot = 0; slot < no_devices; slot++) {
 		deviceSettingsFlash->read(&devices[slot], (size_device*slot) + offset, size_device);
-	}
-}
-
-/*******************************************************************************
- * Function Name  : removeDevice
- * Description    : remove a specific device from EEPROM
- * Input          : pin nr and hardware address of the device to delete
- * Output         :
- * Return         :
- ******************************************************************************/
-void Configuration::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
-
-	short no_devices = getNumberDevices();
-	uint32_t offset = sizeof(short);
-	uint32_t size_device = sizeof(Device);
-	Device device;
-
-	conf.clear((uint8_t*) &device, sizeof(device));
-
-	for(short slot = 0; slot < no_devices; slot++) {
-		deviceSettingsFlash->read(&device, (size_device*slot) + offset, size_device);
-		if (device.hardware.pin_nr == pin_nr && Helper::matchAddress(hw_address, device.hardware.hw_address, 8)) {
-			device.function = DEVICE_FUNCTION_NONE;
-			device.type = DEVICE_HARDWARE_NONE;
-
-			device.hardware.pin_nr = -1;
-			Helper::setBytes(device.hardware.hw_address, "9000000000000000", 8);
-			device.hardware.offset = 0;
-			device.hardware.is_deactivate = false;
-			device.hardware.is_invert = false;
-
-			deviceSettingsFlash->write(&device, (size_device*slot) + offset, size_device);
-			return;
-		}
 	}
 }
 
@@ -213,15 +205,21 @@ void Configuration::storeDevice(Device& device) {
 	conf.clear((uint8_t*) &device_search, sizeof(device_search));
 
 	short slot = fetchDevice(device.hardware.pin_nr, device.hardware.hw_address, device_search);
+
 	if (slot != -1) {
+		Helper::serialDebug("Update device");
+
 		deviceSettingsFlash->write(&device, (size_device*slot) + offset, size_device);
 	}
 	else {
-		short max_slots;
-		deviceSettingsFlash->read(&max_slots, 0, offset);
-		max_slots++;
-		deviceSettingsFlash->write(&max_slots, 0, offset);
-		deviceSettingsFlash->write(&device, (size_device*max_slots) + offset, size_device);
+		Helper::serialDebug("Add device");
+
+		short current_no_devices = fetchNumberDevices();
+
+		deviceSettingsFlash->write(&device, (size_device*current_no_devices) + offset, size_device);
+
+		current_no_devices++;
+		storeNumberDevices(current_no_devices);
 	}
 }
 
@@ -237,10 +235,60 @@ void Configuration::storeDevices(Device devices[], short no_devices) {
 	uint32_t offset = sizeof(short);
 	uint32_t size_device = sizeof(Device);
 
-	deviceSettingsFlash->write(&no_devices, 0, offset);
+	storeNumberDevices(no_devices);
 
 	for(short slot = 0; slot < no_devices; slot++) {
 		deviceSettingsFlash->write(&devices[slot], (size_device*slot) + offset, size_device);
+	}
+}
+
+/*******************************************************************************
+ * Function Name  : removeDevice
+ * Description    : remove a specific device from EEPROM
+ * Input          : pin nr and hardware address of the device to delete
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void Configuration::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
+
+	Helper::serialDebug("conf.removeDevice");
+	short no_devices = fetchNumberDevices();
+	short new_no_devices = 0;
+
+	Device devices[MAX_DEVICES];
+	Device new_devices[MAX_DEVICES];
+	fetchDevices(devices);
+
+	for(short slot = 0; slot < no_devices; slot++) {
+
+		if (!(devices[slot].hardware.pin_nr == pin_nr && Helper::matchAddress(hw_address, devices[slot].hardware.hw_address, 8))) {
+			new_devices[new_no_devices] =  devices[slot];
+			new_no_devices++;
+		}
+	}
+
+	storeDevices(new_devices, new_no_devices);
+}
+
+/*******************************************************************************
+ * Function Name  : removeDevices
+ * Description    : remove all devices from EEPROM
+ * Input          : pin nr and hardware address of the device to delete
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void Configuration::removeDevices() {
+
+	uint32_t offset = sizeof(short);
+	uint32_t size_device = sizeof(Device);
+
+	Device device;
+	conf.clear((uint8_t*) &device, sizeof(device));
+
+	storeNumberDevices(0);
+
+	for(short slot = 0; slot < MAX_DEVICES; slot++) {
+		deviceSettingsFlash->write(&device, (size_device*slot) + offset, size_device);
 	}
 }
 

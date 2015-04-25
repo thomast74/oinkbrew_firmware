@@ -49,16 +49,7 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
     if(aRequest.hostname!=NULL) {
         connected = client.connect(aRequest.hostname.c_str(), (aRequest.port) ? aRequest.port : 80 );
     }   else {
-
-    	Helper::serialDebug("Connect to IP: ", false);
-    	Helper::serialDebug(Helper::getIpStr(aRequest.ip).c_str(), false);
-    	Helper::serialDebug(":", false);
-    	Helper::serialDebug(String(aRequest.port).c_str(), false);
-
         connected = client.connect(aRequest.ip, aRequest.port);
-
-        Helper::serialDebug(" -> ", false);
-        Helper::serialDebug(connected);
     }
 
     if (!connected) {
@@ -66,6 +57,9 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
         // If TCP Client can't connect to host, exit here.
         return;
     }
+
+    Helper::serialDebug("connected -> ", false);
+    Helper::serialDebug(connected);
 
     //
     // Send HTTP Headers
@@ -118,8 +112,12 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
         client.println(aRequest.body);
     }
 
-    // don't care about response
-    // so wait a bit and clean buffer and stop connection
-    delay(100);
+    unsigned long startTime = millis();
+    while (client.available() > 0 && millis() - startTime < 1000) {
+    	client.read();
+    }
+
     client.stop();
+
+    Helper::serialDebug("Data sent");
 }

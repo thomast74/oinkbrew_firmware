@@ -55,6 +55,11 @@ bool TcpListener::connected() {
     if (client.connected()) {
         if (client.available()) {
             needsScreenUpdate = processRequest(client.read());
+
+            unsigned long startTime = millis();
+            while (client.available() > 0 && millis() - startTime < 1000) {
+            	client.read();
+            }
         }
     } else {
         client = server.available();
@@ -97,6 +102,7 @@ bool TcpListener::processRequest(char action) {
         // receive and set device mode
         case 'm':
             parseJson(&TcpListener::processSparkInfo, NULL);
+            conf.storeSparkInfo();
             client.write("Ok");
             return true;
         // reset settings
@@ -156,11 +162,21 @@ void TcpListener::setDeviceMode(const char * key, const char * val, void* pv) {
 }
 
 void TcpListener::resetSettings() {
+
     memcpy(&sparkInfo.name, "", 1);
     memcpy(&sparkInfo.mode, "MANUAL", 7);
     memcpy(&sparkInfo.tempType, "C", 2);
-    memcpy(&sparkInfo.oinkWeb, "", 1);
+    sparkInfo.oinkWeb[0] = 0;
+    sparkInfo.oinkWeb[1] = 0;
+    sparkInfo.oinkWeb[2] = 0;
+    sparkInfo.oinkWeb[3] = 0;
+    sparkInfo.oinkWebPort = 80;
+
     conf.storeSparkInfo();
+    conf.removeDevices();
+    deviceManager.clearActiveDevices();
+
+    System.reset();
 }
 
 void TcpListener::receiveDeviceRequest(const char * key, const char * val, void* pv) {

@@ -44,7 +44,6 @@ void StatusMessage::send() {
     if (!spark::WiFi.ready())
         return;
     
-    Helper::serialDebug("Create Json Status Message");
     String jsonMessage = "{\"device_id\":\"";
     jsonMessage.concat(Spark.deviceID().c_str());
     jsonMessage.concat("\",\"datetime\":");
@@ -65,7 +64,6 @@ void StatusMessage::send() {
     jsonMessage.concat(sparkInfo.oinkWebPort);
     jsonMessage.concat("\"}");
 
-    Helper::serialDebug("Send status message");
     UDP udp;
     udp.begin(REMOTE_LISTENER_PORT-1);
     udp.beginPacket(Helper::getBroadcastAddress(), REMOTE_LISTENER_PORT);
@@ -73,8 +71,11 @@ void StatusMessage::send() {
     udp.write(jsonMessage.c_str());
 
     udp.endPacket();
-    delay(50);
+
+    unsigned long startTime = millis();
+    while (udp.available() > 0 && millis() - startTime < 1000) {
+    	udp.read();
+    }
+
     udp.stop();
-    
-    Helper::serialDebug("Status message sent");
 }

@@ -73,6 +73,7 @@ struct ActiveDevice {
 	DeviceFunction function;
 	float value;
 	bool newly_found;
+	unsigned long lastSeen;
 };
 
 struct Device {

@@ -34,7 +34,10 @@ class TcpLogger {
 public:
 	static void init();
 	static void logDeviceValues();
-	static void sendNewDevice(Device &device);
+	static void sendNewDevice(Device &device, float value);
+	static void sendRemoveDevice(uint8_t& pin_nr, DeviceAddress& hw_address);
+private:
+	static void prepareDeviceRequest(Device &device, float value);
 };
 
 extern TcpLogger logger;

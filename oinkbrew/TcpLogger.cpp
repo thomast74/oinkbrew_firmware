@@ -100,8 +100,29 @@ void TcpLogger::logDeviceValues() {
 	request.body = "";
 }
 
-void TcpLogger::sendNewDevice(Device &device) {
+void TcpLogger::sendNewDevice(Device &device, float value) {
 
+	prepareDeviceRequest(device, value);
+
+	http.put(request, response, headers);
+
+	request.body = "";
+}
+
+void TcpLogger::sendRemoveDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
+	Device device;
+
+	device.hardware.pin_nr = pin_nr;
+	memcpy(device.hardware.hw_address, hw_address, 8);
+
+	prepareDeviceRequest(device, 0);
+
+	http.del(request, response, headers);
+
+	request.body = "";
+}
+
+void TcpLogger::prepareDeviceRequest(Device &device, float value) {
 	IPAddress oinkWebIp(sparkInfo.oinkWeb);
 
 	// Only send new device message if Oink Brew web app is known
@@ -113,21 +134,18 @@ void TcpLogger::sendNewDevice(Device &device) {
 
 
 	char hw_address[17];
-	char value[10];
-
 	Helper::getBytes(device.hardware.hw_address, 8, hw_address);
-	sprintf(value, "%2.2f", device.hardware.offset);
 
 	request.body.concat("{\"type\":");
 	request.body.concat(device.type);
 	request.body.concat(",\"value\":");
-	request.body.concat(0);
+	request.body.concat(value);
 	request.body.concat(",\"hardware\":{\"pin_nr\":");
 	request.body.concat(device.hardware.pin_nr);
 	request.body.concat(",\"hw_address\":\"");
 	request.body.concat(hw_address);
 	request.body.concat("\",\"offset\":");
-	request.body.concat(value);
+	request.body.concat(device.hardware.offset);
 	request.body.concat(",\"is_invert\":");
 	request.body.concat(device.hardware.is_invert ? "true" : "false");
 	request.body.concat(",\"is_deactivate\":");
@@ -137,11 +155,5 @@ void TcpLogger::sendNewDevice(Device &device) {
 	request.path = "/api/spark/";
 	request.path.concat(Spark.deviceID().c_str());
 	request.path.concat("/devices/");
-
-	http.put(request, response, headers);
-
-	request.body = "";
-
-
-
 }
+

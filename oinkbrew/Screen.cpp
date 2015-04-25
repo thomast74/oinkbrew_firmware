@@ -34,9 +34,9 @@
 extern "C" {
 #include "d4d.h"
 #include "startup_screen.h"
-#include "info_screen.h"
-#include "brew_screen.h"
-#include "common_screen.h"
+//#include "info_screen.h"
+//#include "brew_screen.h"
+//#include "common_screen.h"
 }
 
 
@@ -80,27 +80,27 @@ void Screen::startupFinished()
 
 void Screen::showInformationScreen()
 {
-    D4D_ActivateScreen(&screen_info, D4D_TRUE);
-    updateInformationScreen();
+    //D4D_ActivateScreen(&screen_info, D4D_TRUE);
+    //updateInformationScreen();
 }
 
 void Screen::showBrewScreen()
 {
-    D4D_ActivateScreen(&screen_brew, D4D_TRUE);
+    //D4D_ActivateScreen(&screen_brew, D4D_TRUE);
 
-    updateLabel((D4D_OBJECT*)&scrBrew_curHltOut, (D4D_CHAR*)"74.0 C");
-    updateLabel((D4D_OBJECT*)&scrBrew_curMashOut, (D4D_CHAR*)"72.0 C");
-    updateLabel((D4D_OBJECT*)&scrBrew_tarMashOut, (D4D_CHAR*)"72.0 C");
+    //updateLabel((D4D_OBJECT*)&scrBrew_curHltOut, (D4D_CHAR*)"74.0 C");
+    //updateLabel((D4D_OBJECT*)&scrBrew_curMashOut, (D4D_CHAR*)"72.0 C");
+    //updateLabel((D4D_OBJECT*)&scrBrew_tarMashOut, (D4D_CHAR*)"72.0 C");
 }
 
 void Screen::showFerm1Screen()
 {
-    D4D_ActivateScreen(&screen_info, D4D_TRUE);
+    //D4D_ActivateScreen(&screen_info, D4D_TRUE);
 }
 
 void Screen::showFerm2Screen()
 {
-    D4D_ActivateScreen(&screen_info, D4D_TRUE);
+    //D4D_ActivateScreen(&screen_info, D4D_TRUE);
 }
 
 void Screen::ticks()
@@ -112,23 +112,23 @@ void Screen::ticks()
 
 void Screen::update() 
 {    
-    if (D4D_GetActiveScreen() == &screen_info) {
-        updateInformationScreen();
-    }
+    //if (D4D_GetActiveScreen() == &screen_info) {
+    //    updateInformationScreen();
+    //}
 }
 
 void updateInformationScreen() {
-    updateLabel((D4D_OBJECT*)&scrInfo_valName, (D4D_CHAR*)sparkInfo.name);
-    updateLabel((D4D_OBJECT*)&scrInfo_valMode, (D4D_CHAR*)sparkInfo.mode);
-    updateLabel((D4D_OBJECT*)&scrInfo_valId, (D4D_CHAR*)Spark.deviceID().c_str());
-    updateLabel((D4D_OBJECT*)&scrInfo_valTemp, (D4D_CHAR*)sparkInfo.tempType);
-    updateLabel((D4D_OBJECT*)&scrInfo_valFirmware, (D4D_CHAR*)OINK_BREW_VERSION);
-    updateLabel((D4D_OBJECT*)&scrInfo_valIp, (D4D_CHAR*)Helper::getLocalIpStr().c_str());
+    //updateLabel((D4D_OBJECT*)&scrInfo_valName, (D4D_CHAR*)sparkInfo.name);
+    //updateLabel((D4D_OBJECT*)&scrInfo_valMode, (D4D_CHAR*)sparkInfo.mode);
+    //updateLabel((D4D_OBJECT*)&scrInfo_valId, (D4D_CHAR*)Spark.deviceID().c_str());
+    //updateLabel((D4D_OBJECT*)&scrInfo_valTemp, (D4D_CHAR*)sparkInfo.tempType);
+    //updateLabel((D4D_OBJECT*)&scrInfo_valFirmware, (D4D_CHAR*)OINK_BREW_VERSION);
+    //updateLabel((D4D_OBJECT*)&scrInfo_valIp, (D4D_CHAR*)Helper::getLocalIpStr().c_str());
 
-    String oinkWeb = reinterpret_cast<const char*>(sparkInfo.oinkWeb);
-    oinkWeb.concat(":");
-    oinkWeb.concat(sparkInfo.oinkWebPort);
-    updateLabel((D4D_OBJECT*)&scrInfo_valWeb, (D4D_CHAR*)oinkWeb.c_str());
+    //String oinkWeb = reinterpret_cast<const char*>(sparkInfo.oinkWeb);
+    //oinkWeb.concat(":");
+    //oinkWeb.concat(sparkInfo.oinkWebPort);
+    //updateLabel((D4D_OBJECT*)&scrInfo_valWeb, (D4D_CHAR*)oinkWeb.c_str());
 }
 
 void Screen::calibrateTouchScreen() {
@@ -138,13 +138,12 @@ void Screen::calibrateTouchScreen() {
 
 extern "C" void menuButtonClicked(D4D_OBJECT* pThis)
 {
-
-    if (pThis==&scr_btnInfo)
-        Screen::showInformationScreen();        
-    else if (pThis==&scr_btnBrew)
-        Screen::showBrewScreen();
-    else if (pThis==&scr_btnFerm1)
-        Screen::showFerm1Screen();
-    else if (pThis==&scr_btnFerm2)
-        Screen::showFerm2Screen();
+    //if (pThis==&scr_btnInfo)
+    //    Screen::showInformationScreen();
+    //else if (pThis==&scr_btnBrew)
+    //    Screen::showBrewScreen();
+    //else if (pThis==&scr_btnFerm1)
+    //    Screen::showFerm1Screen();
+    //else if (pThis==&scr_btnFerm2)
+    //    Screen::showFerm2Screen();
 }

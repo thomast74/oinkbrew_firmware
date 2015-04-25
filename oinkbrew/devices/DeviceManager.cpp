@@ -55,7 +55,7 @@ void DeviceManager::init() {
 }
 
 void DeviceManager::loadDevicesFromEEPROM() {
-	registered_devices = conf.getNumberDevices();
+	registered_devices = conf.fetchNumberDevices();
 	Device devices[registered_devices];
 
 	conf.fetchDevices(devices);
@@ -103,14 +103,14 @@ void DeviceManager::readValues() {
 		}
 		else if (activeDevices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
 			activeDevices[i].value = sensors.getTempC(activeDevices[i].hw_address);
-			if (activeDevices[i].value <= DEVICE_DISCONNECTED_C) {
-
-				conf.removeDevice(activeDevices[i].pin_nr, activeDevices[i].hw_address);
-
-				activeDevices[i].function = DEVICE_FUNCTION_NONE;
-				activeDevices[i].pin_nr = -1;
-				Helper::setBytes(activeDevices[i].hw_address, "9000000000000000", 8);
-				activeDevices[i].type = DEVICE_HARDWARE_NONE;
+			if (activeDevices[i].value > DEVICE_DISCONNECTED_C) {
+				activeDevices[i].lastSeen = millis();
+			}
+			else {
+				// if no successful reading in 10 seconds remove device
+				if ((millis() - activeDevices[i].lastSeen) > 10000) {
+					removeDevice(activeDevices[i].pin_nr, activeDevices[i].hw_address);
+				}
 			}
 		}
 	}
@@ -126,19 +126,32 @@ bool DeviceManager::findNewDevices() {
 	Device devices[MAX_DEVICES];
 	ActiveDevice actives[MAX_DEVICES];
 
-	processActuators(devices, actives, no_found_devices);
+	if (registered_devices == 0)
+		processActuators(devices, actives, no_found_devices);
+
 	processOneWire(devices, actives, no_found_devices);
 
-	for(short i=0; i < no_found_devices;i++) {
+	Helper::serialDebug("Find new Devices");
+
+	for(short i=0; i < no_found_devices; i++) {
 		if (actives[i].newly_found) {
+			if (actives[i].type == DEVICE_HARDWARE_NONE)
+				continue;
 
 			actives[i].newly_found = false;
+
+			if (actives[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
+				actives[i].value = sensors.getTempC(actives[i].hw_address);
+				if (actives[i].value <= DEVICE_DISCONNECTED_C) {
+					continue;
+				}
+			}
 
 			memcpy(&activeDevices[registered_devices], &actives[i], sizeof(ActiveDevice));
 			conf.storeDevice(devices[i]);
 			registered_devices++;
 
-			logger.sendNewDevice(devices[i]);
+			logger.sendNewDevice(devices[i], actives[i].value);
 
 			new_device_found = true;
 		}
@@ -160,24 +173,38 @@ void DeviceManager::removeDevice(DeviceRequest& deviceRequest, char* response) {
 
 bool DeviceManager::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
 
-	for(uint8_t i=0;i < MAX_DEVICES; i++) {
-		if (activeDevices[i].pin_nr == pin_nr && Helper::matchAddress(hw_address, activeDevices[i].hw_address, 8)) {
-			ActiveDevice activeDevice;
-			conf.clear((uint8_t*) &activeDevice, sizeof(activeDevice));
+	bool removed = false;
+	short new_registered_devices = 0;
+	ActiveDevice newActiveDevices[MAX_DEVICES];
 
-			activeDevices[i].pin_nr = -1;
-			Helper::setBytes(activeDevices[i].hw_address, "9000000000000000", 8);
-			activeDevices[i] = activeDevice;
-			activeDevices[i].type = DEVICE_HARDWARE_NONE;
-			activeDevices[i].function = DEVICE_FUNCTION_NONE;
-
+	for(uint8_t slot=0;slot < registered_devices; slot++) {
+		if (!(activeDevices[slot].pin_nr == pin_nr && Helper::matchAddress(hw_address, activeDevices[slot].hw_address, 8))) {
+			newActiveDevices[new_registered_devices] = activeDevices[slot];
+			new_registered_devices++;
+		}
+		else {
 			conf.removeDevice(pin_nr, hw_address);
-
-			return true;
+			removed = true;
 		}
 	}
 
-	return false;
+	if (removed) {
+		logger.sendRemoveDevice(pin_nr, hw_address);
+		memcpy(activeDevices, newActiveDevices, sizeof(newActiveDevices));
+		registered_devices = new_registered_devices;
+	}
+
+	return removed;
+}
+
+void DeviceManager::clearActiveDevices() {
+
+	uint32_t activeDevicesize = sizeof(ActiveDevice);
+	registered_devices = 0;
+
+	for(uint8_t i=0;i < MAX_DEVICES; i++) {
+		conf.clear((uint8_t*)&activeDevices[i], activeDevicesize);
+	}
 }
 
 void DeviceManager::sendDevice(TCPClient& client, DeviceRequest& deviceRequest) {
@@ -248,6 +275,7 @@ void DeviceManager::processActuators(Device devices[], ActiveDevice actives[], u
 		ActiveDevice active;
 
 		device.hardware.pin_nr = pin_nr;
+		conf.clear((uint8_t*)&device.hardware.hw_address, 8);
 
 		fetchDeviceFromConfig(device);
 		getDevice(device.hardware.pin_nr, device.hardware.hw_address, active);
@@ -286,6 +314,7 @@ void DeviceManager::processOneWire(Device devices[], ActiveDevice actives[], uin
 		// if not in active devices already, add it and read initial value
 		if (active.type == DEVICE_HARDWARE_NONE) {
 			active.newly_found = true;
+
 			active.pin_nr = device.hardware.pin_nr;
 			memcpy(active.hw_address, device.hardware.hw_address, 8);
 
@@ -317,14 +346,15 @@ void DeviceManager::getDevice(short index, ActiveDevice& active) {
 }
 
 void DeviceManager::getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, ActiveDevice& active) {
-	for(uint8_t i=0;i < MAX_DEVICES; i++) {
+	for(uint8_t i=0;i < registered_devices; i++) {
 		if (activeDevices[i].pin_nr == pin_nr && Helper::matchAddress(hw_address, activeDevices[i].hw_address, 8)) {
 			memcpy(&active, &activeDevices[i], sizeof(ActiveDevice));
 			return;
 		}
 	}
-	conf.clear((uint8_t*) &active, sizeof(active));
+	active.function = DEVICE_FUNCTION_NONE;
 	active.type = DEVICE_HARDWARE_NONE;
+	active.value = 0;
 }
 
 void DeviceManager::fetchDeviceFromConfig(Device& device) {
@@ -345,6 +375,9 @@ void DeviceManager::fetchDeviceFromConfig(Device& device) {
 			device.type = DEVICE_HARDWARE_ACTUATOR_DIGITAL;
 			device.function = DEVICE_FUNCTION_NONE;
 		}
+		device.hardware.is_invert = false;
+		device.hardware.is_deactivate = false;
+		device.hardware.offset = 0.0;
 	}
 }
 
