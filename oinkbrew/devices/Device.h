@@ -39,7 +39,6 @@ enum DeviceType : uint8_t {
 	DEVICE_HARDWARE_ACTUATOR_DIGITAL=1, // digital pin, either on or off
 	DEVICE_HARDWARE_ACTUATOR_PWM=2,		// analogue pin, used as PWM actuator
 	DEVICE_HARDWARE_ONEWIRE_TEMP=3,		// a onewire temperature sensor
-
 };
 
 enum DeviceFunction : uint8_t {
@@ -72,6 +71,7 @@ struct ActiveDevice {
 	DeviceType type;
 	DeviceFunction function;
 	float value;
+	float offset;
 	bool newly_found;
 	unsigned long lastSeen;
 };

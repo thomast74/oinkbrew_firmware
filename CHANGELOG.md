@@ -1,5 +1,16 @@
 # Change Log for Oink Brew Firmware
 
+v0.2
+----
+- Sensor disconnect should be detected and device removed from active devices
+- Newly connected devices should be detected automatically and added to the active devices
+- When a newly detected device is added to active devices a message to Oink Brew Web App should be sent
+- When a device was disconnected the Oink Brew Web App should be notified
+- Resetting Spark should remove all devices from EEPROM and empty ActiveDevices
+- Receive a device offset value and store it in ActiveDevice and EEPROM
+- Temperature sensor read should automatically adjust the reading with the offset
+
+
 v0.1
 ----
 - startup check if WiFi connection and changes to listen mode if not

@@ -105,6 +105,12 @@ bool TcpListener::processRequest(char action) {
             conf.storeSparkInfo();
             client.write("Ok");
             return true;
+        // set offset for temp sensor
+        case 'o':
+        	parseJson(&TcpListener::receiveDeviceRequest, &deviceRequest);
+			deviceManager.setOffset(deviceRequest);
+			client.write(ACK);
+			break;
         // reset settings
         case 'r':
             resetSettings();
@@ -139,7 +145,7 @@ void TcpListener::processSparkInfo(const char * key, const char * val, void* pv)
     if (strcmp(key, "name") == 0)
         memcpy(&sparkInfo.name, val, strlen(val) + 1);
     else if (strcmp(key, "mode") == 0)
-        memcpy(&sparkInfo.mode, val, strlen(val) + 1);
+        sparkInfo.mode = atoi(val);
     else if (strcmp(key, "tempType") == 0)
         memcpy(&sparkInfo.tempType, val, strlen(val) + 1);
     else if (strcmp(key, "oinkweb") == 0) {
@@ -155,9 +161,11 @@ void TcpListener::processSparkInfo(const char * key, const char * val, void* pv)
 }
 
 void TcpListener::setDeviceMode(const char * key, const char * val, void* pv) {
-    if (strcmp(key, "mode") == 0 && (strcmp(val, "MANUAL") == 0 || strcmp(val, "LOGGING") == 0 || strcmp(val, "AUTOMATIC") == 0)) {
-        memcpy(&sparkInfo.mode, val, strlen(val) + 1);
-        conf.storeSparkInfo();
+    if (strcmp(key, "mode") == 0) {
+    	int mode = atoi(val);
+    	if (mode >=0 && mode <= 3) {
+    		sparkInfo.mode = mode;
+    	}
     }
 }
 
@@ -190,6 +198,8 @@ void TcpListener::receiveDeviceRequest(const char * key, const char * val, void*
 		pDeviceRequest->is_invert = strcmp(val, "1") == 0 ? true : false;
 	else if (strcmp(key, "value") == 0)
 		pDeviceRequest->value = atoi(val);
+	else if (strcmp(key, "offset") == 0)
+		pDeviceRequest->offset = ((float)atoi(val))/1000;
 }
 
 void TcpListener::updateFirmware() {

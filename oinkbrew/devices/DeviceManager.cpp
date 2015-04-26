@@ -76,6 +76,7 @@ void DeviceManager::loadDevicesFromEEPROM() {
 			activeDevices[i].value = actuator.getValue();
 		}
 		else if (devices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
+			activeDevices[i].offset = devices[i].hardware.offset;
 			activeDevices[i].value = sensors.getTempC(activeDevices[i].hw_address);
 		}
 	}
@@ -102,7 +103,7 @@ void DeviceManager::readValues() {
 			activeDevices[i].value = actuator.getValue();
 		}
 		else if (activeDevices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
-			activeDevices[i].value = sensors.getTempC(activeDevices[i].hw_address);
+			activeDevices[i].value = sensors.getTempC(activeDevices[i].hw_address) + activeDevices[i].offset;
 			if (activeDevices[i].value > DEVICE_DISCONNECTED_C) {
 				activeDevices[i].lastSeen = millis();
 			}
@@ -264,6 +265,23 @@ void DeviceManager::toggleActuator(DeviceRequest& deviceRequest, char* response)
 		PwmActuator actuator = PwmActuator(active.pin_nr);
 		actuator.setValue(deviceRequest.value*2.55);
 		sprintf(response, "%2.2f", ((double)actuator.getValue() / 255) * 100);
+	}
+}
+
+void DeviceManager::setOffset(DeviceRequest& deviceRequest) {
+
+	ActiveDevice active;
+
+	getDevice(deviceRequest.pin_nr, deviceRequest.hw_address, active);
+
+	if (active.type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
+		active.offset = deviceRequest.offset;
+
+		Device device;
+		if (conf.fetchDevice(deviceRequest.pin_nr, deviceRequest.hw_address, device) == -1) {
+			device.hardware.offset = deviceRequest.offset;
+			conf.storeDevice(device);
+		}
 	}
 }
 
