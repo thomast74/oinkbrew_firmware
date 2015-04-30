@@ -103,6 +103,13 @@ void DeviceManager::readValues() {
 			activeDevices[i].value = actuator.getValue();
 		}
 		else if (activeDevices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
+
+			if (activeDevices[i].offset != 0) {
+				String sOffset = "Offset: ";
+				sOffset.concat(activeDevices[i].offset);
+				Helper::serialDebug(sOffset.c_str());
+			}
+
 			activeDevices[i].value = sensors.getTempC(activeDevices[i].hw_address) + activeDevices[i].offset;
 			if (activeDevices[i].value > DEVICE_DISCONNECTED_C) {
 				activeDevices[i].lastSeen = millis();
@@ -270,17 +277,27 @@ void DeviceManager::toggleActuator(DeviceRequest& deviceRequest, char* response)
 
 void DeviceManager::setOffset(DeviceRequest& deviceRequest) {
 
-	ActiveDevice active;
+	for(uint8_t i=0;i < registered_devices; i++) {
+		if (activeDevices[i].pin_nr == deviceRequest.pin_nr && Helper::matchAddress(deviceRequest.hw_address, activeDevices[i].hw_address, 8)) {
 
-	getDevice(deviceRequest.pin_nr, deviceRequest.hw_address, active);
+			activeDevices[i].offset = deviceRequest.offset;
 
-	if (active.type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
-		active.offset = deviceRequest.offset;
+			String sOffset = "Set Active Offset: ";
+			sOffset.concat(activeDevices[i].offset);
+			Helper::serialDebug(sOffset.c_str());
 
-		Device device;
-		if (conf.fetchDevice(deviceRequest.pin_nr, deviceRequest.hw_address, device) == -1) {
-			device.hardware.offset = deviceRequest.offset;
-			conf.storeDevice(device);
+			Device device;
+			if (conf.fetchDevice(deviceRequest.pin_nr, deviceRequest.hw_address, device) != -1) {
+				device.hardware.offset = deviceRequest.offset;
+
+				String sOffset = "Set Device Offset: ";
+				sOffset.concat(device.hardware.offset);
+				Helper::serialDebug(sOffset.c_str());
+
+				conf.storeDevice(device);
+			}
+
+			return;
 		}
 	}
 }

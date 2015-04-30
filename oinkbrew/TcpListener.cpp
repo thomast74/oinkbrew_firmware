@@ -198,8 +198,18 @@ void TcpListener::receiveDeviceRequest(const char * key, const char * val, void*
 		pDeviceRequest->is_invert = strcmp(val, "1") == 0 ? true : false;
 	else if (strcmp(key, "value") == 0)
 		pDeviceRequest->value = atoi(val);
-	else if (strcmp(key, "offset") == 0)
-		pDeviceRequest->offset = ((float)atoi(val))/1000;
+	else if (strcmp(key, "offset") == 0) {
+		int pOffset = atoi(val);
+		float offset = (float)pOffset / 10000.0000;
+
+		String sOffset = "Offset: ";
+		sOffset.concat(pOffset);
+		sOffset.concat("   ");
+		sOffset.concat(offset);
+		Helper::serialDebug(sOffset.c_str());
+
+		pDeviceRequest->offset = offset;
+	}
 }
 
 void TcpListener::updateFirmware() {
