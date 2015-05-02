@@ -75,7 +75,7 @@ bool Configuration::loadDeviceInfo() {
 	SparkInfo si;
 
 	if (sparkInfoFlash->read(&si, 0, sizeof(SparkInfo))) {
-		if (si.check[0] != 'C') {
+		if (si.check != 'C') {
 			storeSparkInfo();
 		} else {
 			memcpy(&sparkInfo, &si, sizeof(SparkInfo));

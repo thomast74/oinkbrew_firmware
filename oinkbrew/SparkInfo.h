@@ -28,19 +28,19 @@
 #define	SPARKINFO_H
 
 
-#define	SPARK_MODE_MANUAL 		0
-#define	SPARK_MODE_CALIBRATION 	1
-#define	SPARK_MODE_LOGGING 		2
-#define	SPARK_MODE_AUTOMATIC 	3
+#define SPARK_MODE_MANUAL 'M'
+#define SPARK_MODE_CALIBRATION 'C'
+#define SPARK_MODE_LOGGING 'L'
+#define SPARK_MODE_AUTOMATIC 'A'
 
 
 struct SparkInfo {
     unsigned char name[31] = "";
-    int mode = SPARK_MODE_MANUAL;
-    unsigned char tempType[2] = "C";
+    char mode = SPARK_MODE_MANUAL;
+    char tempType = 'C';
     uint8_t oinkWeb[4] = { 0, 0, 0, 0 };
     int oinkWebPort = 80;
-	unsigned char check[2] = "C";
+	char check = 'C';
 };
 
 extern SparkInfo sparkInfo;

@@ -145,9 +145,9 @@ void TcpListener::processSparkInfo(const char * key, const char * val, void* pv)
     if (strcmp(key, "name") == 0)
         memcpy(&sparkInfo.name, val, strlen(val) + 1);
     else if (strcmp(key, "mode") == 0)
-        sparkInfo.mode = atoi(val);
+        sparkInfo.mode = val[0];
     else if (strcmp(key, "tempType") == 0)
-        memcpy(&sparkInfo.tempType, val, strlen(val) + 1);
+        sparkInfo.tempType = val[0];
     else if (strcmp(key, "oinkweb") == 0) {
     	uint8_t address[4];
     	Helper::getRawIp(val, address);
@@ -162,18 +162,15 @@ void TcpListener::processSparkInfo(const char * key, const char * val, void* pv)
 
 void TcpListener::setDeviceMode(const char * key, const char * val, void* pv) {
     if (strcmp(key, "mode") == 0) {
-    	int mode = atoi(val);
-    	if (mode >=0 && mode <= 3) {
-    		sparkInfo.mode = mode;
-    	}
+    	sparkInfo.mode = val[0];
     }
 }
 
 void TcpListener::resetSettings() {
 
     memcpy(&sparkInfo.name, "", 1);
-    memcpy(&sparkInfo.mode, "MANUAL", 7);
-    memcpy(&sparkInfo.tempType, "C", 2);
+    sparkInfo.mode = 'M';
+    sparkInfo.tempType = 'C';
     sparkInfo.oinkWeb[0] = 0;
     sparkInfo.oinkWeb[1] = 0;
     sparkInfo.oinkWeb[2] = 0;
