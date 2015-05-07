@@ -89,7 +89,7 @@ bool TcpListener::processRequest(char action) {
 			deviceManager.searchAndSendDeviceList(client);
 			client.write(ACK);
 			break;
-		// remoe device from Spark
+		// remove device from Spark
 		case 'e':
 			parseJson(&TcpListener::receiveDeviceRequest, &deviceRequest);
 			deviceManager.removeDevice(deviceRequest, response);
@@ -116,7 +116,7 @@ bool TcpListener::processRequest(char action) {
             resetSettings();
             client.write("Ok");
             return true;
-		// receive and process spark infoclient.write(
+		// receive and process spark info
 		case 's':
 			parseJson(&TcpListener::processSparkInfo, NULL);
 			conf.storeSparkInfo();
