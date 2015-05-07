@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    PwmActuator.h
+ * @file    ControllerManager.h
  * @authors Thomas Trageser
- * @version V0.1
- * @date    2015-03-27
+ * @version V0.3
+ * @date    2015-05-05
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
  Copyright (c) 2015 Oink Brew;  All rights reserved.
@@ -23,39 +23,30 @@
  ******************************************************************************
  */
 
-#ifndef OINKBREW_DEVICES_PWMACTUATOR_H_
-#define OINKBREW_DEVICES_PWMACTUATOR_H_
+#ifndef OINKBREW_CONTROLLER_CONTROLLERMANAGER_H_
+#define OINKBREW_CONTROLLER_CONTROLLERMANAGER_H_
 
-#include "spark_wiring.h"
+#include "Controller.h"
 
-class PwmActuator
+
+const short MAX_CONTROLLERS = 5;
+
+
+class ControllerManager
 {
 private:
-	uint8_t pin;
-    uint8_t pwm;
-    bool active;
-    bool simulate;
-
-    int32_t dutyLate;
-    int32_t dutyTime;
-
-    unsigned long periodStartTime;
-    const int32_t period = 10000;
-
+	static Controller active_controllers[MAX_CONTROLLERS];
+	static short registered_controllers;
 public:
-	PwmActuator(uint8_t pin, uint8_t pwm);
-	PwmActuator(uint8_t pin, uint8_t pwm, bool simulate);
+	static void process();
 
-	void setPwm(uint8_t pwm);
-	uint8_t getPwm();
-	void updatePwm();
+	static void loadControllersFromEEPROM();
 
-	int32_t getPeriod(){
-		return period;
-	}
-	bool isActive() {
-		return active;
-	}
+	static void addController();
+	static void updateController();
+	static void removeController();
 };
 
-#endif // OINKBREW_DEVICES_PWMACTUATOR_H_
+extern ControllerManager controllerManager;
+
+#endif /* OINKBREW_CONTROLLER_CONTROLLERMANAGER_H_ */

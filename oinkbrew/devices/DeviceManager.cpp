@@ -68,12 +68,10 @@ void DeviceManager::loadDevicesFromEEPROM() {
 		activeDevices[i].function = devices[i].function;
 
 		if (devices[i].type == DEVICE_HARDWARE_ACTUATOR_DIGITAL) {
-			DigitalActuator actuator = DigitalActuator(devices[i].hardware.pin_nr, devices[i].hardware.is_invert);
-			activeDevices[i].value = actuator.isActive() ? 1 : 0;
+			activeDevices[i].value = digitalRead(activeDevices[i].pin_nr);
 		}
 		else if (devices[i].type == DEVICE_HARDWARE_ACTUATOR_PWM) {
-			PwmActuator actuator = PwmActuator(devices[i].hardware.pin_nr);
-			activeDevices[i].value = actuator.getValue();
+			activeDevices[i].value = analogRead(activeDevices[i].pin_nr);
 		}
 		else if (devices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
 			activeDevices[i].offset = devices[i].hardware.offset;
@@ -95,12 +93,10 @@ void DeviceManager::readValues() {
 
 	for(short i=0; i < registered_devices; i++) {
 		if (activeDevices[i].type == DEVICE_HARDWARE_ACTUATOR_DIGITAL) {
-			DigitalActuator actuator = DigitalActuator(activeDevices[i].pin_nr, false);
-			activeDevices[i].value = actuator.isActive() ? 1 : 0;
+			activeDevices[i].value = digitalRead(activeDevices[i].pin_nr);
 		}
 		else if (activeDevices[i].type == DEVICE_HARDWARE_ACTUATOR_PWM) {
-			PwmActuator actuator = PwmActuator(activeDevices[i].pin_nr);
-			activeDevices[i].value = actuator.getValue();
+			activeDevices[i].value = analogRead(activeDevices[i].pin_nr);
 		}
 		else if (activeDevices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
 
@@ -266,12 +262,11 @@ void DeviceManager::toggleActuator(DeviceRequest& deviceRequest, char* response)
 	if (active.type == DEVICE_HARDWARE_ACTUATOR_DIGITAL) {
 		DigitalActuator actuator = DigitalActuator(active.pin_nr, false);
 		actuator.toggle();
-		strcpy(response, actuator.isActive() ? "1" : "0");
+		strcpy(response, actuator.isActive() > 0 ? "1" : "0");
 	}
 	else if (active.type == DEVICE_HARDWARE_ACTUATOR_PWM) {
-		PwmActuator actuator = PwmActuator(active.pin_nr);
-		actuator.setValue(deviceRequest.value*2.55);
-		sprintf(response, "%2.2f", ((double)actuator.getValue() / 255) * 100);
+		PwmActuator actuator = PwmActuator(active.pin_nr, deviceRequest.value*2.55, false);
+		sprintf(response, "%2.2f", ((double)actuator.getPwm() / 255.0) * 100.0);
 	}
 }
 

@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    PwmActuator.h
+ * @file    Controller.h
  * @authors Thomas Trageser
- * @version V0.1
- * @date    2015-03-27
+ * @version V0.3
+ * @date    2015-05-03
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
  Copyright (c) 2015 Oink Brew;  All rights reserved.
@@ -23,39 +23,43 @@
  ******************************************************************************
  */
 
-#ifndef OINKBREW_DEVICES_PWMACTUATOR_H_
-#define OINKBREW_DEVICES_PWMACTUATOR_H_
+#ifndef OINKBREW_CONTROLLER_CONTROLLER_H_
+#define OINKBREW_CONTROLLER_CONTROLLER_H_
 
-#include "spark_wiring.h"
+#include "PID.h"
+#include "../devices/Device.h"
+#include "../devices/PwmActuator.h"
+#include <stdint.h>
 
-class PwmActuator
+
+struct ActingDevice
 {
-private:
-	uint8_t pin;
-    uint8_t pwm;
-    bool active;
-    bool simulate;
-
-    int32_t dutyLate;
-    int32_t dutyTime;
-
-    unsigned long periodStartTime;
-    const int32_t period = 10000;
-
-public:
-	PwmActuator(uint8_t pin, uint8_t pwm);
-	PwmActuator(uint8_t pin, uint8_t pwm, bool simulate);
-
-	void setPwm(uint8_t pwm);
-	uint8_t getPwm();
-	void updatePwm();
-
-	int32_t getPeriod(){
-		return period;
-	}
-	bool isActive() {
-		return active;
-	}
+	uint8_t pin_nr;
+	DeviceAddress hw_address;
 };
 
-#endif // OINKBREW_DEVICES_PWMACTUATOR_H_
+class Controller
+{
+public:
+	Controller();
+	Controller(ActingDevice tempSensor, ActingDevice heatActuator, float targetTemperature);
+	virtual ~Controller();
+
+	void process();
+	void setTempSensor(ActingDevice TempSensor);
+	void setHeatActuator(ActingDevice HeatActuator);
+	void setTargetTemperatur(float PointTemperature);
+
+protected:
+	virtual void doProcess() {};
+
+	ActingDevice tempSensor;
+	PwmActuator* heatActuator;
+
+	float targetTemperature;
+	float currentTemperature;
+	float output;
+	PID* pid;
+};
+
+#endif /* OINKBREW_CONTROLLER_CONTROLLER_H_ */

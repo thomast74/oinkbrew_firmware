@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    PwmActuator.h
+ * @file    ControllerManager.cpp
  * @authors Thomas Trageser
- * @version V0.1
- * @date    2015-03-27
+ * @version V0.3
+ * @date    2015-05-05
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
  Copyright (c) 2015 Oink Brew;  All rights reserved.
@@ -23,39 +23,47 @@
  ******************************************************************************
  */
 
-#ifndef OINKBREW_DEVICES_PWMACTUATOR_H_
-#define OINKBREW_DEVICES_PWMACTUATOR_H_
 
-#include "spark_wiring.h"
+#include "ControllerManager.h"
 
-class PwmActuator
+
+Controller ControllerManager::active_controllers[MAX_CONTROLLERS] = {};
+short ControllerManager::registered_controllers = 0;
+
+
+void ControllerManager::process()
 {
-private:
-	uint8_t pin;
-    uint8_t pwm;
-    bool active;
-    bool simulate;
-
-    int32_t dutyLate;
-    int32_t dutyTime;
-
-    unsigned long periodStartTime;
-    const int32_t period = 10000;
-
-public:
-	PwmActuator(uint8_t pin, uint8_t pwm);
-	PwmActuator(uint8_t pin, uint8_t pwm, bool simulate);
-
-	void setPwm(uint8_t pwm);
-	uint8_t getPwm();
-	void updatePwm();
-
-	int32_t getPeriod(){
-		return period;
+	for(short i=0; i < registered_controllers; i++)
+	{
+		active_controllers[i].process();
 	}
-	bool isActive() {
-		return active;
-	}
-};
+}
 
-#endif // OINKBREW_DEVICES_PWMACTUATOR_H_
+void ControllerManager::loadControllersFromEEPROM()
+{
+	// load configurations from EEPROM
+	// add controllers for each configuration
+}
+
+void ControllerManager::addController()
+{
+	// check that controller does not exists already
+	// if exists do update instead
+
+	// if not create controller based on type
+	// add to active_controllers
+	// save configuration in EEPROM
+}
+
+void ControllerManager::updateController()
+{
+	// get controller
+	// if found update configuration
+	// save configuration in EEPROM
+}
+
+void ControllerManager::removeController()
+{
+	// get controller and remove from active_controllers
+	// remove controller configuration from EEPROM
+}

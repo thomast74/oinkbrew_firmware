@@ -34,7 +34,7 @@
 #include "SparkInfo.h"
 #include "TcpListener.h"
 #include "TcpLogger.h"
-
+#include "controller/ControllerManager.h"
 
 /* Declarations --------------------------------------------------------------*/  
 void applicationInit();
@@ -92,10 +92,11 @@ void setup()
  ******************************************************************************/
 void loop()
 {
-	long unsigned int time = millis();
+	unsigned long time = millis();
 
     // update screen and check for touch input
     //screen.ticks();
+
 
     // every second read actuator and sensor values
     if((time - lastRun) >= DURATION_RUN)
@@ -103,6 +104,9 @@ void loop()
         lastRun = time;
         deviceManager.readValues();
     }
+
+    // process controllers and control temperature
+    controllerManager.process();
 
     // every 15 seconds log actuator and sensor values
     if((time - lastLog) >= DURATION_LOG)

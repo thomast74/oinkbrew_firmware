@@ -6,46 +6,44 @@
  * @date    2015-04-03
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
-  Copyright (c) 2015 Oink Brew;  All rights reserved.
+ Copyright (c) 2015 Oink Brew;  All rights reserved.
 
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, either
+ version 3 of the License, or (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this program; if not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU Lesser General Public
+ License along with this program; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
  */
-
 
 #ifndef DEVICE_H
 #define	DEVICE_H
 
-
 #include <stdint.h>
-
 
 typedef uint8_t DeviceAddress[8];
 
-
-enum DeviceType : uint8_t {
-	DEVICE_HARDWARE_NONE=0,
-	DEVICE_HARDWARE_ACTUATOR_DIGITAL=1, // digital pin, either on or off
-	DEVICE_HARDWARE_ACTUATOR_PWM=2,		// analogue pin, used as PWM actuator
-	DEVICE_HARDWARE_ONEWIRE_TEMP=3,		// a onewire temperature sensor
+enum DeviceType : uint8_t
+{
+	DEVICE_HARDWARE_NONE = 0,
+	DEVICE_HARDWARE_ACTUATOR_DIGITAL = 1, 	// digital pin, either on or off
+	DEVICE_HARDWARE_ACTUATOR_PWM = 2,		// analogue pin, used as PWM actuator
+	DEVICE_HARDWARE_ONEWIRE_TEMP = 3,		// a onewire temperature sensor
 };
 
-enum DeviceFunction : uint8_t {
-	DEVICE_FUNCTION_NONE=0,
-	DEVICE_FUNCTION_FRIDGE_COOLING_ACTUATOR=1,
-	DEVICE_FUNCTION_FRIDGE_HEATING_ACTUATOR=2,
-	DEVICE_FUNCTION_FRIDGE_FAN_ACTUATOR=3,
+enum DeviceFunction : uint8_t
+{
+	DEVICE_FUNCTION_NONE = 0,
+	DEVICE_FUNCTION_FRIDGE_COOLING_ACTUATOR = 1,
+	DEVICE_FUNCTION_FRIDGE_HEATING_ACTUATOR = 2,
+	DEVICE_FUNCTION_FRIDGE_FAN_ACTUATOR = 3,
 
 	DEVICE_FUNCTION_HLT_HEATING_ACTUATOR = 4,
 	DEVICE_FUNCTION_BOIL_HEATING_ACTUATOR = 5,
@@ -65,7 +63,8 @@ enum DeviceFunction : uint8_t {
 	DEVICE_FUNCTION_BOIL_OUT_TEMP_SENSOR = 17
 };
 
-struct ActiveDevice {
+struct ActiveDevice
+{
 	uint8_t pin_nr;
 	DeviceAddress hw_address;
 	DeviceType type;
@@ -76,17 +75,19 @@ struct ActiveDevice {
 	unsigned long lastSeen;
 };
 
-struct Device {
+struct Device
+{
 
 	DeviceType type;
 	DeviceFunction function;
 
-	struct Hardware {
-		uint8_t pin_nr;			// the arduino pin nr this device is connected to
-		DeviceAddress hw_address;	// for onewire devices, if address[0]==0 then use the first matching device type, otherwise use the device with the specific address
+	struct Hardware
+	{
+		uint8_t pin_nr;		// the arduino pin nr this device is connected to
+		DeviceAddress hw_address;// for onewire devices, if address[0]==0 then use the first matching device type, otherwise use the device with the specific address
 		float offset;			// calibrated offset for temperatur sensor
-		bool is_invert;			// for actuators/sensors, controls if the signal value is inverted.
-		bool is_deactivate;		// In case device is deactivated. no logging or data collection will be done
+		bool is_invert;	// for actuators/sensors, controls if the signal value is inverted.
+		bool is_deactivate;	// In case device is deactivated. no logging or data collection will be done
 	} hardware;
 	bool reserved;
 };
