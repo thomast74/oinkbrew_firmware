@@ -26,6 +26,7 @@
 #include "TcpListener.h"
 #include "Configuration.h"
 #include "devices/DeviceManager.h"
+#include "controller/ControllerManager.h"
 #include "Helper.h"
 #include "Settings.h"
 #include "SparkInfo.h"
@@ -71,6 +72,7 @@ bool TcpListener::connected() {
 bool TcpListener::processRequest(char action) {
 	char response[50];
 	DeviceRequest deviceRequest;
+	ControllerRequest controllerRequest;
 
     switch (action) {
             // do nothing wrong request
@@ -109,6 +111,12 @@ bool TcpListener::processRequest(char action) {
         case 'o':
         	parseJson(&TcpListener::receiveDeviceRequest, &deviceRequest);
 			deviceManager.setOffset(deviceRequest);
+			client.write(ACK);
+			break;
+		// remove a controller from
+        case 'q':
+        	parseJson(&TcpListener::receiveControllerRequest, &controllerRequest);
+        	controllerManager.removeController(controllerRequest.id);
 			client.write(ACK);
 			break;
         // reset settings
@@ -207,6 +215,14 @@ void TcpListener::receiveDeviceRequest(const char * key, const char * val, void*
 
 		pDeviceRequest->offset = offset;
 	}
+}
+
+void TcpListener::receiveControllerRequest(const char * key, const char * val, void* pv) {
+	ControllerRequest *pControllerRequest = static_cast<ControllerRequest*>(pv);
+
+	if (strcmp(key, "config_id") == 0)
+		pControllerRequest->id = atoi(val);
+
 }
 
 void TcpListener::updateFirmware() {

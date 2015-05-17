@@ -79,8 +79,27 @@ void ControllerManager::updateController()
 	// save configuration in EEPROM
 }
 
-void ControllerManager::removeController()
+bool ControllerManager::removeController(int id)
 {
-	// get controller and remove from active_controllers
-	// remove controller configuration from EEPROM
+	Controller* new_active_controllers[MAX_CONTROLLERS] = {};
+	bool removed = false;
+	short new_registered_controllers = 0;
+
+	for(int i=0; i < registered_controllers; i++) {
+		if (active_controllers[i]->getId() == id) {
+			conf.removeController(active_controllers[i]->getConfig());
+			removed = true;
+		}
+		else {
+			new_active_controllers[new_registered_controllers] = active_controllers[i];
+			new_registered_controllers++;
+		}
+	}
+
+	if (removed) {
+		memcpy(active_controllers, new_active_controllers, sizeof(new_active_controllers));
+		registered_controllers = new_registered_controllers;
+	}
+
+	return removed;
 }

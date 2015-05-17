@@ -30,6 +30,12 @@
 #include "ControllerConfiguration.h"
 
 
+
+struct ControllerRequest {
+	int id;
+};
+
+
 class ControllerManager
 {
 private:
@@ -42,7 +48,7 @@ public:
 
 	static void addController();
 	static void updateController();
-	static void removeController();
+	static bool removeController(int id);
 };
 
 extern ControllerManager controllerManager;

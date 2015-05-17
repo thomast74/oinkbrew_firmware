@@ -55,7 +55,7 @@ private:
     static void processSparkInfo(const char * key, const char * val, void* pv);
     static void setDeviceMode(const char * key, const char * val, void* pv);
     static void receiveDeviceRequest(const char * key, const char * val, void* pv);
-    
+    static void receiveControllerRequest(const char * key, const char * val, void* pv);
 };
 
 extern TcpListener listener;

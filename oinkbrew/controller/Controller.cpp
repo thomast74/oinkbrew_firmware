@@ -61,6 +61,15 @@ Controller::~Controller()
 	delete this->heatActuator;
 }
 
+int Controller::getId()
+{
+	return this->config.id;
+}
+
+ControllerConfiguration& Controller::getConfig()
+{
+	return this->config;
+}
 
 void Controller::process()
 {

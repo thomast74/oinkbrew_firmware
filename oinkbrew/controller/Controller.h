@@ -39,6 +39,8 @@ public:
 	virtual ~Controller();
 
 	void process();
+	int getId();
+	ControllerConfiguration& getConfig();
 	void setTargetTemperatur(float PointTemperature);
 
 protected:
