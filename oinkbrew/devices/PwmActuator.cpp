@@ -26,6 +26,7 @@
 
 #include "PwmActuator.h"
 
+
 PwmActuator::PwmActuator(uint8_t pin, uint8_t pwm) : PwmActuator(pin, pwm, true)
 {
 }
@@ -35,6 +36,10 @@ PwmActuator::PwmActuator(uint8_t pin, uint8_t pwm, bool simulate)
 	this->pin = pin;
 	this->periodStartTime = 0;
 	this->simulate = simulate;
+	this->dutyTime = 0;
+	this->dutyLate = 0;
+	this->pwm = 0;
+	this->active = false;
 
 	this->setPwm(pwm);
 

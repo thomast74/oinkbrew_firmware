@@ -32,6 +32,8 @@ FridgeController::FridgeController(ControllerConfiguration& config)
 	this->idleStartTime = 0;
 	this->coolingOnTime = 0;
 	this->coolingOffTime = 0;
+	this->coolActuator = NULL;
+	this->fanActuator = NULL;
 
 	this->setCoolActuator(this->config.coolActuator);
 	this->setFanActuator(this->config.fanActuator);

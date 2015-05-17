@@ -41,6 +41,7 @@ private:
 public:
 	Buzzer() {
 		pinMode(BUZZER_PIN, OUTPUT);
+		active = false;
 	}
 
 	void beep(uint8_t numBeeps, uint16_t duration) {

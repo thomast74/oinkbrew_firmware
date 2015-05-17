@@ -26,6 +26,8 @@ DallasTemperature::DallasTemperature(OneWire* _oneWire)
     bitResolution = 9;
     waitForConversion = true;
     checkForConversion = true;
+    alarmSearchJunction = -1;
+    alarmSearchExhausted = 0;
 }
 
 // initialise the bus
