@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    ControllerManager.h
+ * @file    ControllerConfiguration.h
  * @authors Thomas Trageser
  * @version V0.3
- * @date    2015-05-05
+ * @date    2015-05-14
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
  Copyright (c) 2015 Oink Brew;  All rights reserved.
@@ -23,28 +23,50 @@
  ******************************************************************************
  */
 
-#ifndef OINKBREW_CONTROLLER_CONTROLLERMANAGER_H_
-#define OINKBREW_CONTROLLER_CONTROLLERMANAGER_H_
 
-#include "Controller.h"
-#include "ControllerConfiguration.h"
+#ifndef OINKBREW_CONTROLLER_CONTROLLERCONFIGURATION_H_
+#define OINKBREW_CONTROLLER_CONTROLLERCONFIGURATION_H_
 
 
-class ControllerManager
+#include "../devices/Device.h"
+#include <stdint.h>
+
+
+const short MAX_CONTROLLERS = 5;
+const short MAX_PHASES = 10;
+
+
+struct ActingDevice
 {
-private:
-	static Controller* active_controllers[MAX_CONTROLLERS];
-	static short registered_controllers;
-public:
-	static void process();
-
-	static void loadControllersFromEEPROM();
-
-	static void addController();
-	static void updateController();
-	static void removeController();
+	uint8_t pin_nr;
+	DeviceAddress hw_address;
 };
 
-extern ControllerManager controllerManager;
 
-#endif /* OINKBREW_CONTROLLER_CONTROLLERMANAGER_H_ */
+struct TemperaturePhase {
+	unsigned long time;
+	unsigned long duration;
+	float targetTemperature;
+	bool done;
+};
+
+enum ControllerType : uint8_t
+{
+	TYPE_NONE = 0,
+	TYPE_BREW = 1,
+	TYPE_FRIDGE = 2
+};
+
+
+struct ControllerConfiguration {
+	int id;
+	ControllerType type;
+	ActingDevice tempSensor;
+	ActingDevice heatActuator;
+	ActingDevice coolActuator;
+	ActingDevice fanActuator;
+	TemperaturePhase temperaturePhases[MAX_PHASES];
+};
+
+
+#endif /* OINKBREW_CONTROLLER_CONTROLLERCONFIGURATION_H_ */

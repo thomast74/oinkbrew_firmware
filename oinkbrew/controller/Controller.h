@@ -27,35 +27,32 @@
 #define OINKBREW_CONTROLLER_CONTROLLER_H_
 
 #include "PID.h"
-#include "../devices/Device.h"
+#include "ControllerConfiguration.h"
 #include "../devices/PwmActuator.h"
-#include <stdint.h>
 
-
-struct ActingDevice
-{
-	uint8_t pin_nr;
-	DeviceAddress hw_address;
-};
 
 class Controller
 {
 public:
 	Controller();
-	Controller(ActingDevice tempSensor, ActingDevice heatActuator, float targetTemperature);
+	Controller(ControllerConfiguration& config);
 	virtual ~Controller();
 
 	void process();
-	void setTempSensor(ActingDevice TempSensor);
-	void setHeatActuator(ActingDevice HeatActuator);
 	void setTargetTemperatur(float PointTemperature);
 
 protected:
 	virtual void doProcess() {};
 
+	void setTempSensor(ActingDevice TempSensor);
+	void setHeatActuator(ActingDevice HeatActuator);
+
+	virtual void calculateTargetTemperatur() {};
+
 	ActingDevice tempSensor;
 	PwmActuator* heatActuator;
 
+	ControllerConfiguration config;
 	float targetTemperature;
 	float currentTemperature;
 	float output;

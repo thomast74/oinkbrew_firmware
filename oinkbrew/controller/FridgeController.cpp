@@ -25,16 +25,16 @@
 
 #include "FridgeController.h"
 
-FridgeController::FridgeController(ActingDevice tempSensor, ActingDevice heatActuator, ActingDevice coolActuator, ActingDevice fanActuator, float targetTemperature)
-	: Controller(tempSensor, heatActuator, targetTemperature)
+FridgeController::FridgeController(ControllerConfiguration& config)
+	: Controller(config)
 {
 	this->state = IDLE;
 	this->idleStartTime = 0;
 	this->coolingOnTime = 0;
 	this->coolingOffTime = 0;
 
-	this->setCoolActuator(coolActuator);
-	this->setFanActuator(fanActuator);
+	this->setCoolActuator(this->config.coolActuator);
+	this->setFanActuator(this->config.fanActuator);
 
 	pid->SetOutputLimits(-255, 255);
 }
@@ -133,4 +133,17 @@ void FridgeController::setCoolActuator(ActingDevice CoolActuator)
 void FridgeController::setFanActuator(ActingDevice FanActuator)
 {
 	this->fanActuator = new PwmActuator(FanActuator.pin_nr, 0, false);
+}
+
+void FridgeController::calculateTargetTemperatur()
+{
+	unsigned long now = Time.now();
+
+	for(int i=0; i < MAX_PHASES; i++) {
+		if (this->config.temperaturePhases[i].time <= now) {
+			if (i > 0) {
+				setTargetTemperatur(this->config.temperaturePhases[i-1].targetTemperature);
+			}
+		}
+	}
 }

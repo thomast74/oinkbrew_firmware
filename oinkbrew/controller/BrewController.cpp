@@ -32,9 +32,39 @@ void BrewController::doProcess()
 		heatActuator->setPwm(output);
 	}
 	else {
-		if (heatActuator->isActive())
+		if (heatActuator->isActive()) {
 			heatActuator->setPwm(0);
+		}
 	}
 
 	heatActuator->updatePwm();
+
+	if (!this->temperatureReached  && currentTemperature >= (targetTemperature - 0.5) && currentTemperature <= (targetTemperature + 0.5)) {
+		this->temperatureReached = true;
+	}
+}
+
+void BrewController::calculateTargetTemperatur()
+{
+	if (!this->temperatureReached)
+		return;
+
+	unsigned long duration = millis() - startTime;
+
+	for(int i=0; i < MAX_PHASES; i++) {
+
+		if (this->config.temperaturePhases[i].done)
+			continue;
+
+		if (this->config.temperaturePhases[i].duration <= duration) {
+			this->config.temperaturePhases[i].done = true;
+			if ((i + 1) < MAX_PHASES) {
+				setTargetTemperatur(this->config.temperaturePhases[i].targetTemperature);
+			}
+			else {
+				setTargetTemperatur(0);
+			}
+			this->temperatureReached = false;
+		}
+	}
 }

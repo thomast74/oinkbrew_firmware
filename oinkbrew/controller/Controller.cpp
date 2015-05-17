@@ -24,9 +24,10 @@
  */
 
 #include "Controller.h"
-#include <string.h>
 #include "../SparkInfo.h"
 #include "../devices/DeviceManager.h"
+#include "spark_wiring_time.h"
+#include <string.h>
 
 Controller::Controller()
 {
@@ -35,16 +36,18 @@ Controller::Controller()
 	this->targetTemperature = 0;
 	this->currentTemperature = 0;
 	this->heatActuator = NULL;
-
 }
 
-Controller::Controller(ActingDevice tempSensor, ActingDevice heatActuator, float targetTemperature)
+Controller::Controller(ControllerConfiguration& config)
+	: Controller()
 {
-	this->output = 0;
+	this->config = config;
 
-	setTempSensor(tempSensor);
-	setHeatActuator(heatActuator);
-	setTargetTemperatur(targetTemperature);
+
+	setTempSensor(this->config.tempSensor);
+	setHeatActuator(this->config.heatActuator);
+
+	calculateTargetTemperatur();
 
 	this->pid = new PID(&currentTemperature, &output, &targetTemperature,
 			20.000, 1.000, -10.000,

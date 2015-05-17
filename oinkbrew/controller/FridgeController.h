@@ -42,7 +42,7 @@ enum State {
 	COOLING
 };
 
-class FridgeController : Controller
+class FridgeController : public Controller
 {
 private:
 	DigitalActuator *coolActuator;
@@ -52,11 +52,12 @@ private:
 	unsigned long coolingOffTime;
 	unsigned long coolingOnTime;
 public:
-	FridgeController(ActingDevice tempSensor, ActingDevice heatActuator, ActingDevice coolActuator, ActingDevice fanActuator, float targetTemperature);
+	FridgeController(ControllerConfiguration& config);
 	~FridgeController();
 
 protected:
 	void doProcess();
+	void calculateTargetTemperatur();
 
 private:
 	void turnOnHeating();

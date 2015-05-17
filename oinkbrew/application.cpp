@@ -149,6 +149,9 @@ void applicationInit()
     screen.printStatusMessage("Initialise actuators and sensors");
     deviceManager.init();
     deviceManager.loadDevicesFromEEPROM();
+
+    screen.printStatusMessage("Initialise controllers");
+    controllerManager.loadControllersFromEEPROM();
 }
 
 /*******************************************************************************

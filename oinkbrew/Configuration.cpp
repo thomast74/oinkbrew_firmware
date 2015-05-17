@@ -28,6 +28,7 @@
 #include "Helper.h"
 #include "SparkInfo.h"
 #include "devices/DeviceManager.h"
+#include "controller/ControllerManager.h"
 
 extern "C" {
 #include "d4d.h"
@@ -39,6 +40,9 @@ extern "C" {
 #define EEPROM_DEVICE_SETTINGS_START_BLOCK 4
 #define EEPROM_DEVICE_SETTINGS_END_BLOCK 18
 
+#define EEPROM_CTRL_SETTINGS_START_BLOCK 18
+#define EEPROM_CTRL_SETTINGS_END_BLOCK 32
+
 #define EEPROM_EGUI_SETTINGS_START_BLOCK 32
 #define EEPROM_EGUI_SETTINGS_END_BLOCK 36
 
@@ -48,19 +52,22 @@ extern "C" {
 
 static Flashee::FlashDevice* sparkInfoFlash;
 static Flashee::FlashDevice* deviceSettingsFlash;
+static Flashee::FlashDevice* controllerSettingsFlash;
 static Flashee::FlashDevice* eguiFlash;
 
 
 /*******************************************************************************
- * Function Name  : Constructor
+ * Function Name  : init
  * Description    : Creates flash devices for different configuration regions
  * Input          : 
  * Output         : 
  * Return         : 
  ******************************************************************************/
-void Configuration::init() {
+void Configuration::init()
+{
 	sparkInfoFlash = Flashee::Devices::createAddressErase(4096 * EEPROM_SPARK_INFO_START_BLOCK, 4096 * EEPROM_SPARK_INFO_END_BLOCK);
 	deviceSettingsFlash = Flashee::Devices::createAddressErase(4096 * EEPROM_DEVICE_SETTINGS_START_BLOCK, 4096 * EEPROM_DEVICE_SETTINGS_END_BLOCK);
+	controllerSettingsFlash = Flashee::Devices::createAddressErase(4096 * EEPROM_CTRL_SETTINGS_START_BLOCK, 4096 * EEPROM_CTRL_SETTINGS_END_BLOCK);
 	eguiFlash = Flashee::Devices::createAddressErase(4096 * EEPROM_EGUI_SETTINGS_START_BLOCK, 4096 * EEPROM_EGUI_SETTINGS_END_BLOCK);
 }
 
@@ -71,7 +78,8 @@ void Configuration::init() {
  * Output         : returns true if successfully able to ready data otherwise false
  * Return         : 
  ******************************************************************************/
-bool Configuration::loadDeviceInfo() {
+bool Configuration::loadDeviceInfo()
+{
 	SparkInfo si;
 
 	if (sparkInfoFlash->read(&si, 0, sizeof(SparkInfo))) {
@@ -94,19 +102,20 @@ bool Configuration::loadDeviceInfo() {
  * Output         : 
  * Return         : 
  ******************************************************************************/
-void Configuration::storeSparkInfo() {
+void Configuration::storeSparkInfo()
+{
     sparkInfoFlash->write(&sparkInfo, 0, sizeof (SparkInfo));
 }
 
 /*******************************************************************************
- * Function Name  : getNumberDevices
+ * Function Name  : fetchNumberDevices
  * Description    : get the number of devices stored in EEPROM
  * Input          :
  * Output         :
  * Return         : number of devices stored in EEPROM
  ******************************************************************************/
-short Configuration::fetchNumberDevices() {
-
+short Configuration::fetchNumberDevices()
+{
 	char no_devices_char;
 	int no_devices;
 
@@ -117,10 +126,6 @@ short Configuration::fetchNumberDevices() {
 	if (no_devices < 0 || no_devices > MAX_DEVICES)
 		no_devices = 0;
 
-	String msg = "No devices: ";
-	msg.concat(no_devices);
-	Helper::serialDebug(msg.c_str());
-
 	return no_devices;
 }
 
@@ -128,7 +133,7 @@ short Configuration::fetchNumberDevices() {
  * Function Name  : storeNumberDevices
  * Description    : saves number of devices in EEPROM
  * Input          :
- * Output         :
+ * Output         : no of devices
  * Return         :
  ******************************************************************************/
 void Configuration::storeNumberDevices(short no_devices) {
@@ -145,14 +150,14 @@ void Configuration::storeNumberDevices(short no_devices) {
 
 /*******************************************************************************
  * Function Name  : fetchDevice
- * Description    : search if there is an existing
+ * Description    : search if there is an existing device in EEPROM
  * Input          : pin_nr and hw_adress to look for
- * Output         : true if found, false if not found
- * Return         :
+ * Output         : device if found
+ * Return         : slot in EEPROM or -1 if not found
  ******************************************************************************/
-short Configuration::fetchDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Device& device) {
-
-	uint32_t offset = sizeof(short);
+short Configuration::fetchDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Device& device)
+{
+	uint32_t offset = sizeof(char);
 	uint32_t size_device = sizeof(Device);
 	short no_devices = fetchNumberDevices();
 
@@ -177,12 +182,11 @@ short Configuration::fetchDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Dev
  * Output         : Devices array with all stored devices
  * Return         :
  ******************************************************************************/
-void Configuration::fetchDevices(Device devices[]) {
-
-	uint32_t offset = sizeof(short);
+void Configuration::fetchDevices(Device devices[])
+{
+	uint32_t offset = sizeof(char);
 	uint32_t size_device = sizeof(Device);
 	short no_devices = fetchNumberDevices();
-
 
 	for(short slot = 0; slot < no_devices; slot++) {
 		deviceSettingsFlash->read(&devices[slot], (size_device*slot) + offset, size_device);
@@ -192,13 +196,13 @@ void Configuration::fetchDevices(Device devices[]) {
 /*******************************************************************************
  * Function Name  : storeDevice
  * Description    : save device to EEPROM, if exists overwrite, if new add to the end
- * Input          :
- * Output         : Device to store in EEPROM
+ * Input          : Device to store in EEPROM
+ * Output         :
  * Return         :
  ******************************************************************************/
-void Configuration::storeDevice(Device& device) {
-
-	uint32_t offset = sizeof(short);
+void Configuration::storeDevice(Device& device)
+{
+	uint32_t offset = sizeof(char);
 	uint32_t size_device = sizeof(Device);
 
 	Device device_search;
@@ -207,13 +211,9 @@ void Configuration::storeDevice(Device& device) {
 	short slot = fetchDevice(device.hardware.pin_nr, device.hardware.hw_address, device_search);
 
 	if (slot != -1) {
-		Helper::serialDebug("Update device");
-
 		deviceSettingsFlash->write(&device, (size_device*slot) + offset, size_device);
 	}
 	else {
-		Helper::serialDebug("Add device");
-
 		short current_no_devices = fetchNumberDevices();
 
 		deviceSettingsFlash->write(&device, (size_device*current_no_devices) + offset, size_device);
@@ -226,13 +226,13 @@ void Configuration::storeDevice(Device& device) {
 /*******************************************************************************
  * Function Name  : storeDevices
  * Description    : save devices in array to EEPROM for restart
- * Input          :
- * Output         : true if found, false if not found
+ * Input          : devices in array and no of devices
+ * Output         :
  * Return         :
  ******************************************************************************/
-void Configuration::storeDevices(Device devices[], short no_devices) {
-
-	uint32_t offset = sizeof(short);
+void Configuration::storeDevices(Device devices[], short no_devices)
+{
+	uint32_t offset = sizeof(char);
 	uint32_t size_device = sizeof(Device);
 
 	storeNumberDevices(no_devices);
@@ -249,9 +249,8 @@ void Configuration::storeDevices(Device devices[], short no_devices) {
  * Output         :
  * Return         :
  ******************************************************************************/
-void Configuration::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
-
-	Helper::serialDebug("conf.removeDevice");
+void Configuration::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address)
+{
 	short no_devices = fetchNumberDevices();
 	short new_no_devices = 0;
 
@@ -273,13 +272,13 @@ void Configuration::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
 /*******************************************************************************
  * Function Name  : removeDevices
  * Description    : remove all devices from EEPROM
- * Input          : pin nr and hardware address of the device to delete
+ * Input          :
  * Output         :
  * Return         :
  ******************************************************************************/
-void Configuration::removeDevices() {
-
-	uint32_t offset = sizeof(short);
+void Configuration::removeDevices()
+{
+	uint32_t offset = sizeof(char);
 	uint32_t size_device = sizeof(Device);
 
 	Device device;
@@ -292,6 +291,196 @@ void Configuration::removeDevices() {
 	}
 }
 
+
+
+/*******************************************************************************
+ * Function Name  : fetchNumberControllers
+ * Description    : get the number of controllers stored in EEPROM
+ * Input          :
+ * Output         :
+ * Return         : number of controllers stored in EEPROM
+ ******************************************************************************/
+short Configuration::fetchNumberControllers()
+{
+	char no_controllers_char;
+	int no_controllers;
+
+	controllerSettingsFlash->read(&no_controllers_char, 0, sizeof(char));
+
+	no_controllers = atoi(&no_controllers_char);
+
+	if (no_controllers < 0 || no_controllers > MAX_CONTROLLERS)
+		no_controllers = 0;
+
+	return no_controllers;
+}
+
+/*******************************************************************************
+ * Function Name  : storeNumberControllers
+ * Description    : saves number of controllers in EEPROM
+ * Input          : no of device in EEPROM
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void Configuration::storeNumberControllers(short no_controllers)
+{
+	char no_controllers_char;
+	itoa(no_controllers, &no_controllers_char, 10);
+
+	String msg = "New no controllers: ";
+	msg.concat(no_controllers_char);
+	Helper::serialDebug(msg.c_str());
+
+	controllerSettingsFlash->write(&no_controllers_char, 0, sizeof(char));
+}
+
+
+/*******************************************************************************
+ * Function Name  : fetchController
+ * Description    : search if there is an existing controller in device
+ * Input          : id of controller to get
+ * Output         : controller from EEPROM
+ * Return         : slot number in EEPROM or -1 if not found
+ ******************************************************************************/
+short Configuration::fetchController(int id, ControllerConfiguration& config)
+{
+	uint32_t offset = sizeof(char);
+	uint32_t size_controller = sizeof(ControllerConfiguration);
+	short no_controllers = fetchNumberControllers();
+
+	ControllerConfiguration controller_search;
+	conf.clear((uint8_t*) &controller_search, sizeof(controller_search));
+
+	for(short slot = 0; slot < no_controllers; slot++) {
+		controllerSettingsFlash->read(&controller_search, (size_controller*slot) + offset, size_controller);
+		if (controller_search.id == id) {
+			memcpy(&config, &controller_search, sizeof(controller_search));
+
+			return slot;
+		}
+	}
+
+	return -1;
+}
+
+/*******************************************************************************
+ * Function Name  : fetchControllers
+ * Description    : load all controllers from EEPROM
+ * Input          :
+ * Output         : Controllers array with all stored devices
+ * Return         :
+ ******************************************************************************/
+void Configuration::fetchControllers(ControllerConfiguration configs[])
+{
+	uint32_t offset = sizeof(char);
+	uint32_t size_controller = sizeof(ControllerConfiguration);
+	short no_controllers = fetchNumberControllers();
+
+
+	for(short slot = 0; slot < no_controllers; slot++) {
+		controllerSettingsFlash->read(&configs[slot], (size_controller*slot) + offset, size_controller);
+	}
+}
+
+/*******************************************************************************
+ * Function Name  : storeController
+ * Description    : save controller in array to EEPROM for restart
+ * Input          : controller to store in EEPROM, if exists overwrite, if new add to the end
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void Configuration::storeController(ControllerConfiguration& config)
+{
+	uint32_t offset = sizeof(char);
+	uint32_t size_controller = sizeof(ControllerConfiguration);
+
+	ControllerConfiguration controller_search;
+	conf.clear((uint8_t*) &controller_search, sizeof(controller_search));
+
+	short slot = fetchController(config.id, controller_search);
+
+	if (slot != -1) {
+		controllerSettingsFlash->write(&config, (size_controller*slot) + offset, size_controller);
+	}
+	else {
+		short current_no_controllers = fetchNumberControllers();
+
+		controllerSettingsFlash->write(&config, (size_controller*current_no_controllers) + offset, size_controller);
+
+		current_no_controllers++;
+		storeNumberControllers(current_no_controllers);
+	}
+}
+
+/*******************************************************************************
+ * Function Name  : storeControllers
+ * Description    : save controllers in array to EEPROM for restart
+ * Input          : controllers in an array and no of controllers
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void Configuration::storeControllers(ControllerConfiguration controllers[], short no_controllers)
+{
+	uint32_t offset = sizeof(char);
+	uint32_t size_controllers = sizeof(ControllerConfiguration);
+
+	storeNumberControllers(no_controllers);
+
+	for(short slot = 0; slot < no_controllers; slot++) {
+		controllerSettingsFlash->write(&controllers[slot], (size_controllers*slot) + offset, size_controllers);
+	}
+}
+
+/*******************************************************************************
+ * Function Name  : removeController
+ * Description    : remove a specific controller from EEPROM
+ * Input          : controller to remove
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void Configuration::removeController(ControllerConfiguration& config)
+{
+	Helper::serialDebug("conf.removeController");
+	short no_controllers = fetchNumberControllers();
+	short new_no_controllers = 0;
+
+	ControllerConfiguration controllers[MAX_DEVICES];
+	ControllerConfiguration new_controllers[MAX_DEVICES];
+	fetchControllers(controllers);
+
+	for(short slot = 0; slot < no_controllers; slot++) {
+
+		if (controllers[slot].id != config.id) {
+			new_controllers[new_no_controllers] =  controllers[slot];
+			new_no_controllers++;
+		}
+	}
+
+	storeControllers(new_controllers, new_no_controllers);
+}
+
+/*******************************************************************************
+ * Function Name  : removeControllers
+ * Description    : remove all controllers from EEPROM
+ * Input          :
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void Configuration::removeControllers()
+{
+	uint32_t offset = sizeof(char);
+	uint32_t size_controller = sizeof(ControllerConfiguration);
+
+	ControllerConfiguration controller;
+	conf.clear((uint8_t*) &controller, sizeof(controller));
+
+	storeNumberControllers(0);
+
+	for(short slot = 0; slot < MAX_CONTROLLERS; slot++) {
+		controllerSettingsFlash->write(&controller, (size_controller*slot) + offset, size_controller);
+	}
+}
+
 /*******************************************************************************
  * Function Name  : loadEguiSettings
  * Description    : Checks whether valid touch screen calibration data is stored in flash memory
@@ -300,7 +489,8 @@ void Configuration::removeDevices() {
  * Output         : 
  * Return         : true if valid data was found, false if not and calibration is needed
  ******************************************************************************/
-bool Configuration::loadEguiSettings() {
+bool Configuration::loadEguiSettings()
+{
     D4D_TOUCHSCREEN_CALIB calib;
     eguiFlash->read(&calib, 0, sizeof (D4D_TOUCHSCREEN_CALIB));
     if (calib.ScreenCalibrated != 1) {
@@ -317,7 +507,8 @@ bool Configuration::loadEguiSettings() {
  * Output         : 
  * Return         : 
  ******************************************************************************/
-void Configuration::storeEguiSettings() {
+void Configuration::storeEguiSettings()
+{
     D4D_TOUCHSCREEN_CALIB calib = D4D_TCH_GetCalibration();
     eguiFlash->write(&calib, 0, sizeof (D4D_TOUCHSCREEN_CALIB));
 }
@@ -329,6 +520,7 @@ void Configuration::storeEguiSettings() {
  * Output         :
  * Return         :
  ******************************************************************************/
-void Configuration::clear(uint8_t* p, uint8_t size) {
+void Configuration::clear(uint8_t* p, uint8_t size)
+{
 	memset(p, 0, size);
 }

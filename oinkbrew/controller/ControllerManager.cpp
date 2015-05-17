@@ -25,9 +25,13 @@
 
 
 #include "ControllerManager.h"
+#include "ControllerConfiguration.h"
+#include "BrewController.h"
+#include "FridgeController.h"
+#include "../Configuration.h"
 
 
-Controller ControllerManager::active_controllers[MAX_CONTROLLERS] = {};
+Controller* ControllerManager::active_controllers[MAX_CONTROLLERS] = {};
 short ControllerManager::registered_controllers = 0;
 
 
@@ -35,14 +39,27 @@ void ControllerManager::process()
 {
 	for(short i=0; i < registered_controllers; i++)
 	{
-		active_controllers[i].process();
+		active_controllers[i]->process();
 	}
 }
 
 void ControllerManager::loadControllersFromEEPROM()
 {
-	// load configurations from EEPROM
+	registered_controllers = conf.fetchNumberDevices();
+	ControllerConfiguration configs[registered_controllers];
+
+	conf.fetchControllers(configs);
+
 	// add controllers for each configuration
+	for(int i=0; i < registered_controllers; i++) {
+
+		if (configs[i].type == TYPE_BREW) {
+			active_controllers[i] = new BrewController(configs[i]);
+		}
+		else if (configs[i].type == TYPE_FRIDGE) {
+			active_controllers[i] = new FridgeController(configs[i]);
+		}
+	}
 }
 
 void ControllerManager::addController()

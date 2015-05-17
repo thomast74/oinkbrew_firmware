@@ -28,13 +28,15 @@
 
 #include "Controller.h"
 
-class BrewController : Controller
+class BrewController : public Controller
 {
 public:
-	BrewController(ActingDevice tempSensor, ActingDevice heatActuator, float targetTemperature)
-		: Controller(tempSensor, heatActuator, targetTemperature)
+	BrewController(ControllerConfiguration& config)
+		: Controller(config)
 	{
 		pid->SetOutputLimits(0, 255);
+		temperatureReached = false;
+		startTime = 0;
 	}
 
 	~BrewController() {
@@ -42,6 +44,11 @@ public:
 
 protected:
 	void doProcess();
+	void calculateTargetTemperatur();
+
+private:
+	bool temperatureReached;
+	unsigned long startTime;
 };
 
 

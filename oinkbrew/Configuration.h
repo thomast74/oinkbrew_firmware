@@ -29,6 +29,7 @@
 
 #include "flashee-eeprom.h"
 #include "devices/Device.h"
+#include "controller/ControllerConfiguration.h"
 #include <stddef.h>
 
 
@@ -50,6 +51,18 @@ public:
 
     static void removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address);
     static void removeDevices();
+
+    static short fetchNumberControllers();
+    static void storeNumberControllers(short no_configs);
+
+    static short fetchController(int id, ControllerConfiguration& config);
+    static void fetchControllers(ControllerConfiguration configs[]);
+
+    static void storeController(ControllerConfiguration& config);
+    static void storeControllers(ControllerConfiguration configs[], short no_controllers);
+
+    static void removeController(ControllerConfiguration& config);
+    static void removeControllers();
 
     static bool loadEguiSettings();
     static void storeEguiSettings();
