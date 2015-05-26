@@ -27,6 +27,7 @@
 #include "StatusMessage.h"
 #include "Helper.h"
 #include "Settings.h"
+#include "spark_wiring_time.h"
 #include "spark_wiring_udp.h"
 #include "spark_wiring_wifi.h"
 #include "SparkInfo.h"

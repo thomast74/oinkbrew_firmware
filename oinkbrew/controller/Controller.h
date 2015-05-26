@@ -35,8 +35,9 @@ class Controller
 {
 public:
 	Controller();
-	Controller(ControllerConfiguration& config);
 	virtual ~Controller();
+
+	virtual void setConfig(ControllerConfiguration& config);
 
 	void process();
 	int getId();

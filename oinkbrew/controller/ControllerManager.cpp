@@ -62,21 +62,27 @@ void ControllerManager::loadControllersFromEEPROM()
 	}
 }
 
-void ControllerManager::addController()
+bool ControllerManager::changeController(ControllerConfiguration request)
 {
-	// check that controller does not exists already
-	// if exists do update instead
+	int index = findController(request.id);
 
-	// if not create controller based on type
-	// add to active_controllers
-	// save configuration in EEPROM
-}
+	if (index >= 0) {
+		active_controllers[index]->setConfig(request);
+	}
+	else {
+		if (request.type == TYPE_BREW) {
+			active_controllers[registered_controllers] = new BrewController(request);
+			registered_controllers++;
+		}
+		else if (request.type == TYPE_FRIDGE) {
+			active_controllers[registered_controllers] = new FridgeController(request);
+			registered_controllers++;
+		}
+	}
 
-void ControllerManager::updateController()
-{
-	// get controller
-	// if found update configuration
-	// save configuration in EEPROM
+	conf.storeController(request);
+
+	return true;
 }
 
 bool ControllerManager::removeController(int id)
@@ -102,4 +108,15 @@ bool ControllerManager::removeController(int id)
 	}
 
 	return removed;
+}
+
+int ControllerManager::findController(int id)
+{
+	for(int i=0; i < registered_controllers; i++) {
+		if (active_controllers[i]->getId() == id) {
+			return i;
+		}
+	}
+
+	return -1;
 }

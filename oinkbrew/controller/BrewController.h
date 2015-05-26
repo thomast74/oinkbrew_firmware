@@ -32,11 +32,13 @@ class BrewController : public Controller
 {
 public:
 	BrewController(ControllerConfiguration& config)
-		: Controller(config)
+		: Controller()
 	{
 		pid->SetOutputLimits(0, 255);
 		temperatureReached = false;
 		startTime = 0;
+
+		setConfig(config);
 	}
 
 	~BrewController() {

@@ -28,6 +28,7 @@
 #define	TCPLISTENER_H
 
 #include "devices/DeviceManager.h"
+#include "controller/ControllerManager.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -41,21 +42,22 @@ private:
     bool processRequest(char action);
     
     void updateFirmware();
-    void begin_flash_file(int flashType, uint32_t sFlashAddress, uint32_t fileSize);
-    uint16_t save_flash_file_chunk(unsigned char *buf, uint32_t buflen);
-    void finish_flash_file();
     
     typedef void (*ParseJsonCallback)(const char* key, const char* val, void* data);
+    typedef void (*ParseActingDeviceCallback)(ActingDevice* av, const char * key, const char * val);
 
     
     void parseJson(ParseJsonCallback fn, void* data);
     bool parseJsonToken(char* val);
     int readNext();
+    static void parseActingDeviceString(ParseActingDeviceCallback fn, ActingDevice* av, const char * data);
+    static void parseTempPhasesString(TemperaturePhase tempPhases[], const char * data);
     
     static void processSparkInfo(const char * key, const char * val, void* pv);
     static void setDeviceMode(const char * key, const char * val, void* pv);
     static void receiveDeviceRequest(const char * key, const char * val, void* pv);
     static void receiveControllerRequest(const char * key, const char * val, void* pv);
+    static void parseActingDevice(ActingDevice* av, const char * key, const char * val);
 };
 
 extern TcpListener listener;

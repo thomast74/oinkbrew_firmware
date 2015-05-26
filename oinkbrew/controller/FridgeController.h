@@ -55,6 +55,8 @@ public:
 	FridgeController(ControllerConfiguration& config);
 	~FridgeController();
 
+	void setConfig(ControllerConfiguration& config);
+
 protected:
 	void doProcess();
 	void calculateTargetTemperatur();

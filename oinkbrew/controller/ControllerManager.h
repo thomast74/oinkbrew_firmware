@@ -31,11 +31,6 @@
 
 
 
-struct ControllerRequest {
-	int id;
-};
-
-
 class ControllerManager
 {
 private:
@@ -46,9 +41,10 @@ public:
 
 	static void loadControllersFromEEPROM();
 
-	static void addController();
-	static void updateController();
+	static bool changeController(ControllerConfiguration request);
 	static bool removeController(int id);
+private:
+	static int findController(int id);
 };
 
 extern ControllerManager controllerManager;

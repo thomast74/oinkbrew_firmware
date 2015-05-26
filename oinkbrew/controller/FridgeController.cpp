@@ -24,9 +24,11 @@
  */
 
 #include "FridgeController.h"
+#include "spark_wiring_time.h"
+
 
 FridgeController::FridgeController(ControllerConfiguration& config)
-	: Controller(config)
+	: Controller()
 {
 	this->state = IDLE;
 	this->idleStartTime = 0;
@@ -35,8 +37,7 @@ FridgeController::FridgeController(ControllerConfiguration& config)
 	this->coolActuator = NULL;
 	this->fanActuator = NULL;
 
-	this->setCoolActuator(this->config.coolActuator);
-	this->setFanActuator(this->config.fanActuator);
+	this->setConfig(config);
 
 	pid->SetOutputLimits(-255, 255);
 }
@@ -44,6 +45,14 @@ FridgeController::FridgeController(ControllerConfiguration& config)
 FridgeController::~FridgeController()
 {
 	delete this->coolActuator;
+}
+
+void FridgeController::setConfig(ControllerConfiguration& config)
+{
+	Controller::setConfig(config);
+
+	this->setCoolActuator(this->config.coolActuator);
+	this->setFanActuator(this->config.fanActuator);
 }
 
 void FridgeController::doProcess()

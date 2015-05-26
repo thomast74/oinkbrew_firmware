@@ -1,5 +1,6 @@
 #include "HttpClient.h"
 #include "Helper.h"
+#include "spark_wiring.h"
 #include "spark_wiring_string.h"
 
 

@@ -36,18 +36,6 @@ Controller::Controller()
 	this->targetTemperature = 0;
 	this->currentTemperature = 0;
 	this->heatActuator = NULL;
-}
-
-Controller::Controller(ControllerConfiguration& config)
-	: Controller()
-{
-	this->config = config;
-
-
-	setTempSensor(this->config.tempSensor);
-	setHeatActuator(this->config.heatActuator);
-
-	calculateTargetTemperatur();
 
 	this->pid = new PID(&currentTemperature, &output, &targetTemperature,
 			20.000, 1.000, -10.000,
@@ -64,6 +52,16 @@ Controller::~Controller()
 int Controller::getId()
 {
 	return this->config.id;
+}
+
+void Controller::setConfig(ControllerConfiguration& config)
+{
+	memcpy(&this->config, &config, sizeof(config));
+
+	setTempSensor(this->config.tempSensor);
+	setHeatActuator(this->config.heatActuator);
+
+	calculateTargetTemperatur();
 }
 
 ControllerConfiguration& Controller::getConfig()

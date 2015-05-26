@@ -25,6 +25,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "Helper.h"
+#include "inet_hal.h"
+#include "spark_wiring_ipaddress.h"
 #include "spark_wiring_string.h"
 #include "spark_wiring_usbserial.h"
 #include "spark_wiring_wifi.h"
@@ -105,7 +107,7 @@ IPAddress Helper::getLocalIp()
  ******************************************************************************/
 String Helper::getLocalIpStr()
 {
-    uint8_t* address = getLocalIp().raw_address();        
+	IPAddress address = getLocalIp();
     
     String ipAddressStr = "";
     ipAddressStr.concat(address[0]);
@@ -128,16 +130,14 @@ String Helper::getLocalIpStr()
  ******************************************************************************/
 String Helper::getIpStr(IPAddress ip)
 {
-    uint8_t* address = ip.raw_address();
-
     String ipAddressStr = "";
-    ipAddressStr.concat(address[0]);
+    ipAddressStr.concat(ip[0]);
     ipAddressStr.concat(".");
-    ipAddressStr.concat(address[1]);
+    ipAddressStr.concat(ip[1]);
     ipAddressStr.concat(".");
-    ipAddressStr.concat(address[2]);
+    ipAddressStr.concat(ip[2]);
     ipAddressStr.concat(".");
-    ipAddressStr.concat(address[3]);
+    ipAddressStr.concat(ip[3]);
 
     return ipAddressStr;
 }
