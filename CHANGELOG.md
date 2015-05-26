@@ -1,21 +1,39 @@
 # Change Log for Oink Brew Firmware
 
+##v0.3
+
+### Stories  
+OB-10	Create PID controllers that can handle a target temperature and heating and/or colling device with Fan  
+OB-12	Receive configuration and configure PID controller and sensors and actuators  
+OB-14	Store PID controller settings in EEPROM and load them during start up  
+OB-15	Use FAN actuator to support temperature control, run fan during actuator activity with 5 minutes activity after actuator is off  
+OB-29	Receive Brew Configuration request, initialise PID Controller and save to EEPROM  
+OB-25	Receive configuration delete request, deactivate PID controller, remove configuration from EEPROM and reset device function  
+OB-27	Receive configuration update request, change PID controller, change device function and save to EEPROM  
+  
+### Improvements  
+OB-61	Create a actuator that support to be a real PWM actuator or a simulated digital actuator
+
+  
+### Bugs
+
+
 ##v0.2
 
-### Story
+### Stories
+OB-33 	Sensor disconnect should be detected and device removed from active devices  
+OB-34 	Newly connected devices should be detected automatically and added to the active devices  
+OB-53 	When a device was disconnected the Oink Brew Web App should be notified  
+OB-35 	When a newly detected device is added to active devices a message to Oink Brew Web App should be sent  
 OB-45 	Temperature sensor read should automatically adjust the reading with the offset  
 OB-44 	Receive a device offset value and store it in ActiveDevice and EEPROM  
   
-### Improvement
+### Improvements
 OB-55 	Resetting Spark should remove all devices from EEPROM and empty ActiveDevices  
   
-### BUG
+### Bugs
 OB-56 	Disconnecting a device does not clear ActiveDevices and EEPROM in the correct way and causes array overflow  
 OB-58 	One misreading can cause a Device Disconnect, this should be prevented  
-OB-34 	Newly connected devices should be detected automatically and added to the active devices  
-OB-53 	When a device was disconnected the Oink Brew Web App should be notified  
-OB-33 	Sensor disconnect should be detected and device removed from active devices  
-OB-35 	When a newly detected device is added to active devices a message to Oink Brew Web App should be sent  
 OB-60 	Loading SparkInfo after reset, does not set device mode correctly to M  
   
 ## v0.1
