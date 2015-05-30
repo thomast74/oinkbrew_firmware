@@ -53,36 +53,44 @@ void FridgeController::setConfig(ControllerConfiguration& config)
 
 	this->setCoolActuator(this->config.coolActuator);
 	this->setFanActuator(this->config.fanActuator);
+
+	this->calculateTargetTemperatur();
 }
 
-void FridgeController::doProcess()
+bool FridgeController::doProcess()
 {
 	if (this->state == COOLING)
 	{
 		if ((millis() - this->coolingOnTime) > MIN_COOL_ON_TIME) {
-			if (this->output >= -5 || (millis() - this->coolingOnTime) > MAX_COOL_ON_TIME) {
+			if (this->output >= 0 || (millis() - this->coolingOnTime) > MAX_COOL_ON_TIME) {
 				setIdle();
 			}
 		}
 	}
 	else if (this->state == HEATING) {
-		if (output > 5) {
+		if (this->output > 0) {
 			turnOnHeating();
 		}
-		else if(output <= 5) {
+		else if(this->output < 0) {
 			setIdle();
 		}
 	}
 	else if (this->state == IDLE) {
-		if (this->output > 5) {
+		if (this->output > 0) {
 			turnOnHeating();
 		}
-		else if (this->output < -5) {
+		else if (this->output < 0) {
 			turnOnCooling();
 		}
 	}
 
 	checkFanActivity();
+
+	if (this->until < Time.now()) {
+		this->calculateTargetTemperatur();
+	}
+
+	return false;
 }
 
 void FridgeController::turnOnHeating()
@@ -146,15 +154,16 @@ void FridgeController::setFanActuator(ActingDevice FanActuator)
 	this->fanActuator = new PwmActuator(FanActuator.pin_nr, 0, false);
 }
 
-void FridgeController::calculateTargetTemperatur()
+bool FridgeController::calculateTargetTemperatur()
 {
-	unsigned long now = Time.now();
+	long now = Time.now();
 
 	for(int i=0; i < MAX_PHASES; i++) {
-		if (this->config.temperaturePhases[i].time <= now) {
-			if (i > 0) {
-				setTargetTemperatur(this->config.temperaturePhases[i-1].targetTemperature);
-			}
+		if (this->config.temperaturePhases[i].time > now) {
+			this->until = this->config.temperaturePhases[i].time;
+			setTargetTemperatur(this->config.temperaturePhases[i-1].targetTemperature);
 		}
 	}
+
+	return false;
 }

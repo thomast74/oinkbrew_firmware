@@ -42,18 +42,18 @@ public:
 
 	virtual void setConfig(ControllerConfiguration& config);
 
-	void process();
+	bool process();
 	int getId();
 	ControllerConfiguration& getConfig();
 	void setTargetTemperatur(float PointTemperature);
 
 protected:
-	virtual void doProcess() {};
+	virtual bool doProcess() { return false; };
 
 	void setTempSensor(ActingDevice TempSensor);
 	void setHeatActuator(ActingDevice HeatActuator);
 
-	virtual void calculateTargetTemperatur() {};
+	virtual bool calculateTargetTemperatur() { return false; };
 
 	ActingDevice tempSensor;
 	PwmActuator* heatActuator;

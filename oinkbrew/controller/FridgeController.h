@@ -51,6 +51,7 @@ private:
 	unsigned long idleStartTime;
 	unsigned long coolingOffTime;
 	unsigned long coolingOnTime;
+	long until;
 public:
 	FridgeController(ControllerConfiguration& config);
 	~FridgeController();
@@ -58,8 +59,8 @@ public:
 	void setConfig(ControllerConfiguration& config);
 
 protected:
-	void doProcess();
-	void calculateTargetTemperatur();
+	bool doProcess();
+	bool calculateTargetTemperatur();
 
 private:
 	void turnOnHeating();

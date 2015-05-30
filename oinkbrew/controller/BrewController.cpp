@@ -27,7 +27,7 @@
 #include "../Helper.h"
 
 
-void BrewController::doProcess()
+bool BrewController::doProcess()
 {
 	String debug("Output: ");
 	debug.concat(this->currentTemperature);
@@ -63,11 +63,13 @@ void BrewController::doProcess()
 
 	if (this->temperatureReached) {
 		if (this->duration < (millis() - startTime))
-			calculateTargetTemperatur();
+			return calculateTargetTemperatur();
 	}
+
+	return false;
 }
 
-void BrewController::calculateTargetTemperatur()
+bool BrewController::calculateTargetTemperatur()
 {
 	for(int i=0; i < MAX_PHASES; i++) {
 
@@ -90,6 +92,8 @@ void BrewController::calculateTargetTemperatur()
 
 			this->duration = this->config.temperaturePhases[i+1].duration;
 			setTargetTemperatur(this->config.temperaturePhases[i+1].targetTemperature);
+
+			return true;
 		}
 		else {
 			String debug("New Target Temperatur off: 10000000 -> 0");
@@ -100,4 +104,6 @@ void BrewController::calculateTargetTemperatur()
 		}
 		break;
 	}
+
+	return false;
 }

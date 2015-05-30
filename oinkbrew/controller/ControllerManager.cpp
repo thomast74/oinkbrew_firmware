@@ -43,7 +43,9 @@ void ControllerManager::process()
 
 	for(short i=0; i < registered_controllers; i++)
 	{
-		active_controllers[i]->process();
+		if (active_controllers[i]->process()) {
+			conf.storeController(active_controllers[i]->getConfig());
+		}
 	}
 }
 

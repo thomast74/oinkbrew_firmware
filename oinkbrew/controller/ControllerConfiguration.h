@@ -44,7 +44,7 @@ struct ActingDevice
 
 
 struct TemperaturePhase {
-	unsigned long time;
+	long time;
 	unsigned long duration;
 	float targetTemperature;
 	bool done;

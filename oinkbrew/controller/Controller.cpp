@@ -71,7 +71,7 @@ ControllerConfiguration& Controller::getConfig()
 	return this->config;
 }
 
-void Controller::process()
+bool Controller::process()
 {
 	if (pid->GetMode() == PID_MANUAL)
 		pid->SetMode(PID_AUTOMATIC);
@@ -86,9 +86,11 @@ void Controller::process()
 		// calculate output
 		if (pid->Compute()) {
 			// act on output
-			doProcess();
+			return doProcess();
 		}
 	}
+
+	return false;
 }
 
 void Controller::setTempSensor(ActingDevice TempSensor)

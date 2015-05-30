@@ -47,8 +47,8 @@ public:
 	}
 
 protected:
-	void doProcess();
-	void calculateTargetTemperatur();
+	bool doProcess();
+	bool calculateTargetTemperatur();
 
 private:
 	bool temperatureReached;
