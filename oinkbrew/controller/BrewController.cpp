@@ -24,11 +24,24 @@
  */
 
 #include "BrewController.h"
+#include "../Helper.h"
 
 
 void BrewController::doProcess()
 {
-	if (output > 5) {
+	String debug("Output: ");
+	debug.concat(this->currentTemperature);
+	debug.concat(" -> ");
+	debug.concat(this->targetTemperature);
+	debug.concat(" : ");
+	debug.concat(output);
+	debug.concat(" : ");
+	debug.concat(heatActuator->isActive());
+	debug.concat(" -> ");
+	debug.concat(heatActuator->getPwm());
+	Helper::serialDebug(debug.c_str());
+
+	if (output >= 1.0) {
 		heatActuator->setPwm(output);
 	}
 	else {
@@ -39,32 +52,52 @@ void BrewController::doProcess()
 
 	heatActuator->updatePwm();
 
-	if (!this->temperatureReached  && currentTemperature >= (targetTemperature - 0.5) && currentTemperature <= (targetTemperature + 0.5)) {
+	if (!this->temperatureReached  && this->currentTemperature >= (this->targetTemperature - 0.1)) {
+
+		Helper::serialDebug("Temperature reached");
+
+		this->pid->SetOvershoot(0);
 		this->temperatureReached = true;
+		this->startTime =  millis();
+	}
+
+	if (this->temperatureReached) {
+		if (this->duration < (millis() - startTime))
+			calculateTargetTemperatur();
 	}
 }
 
 void BrewController::calculateTargetTemperatur()
 {
-	if (!this->temperatureReached)
-		return;
-
-	unsigned long duration = millis() - startTime;
-
 	for(int i=0; i < MAX_PHASES; i++) {
 
 		if (this->config.temperaturePhases[i].done)
 			continue;
 
-		if (this->config.temperaturePhases[i].duration <= duration) {
-			this->config.temperaturePhases[i].done = true;
-			if ((i + 1) < MAX_PHASES) {
-				setTargetTemperatur(this->config.temperaturePhases[i].targetTemperature);
-			}
-			else {
-				setTargetTemperatur(0);
-			}
-			this->temperatureReached = false;
+		this->config.temperaturePhases[i].done = true;
+		this->temperatureReached = false;
+		this->pid->SetOvershoot(OVERSHOOT);
+
+		if ((i + 1) < MAX_PHASES) {
+
+			String debug("New Target Temperature ");
+			debug.concat(i);
+			debug.concat(": ");
+			debug.concat(this->config.temperaturePhases[i+1].duration);
+			debug.concat(" -> ");
+			debug.concat(this->config.temperaturePhases[i+1].targetTemperature);
+			Helper::serialDebug(debug.c_str());
+
+			this->duration = this->config.temperaturePhases[i+1].duration;
+			setTargetTemperatur(this->config.temperaturePhases[i+1].targetTemperature);
 		}
+		else {
+			String debug("New Target Temperatur off: 10000000 -> 0");
+			Helper::serialDebug(debug.c_str());
+
+			this->duration = 10000000;
+			setTargetTemperatur(0);
+		}
+		break;
 	}
 }

@@ -28,6 +28,7 @@
 #include "../Configuration.h"
 #include "../Helper.h"
 #include "../Platform.h"
+#include "../SparkInfo.h"
 #include "../TcpLogger.h"
 #include "OneWire.h"
 #include "DallasTemperatureSensor.h"
@@ -54,7 +55,8 @@ void DeviceManager::init() {
 	delay(100);
 }
 
-void DeviceManager::loadDevicesFromEEPROM() {
+void DeviceManager::loadDevicesFromEEPROM()
+{
 	registered_devices = conf.fetchNumberDevices();
 	Device devices[registered_devices];
 
@@ -100,13 +102,8 @@ void DeviceManager::readValues() {
 		}
 		else if (activeDevices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
 
-			if (activeDevices[i].offset != 0) {
-				String sOffset = "Offset: ";
-				sOffset.concat(activeDevices[i].offset);
-				Helper::serialDebug(sOffset.c_str());
-			}
-
 			activeDevices[i].value = sensors.getTempC(activeDevices[i].hw_address) + activeDevices[i].offset;
+
 			if (activeDevices[i].value > DEVICE_DISCONNECTED_C) {
 				activeDevices[i].lastSeen = millis();
 			}
@@ -123,19 +120,21 @@ void DeviceManager::readValues() {
 	sensors.requestTemperatures();
 }
 
-bool DeviceManager::findNewDevices() {
-
+bool DeviceManager::findNewDevices()
+{
 	bool new_device_found = false;
 	uint8_t no_found_devices = 0;
 	Device devices[MAX_DEVICES];
 	ActiveDevice actives[MAX_DEVICES];
 
+	// only find new devices if oinkweb is known
+	if (sparkInfo.oinkWeb[0] == 0)
+		return false;
+
 	if (registered_devices == 0)
 		processActuators(devices, actives, no_found_devices);
 
 	processOneWire(devices, actives, no_found_devices);
-
-	Helper::serialDebug("Find new Devices");
 
 	for(short i=0; i < no_found_devices; i++) {
 		if (actives[i].newly_found) {
@@ -164,8 +163,8 @@ bool DeviceManager::findNewDevices() {
 	return new_device_found;
 }
 
-void DeviceManager::removeDevice(DeviceRequest& deviceRequest, char* response) {
-
+void DeviceManager::removeDevice(DeviceRequest& deviceRequest, char* response)
+{
 	// check if part of any configuration
 	// if yes return error
 
@@ -175,8 +174,8 @@ void DeviceManager::removeDevice(DeviceRequest& deviceRequest, char* response) {
 		strcpy(response, "Device not found");
 }
 
-bool DeviceManager::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
-
+bool DeviceManager::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address)
+{
 	bool removed = false;
 	short new_registered_devices = 0;
 	ActiveDevice newActiveDevices[MAX_DEVICES];
@@ -201,8 +200,8 @@ bool DeviceManager::removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
 	return removed;
 }
 
-void DeviceManager::clearActiveDevices() {
-
+void DeviceManager::clearActiveDevices()
+{
 	uint32_t activeDevicesize = sizeof(ActiveDevice);
 	registered_devices = 0;
 
@@ -375,16 +374,18 @@ void DeviceManager::getDevice(short index, ActiveDevice& active) {
 	}
 }
 
-void DeviceManager::getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, ActiveDevice& active) {
-	for(uint8_t i=0;i < registered_devices; i++) {
-		if (activeDevices[i].pin_nr == pin_nr && Helper::matchAddress(hw_address, activeDevices[i].hw_address, 8)) {
-			memcpy(&active, &activeDevices[i], sizeof(ActiveDevice));
-			return;
-		}
-	}
+void DeviceManager::getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, ActiveDevice& active)
+{
 	active.function = DEVICE_FUNCTION_NONE;
 	active.type = DEVICE_HARDWARE_NONE;
 	active.value = 0;
+
+	for(uint8_t i=0;i < registered_devices; i++) {
+		if (activeDevices[i].pin_nr == pin_nr && Helper::matchAddress(hw_address, activeDevices[i].hw_address, 8)) {
+			memcpy(&active, &activeDevices[i], sizeof(ActiveDevice));
+			break;
+		}
+	}
 }
 
 void DeviceManager::fetchDeviceFromConfig(Device& device) {

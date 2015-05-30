@@ -141,10 +141,6 @@ void Configuration::storeNumberDevices(short no_devices) {
 	char no_devices_char;
 	itoa(no_devices, &no_devices_char, 10);
 
-	String msg = "New no devices: ";
-	msg.concat(no_devices_char);
-	Helper::serialDebug(msg.c_str());
-
 	deviceSettingsFlash->write(&no_devices_char, 0, sizeof(char));
 }
 

@@ -29,7 +29,8 @@
 #include "BrewController.h"
 #include "FridgeController.h"
 #include "../Configuration.h"
-
+#include "../Helper.h"
+#include "../SparkInfo.h"
 
 Controller* ControllerManager::active_controllers[MAX_CONTROLLERS] = {};
 short ControllerManager::registered_controllers = 0;
@@ -37,6 +38,9 @@ short ControllerManager::registered_controllers = 0;
 
 void ControllerManager::process()
 {
+	if (sparkInfo.mode != SPARK_MODE_AUTOMATIC)
+		return;
+
 	for(short i=0; i < registered_controllers; i++)
 	{
 		active_controllers[i]->process();
@@ -45,38 +49,61 @@ void ControllerManager::process()
 
 void ControllerManager::loadControllersFromEEPROM()
 {
-	registered_controllers = conf.fetchNumberDevices();
-	ControllerConfiguration configs[registered_controllers];
+	short stored_controllers = conf.fetchNumberControllers();
+	ControllerConfiguration configs[stored_controllers];
 
 	conf.fetchControllers(configs);
 
-	// add controllers for each configuration
-	for(int i=0; i < registered_controllers; i++) {
+	Helper::serialDebug("Reg Controllers: ", false);
+	Helper::serialDebug(registered_controllers);
 
+	// add controllers for each configuration
+	for(int i=0; i < stored_controllers; i++) {
 		if (configs[i].type == TYPE_BREW) {
-			active_controllers[i] = new BrewController(configs[i]);
+			Helper::serialDebug("Create Brew Controller");
+			active_controllers[registered_controllers] = new BrewController(configs[i]);
+			registered_controllers++;
 		}
 		else if (configs[i].type == TYPE_FRIDGE) {
-			active_controllers[i] = new FridgeController(configs[i]);
+			Helper::serialDebug("Create Fridge Controller");
+			active_controllers[registered_controllers] = new FridgeController(configs[i]);
+			registered_controllers++;
+		}
+		else {
+			Helper::serialDebug("Uknown controller: ", false);
+			Helper::serialDebug(configs[i].type);
+			conf.removeController(configs[i]);
 		}
 	}
 }
 
 bool ControllerManager::changeController(ControllerConfiguration request)
 {
+	String debug("Add or update controller: ");
+	debug.concat(request.id);
+	debug.concat(" -> ");
+	debug.concat(request.type);
+	Helper::serialDebug(debug.c_str());
+
 	int index = findController(request.id);
 
 	if (index >= 0) {
+		Helper::serialDebug("Updating existing controller");
 		active_controllers[index]->setConfig(request);
 	}
 	else {
 		if (request.type == TYPE_BREW) {
+			Helper::serialDebug("Create Brew Controller");
 			active_controllers[registered_controllers] = new BrewController(request);
 			registered_controllers++;
 		}
 		else if (request.type == TYPE_FRIDGE) {
+			Helper::serialDebug("Create Fridge Controller");
 			active_controllers[registered_controllers] = new FridgeController(request);
 			registered_controllers++;
+		}
+		else {
+			return false;
 		}
 	}
 

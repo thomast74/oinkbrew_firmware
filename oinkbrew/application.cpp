@@ -103,10 +103,10 @@ void loop()
     {
         lastRun = time;
         deviceManager.readValues();
-    }
 
-    // process controllers and control temperature
-    controllerManager.process();
+        // process controllers and control temperature
+        controllerManager.process();
+    }
 
     // every 15 seconds log actuator and sensor values
     if((time - lastLog) >= DURATION_LOG)

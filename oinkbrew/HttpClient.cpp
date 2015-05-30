@@ -59,9 +59,6 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
         return;
     }
 
-    Helper::serialDebug("connected -> ", false);
-    Helper::serialDebug(connected);
-
     //
     // Send HTTP Headers
     //
@@ -119,6 +116,4 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
     }
 
     client.stop();
-
-    Helper::serialDebug("Data sent");
 }

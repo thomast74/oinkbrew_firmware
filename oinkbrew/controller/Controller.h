@@ -26,6 +26,9 @@
 #ifndef OINKBREW_CONTROLLER_CONTROLLER_H_
 #define OINKBREW_CONTROLLER_CONTROLLER_H_
 
+#define OVERSHOOT 0.5
+
+
 #include "PID.h"
 #include "ControllerConfiguration.h"
 #include "../devices/PwmActuator.h"

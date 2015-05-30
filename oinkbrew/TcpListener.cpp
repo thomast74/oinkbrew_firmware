@@ -119,6 +119,7 @@ bool TcpListener::processRequest(char action)
 		ControllerConfiguration cr1;
 		parseJson(&TcpListener::receiveControllerRequest, &cr1);
 		controllerManager.changeController(cr1);
+		client.write(ACK);
 		break;
 	// remove a controller from
 	case 'q':
@@ -232,6 +233,11 @@ void TcpListener::receiveControllerRequest(const char * key, const char * val, v
 {
 	ControllerConfiguration *pControllerRequest = static_cast<ControllerConfiguration*>(pv);
 
+	String debug(key);
+	debug.concat(":");
+	debug.concat(val);
+	Helper::serialDebug(debug.c_str());
+
 	if (strcmp(key, "config_id") == 0)
 		pControllerRequest->id = atoi(val);
 	else if (strcmp(key, "config_type") == 0)
@@ -253,8 +259,9 @@ void TcpListener::parseActingDevice(ActingDevice* av, const char * key, const ch
 {
 	if (strcmp(key, "pin_nr") == 0)
 		av->pin_nr = atoi(val);
-	else if (strcmp(key, "hw_address") == 0)
+	else if (strcmp(key, "hw_address") == 0) {
 		Helper::setBytes(av->hw_address, val, 8);
+	}
 }
 
 void TcpListener::updateFirmware()
@@ -296,7 +303,7 @@ bool TcpListener::parseJsonToken(char* val)
 		if (character == ',' || character == ':') // end of value
 			break;
 		if (character == '"') {
-			; // skip spaces and apostrophes
+			// skip spaces and apostrophes
 		} else
 			val[index++] = character;
 	}
@@ -319,39 +326,37 @@ int TcpListener::readNext()
 
 void TcpListener::parseActingDeviceString(ParseActingDeviceCallback fn, ActingDevice* av, const char * data)
 {
-	char key[30];
 	char val[30];
+	int index = 0;
 	int length = strlen(data);
-	bool keyToken = true;
 
 	for (int i=0; i < length; i++) {
-		if (data[i] == '=') {
-			key[i] = 0;
-			val[i] = 0;
-			fn(av, key, val);
-			keyToken = false;
-		}
-		else if (data[i] == ';') {
-			keyToken = true;
+		if (data[i] == ';') {
+			val[index] = 0;
+			index = 0;
+			fn(av, "pin_nr", val);
 		}
 		else {
-			if (keyToken) {
-				key[i] = data[i];
-			}
-			else {
-				val[i] = data[i];
-			}
+			val[index] = data[i];
+			index++;
 		}
 	}
+
+	val[index] = 0;
+	fn(av, "hw_address", val);
 }
 
-void TcpListener::parseTempPhasesString(TemperaturePhase tempPhases[], const char * data)
+void TcpListener::parseTempPhasesString(TemperaturePhase *tempPhases, const char * data)
 {
 	char val[30];
 	int type = 0;
-	int index = 0;
+	int index = 1;
 	int index_val = 0;
 	int length = strlen(data);
+
+	tempPhases[0].time = 0;
+	tempPhases[0].duration = 0;
+	tempPhases[0].done = false;
 
 	for (int i=0; i < length; i++) {
 		if (data[i] == ';') {
@@ -368,7 +373,8 @@ void TcpListener::parseTempPhasesString(TemperaturePhase tempPhases[], const cha
 		else if (data[i] == '|') {
 			val[index_val] = 0;
 
-			tempPhases[index].targetTemperature = (float) atoi(val) / 10000.0000;
+			tempPhases[index].targetTemperature = (float) atoi(val) / 1000.0000;
+			tempPhases[index].done = false;
 
 			type = 0;
 			index++;
@@ -384,6 +390,7 @@ void TcpListener::parseTempPhasesString(TemperaturePhase tempPhases[], const cha
 	}
 
 	if (type == 2 && index_val > 0) {
-		tempPhases[index].targetTemperature = (float) atoi(val) / 10000.0000;
+		val[index_val] = 0;
+		tempPhases[index].targetTemperature = (float) atoi(val) / 1000.0000;
 	}
 }

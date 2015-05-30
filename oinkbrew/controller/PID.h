@@ -16,7 +16,7 @@ public:
 
 	PID(float*, float*, float*, 			// * constructor.  links the PID to the Input, Output, and
 		float, float, float,
-		float, float, float, int); 		//   Setpoint.  Initial tuning parameters are also set here
+		float, float, float, float, int); 	//   Setpoint.  Initial tuning parameters are also set here
 
 	void SetMode(int Mode);   				// * sets PID to either Manual (0) or Auto (non-0)
 
@@ -28,6 +28,7 @@ public:
 	void SetOutputLimits(float, float); 	//clamps the output to a specific range. 0-255 by default, but
 										  	//it's likely the user will want to change this depending on
 										  	//the application
+	void SetOvershoot(float);
 
 	//available but not commonly used functions ********************************************************
 
@@ -69,9 +70,10 @@ private:
 
 	int controllerDirection;
 
+	float overshoot;
 	float *myInput;  						// * Pointers to the Input, Output, and Setpoint variables
 	float *myOutput; 						//   This creates a hard link between the variables and the
-	float *mySetpoint; 					//   PID, freeing the user from having to constantly tell us
+	float *mySetpoint; 						//   PID, freeing the user from having to constantly tell us
 											//   what these values are.  with pointers we'll just know.
 
 	unsigned long lastTime;

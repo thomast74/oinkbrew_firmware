@@ -25,7 +25,9 @@
 
 #include "Controller.h"
 #include "../SparkInfo.h"
+#include "../Helper.h"
 #include "../devices/DeviceManager.h"
+#include "../devices/DallasTemperatureSensor.h"
 #include "spark_wiring_time.h"
 #include <string.h>
 
@@ -38,9 +40,9 @@ Controller::Controller()
 	this->heatActuator = NULL;
 
 	this->pid = new PID(&currentTemperature, &output, &targetTemperature,
-			20.000, 1.000, -10.000,
-			2.000, 0.050, 1.000,
-			PID_DIRECT);
+			4.00, 0.20, 1.00,
+			1.00, 0.05, 0.25,
+			OVERSHOOT, PID_DIRECT);
 }
 
 Controller::~Controller()
@@ -71,26 +73,21 @@ ControllerConfiguration& Controller::getConfig()
 
 void Controller::process()
 {
-	// only go on if in automatic mode
-	if (sparkInfo.mode != SPARK_MODE_AUTOMATIC)
-	{
-		return;
-	}
-	else
-	{
-		if (pid->GetMode() == PID_MANUAL)
-			pid->SetMode(PID_AUTOMATIC);
-	}
+	if (pid->GetMode() == PID_MANUAL)
+		pid->SetMode(PID_AUTOMATIC);
 
 	// get reading for temp sensor
 	ActiveDevice tempSensorDevice;
-	deviceManager.getDevice(tempSensor.pin_nr, tempSensor.hw_address, tempSensorDevice);
-	currentTemperature = tempSensorDevice.value;
+	deviceManager.getDevice(this->tempSensor.pin_nr, this->tempSensor.hw_address, tempSensorDevice);
+	if (tempSensorDevice.value > DEVICE_DISCONNECTED_C)
+	{
+		this->currentTemperature = tempSensorDevice.value;
 
-	// calculate output
-	if (pid->Compute()) {
-		// act on output
-		doProcess();
+		// calculate output
+		if (pid->Compute()) {
+			// act on output
+			doProcess();
+		}
 	}
 }
 

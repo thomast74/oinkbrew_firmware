@@ -26,6 +26,7 @@
 #ifndef OINKBREW_CONTROLLER_BREWCONTROLLER_H_
 #define OINKBREW_CONTROLLER_BREWCONTROLLER_H_
 
+
 #include "Controller.h"
 
 class BrewController : public Controller
@@ -34,9 +35,10 @@ public:
 	BrewController(ControllerConfiguration& config)
 		: Controller()
 	{
-		pid->SetOutputLimits(0, 255);
-		temperatureReached = false;
-		startTime = 0;
+		this->pid->SetOutputLimits(0, 255);
+		this->temperatureReached = false;
+		this->startTime = 0;
+		this->duration = 0;
 
 		setConfig(config);
 	}
@@ -51,6 +53,7 @@ protected:
 private:
 	bool temperatureReached;
 	unsigned long startTime;
+	unsigned long duration;
 };
 
 

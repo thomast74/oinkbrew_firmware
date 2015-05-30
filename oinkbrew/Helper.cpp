@@ -80,6 +80,16 @@ void Helper::serialDebug(int8_t message, bool lineFeed) {
     }
 }
 
+void Helper::serialDebug(int number, bool lineFeed) {
+    if (Helper::isDebug()) {
+        if (lineFeed)
+            Serial.println(number);
+        else
+            Serial.print(number);
+        Serial.flush();
+    }
+}
+
 /*******************************************************************************
  * Function Name  : getLocalIPStr
  * Description    : convert WiFi.localIP into a string

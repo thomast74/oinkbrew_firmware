@@ -8,7 +8,7 @@
 PID::PID(float* Input, float* Output, float* Setpoint,
 		 float AggKp, float AggKi, float AggKd,
 		 float ConKp, float ConKi, float ConKd,
-		 int ControllerDirection)
+		 float overshoot, int ControllerDirection)
 {
 
     myOutput = Output;
@@ -27,7 +27,8 @@ PID::PID(float* Input, float* Output, float* Setpoint,
 	PID::SetOutputLimits(-255, 255);				//default output limit corresponds to
 													//the arduino pwm limits
 
-    SampleTime = 100;								//default Controller Sample Time is 1 seconds
+    SampleTime = 1000;								//default Controller Sample Time is 1 seconds
+    this->overshoot = overshoot;
 
     PID::SetControllerDirection(ControllerDirection);
     PID::SetTunings(conKp, conKp, conKd);
@@ -54,25 +55,29 @@ bool PID::Compute()
    {
       /*Compute all the working error variables*/
 	  float input = *myInput;
-	  float error = *mySetpoint - input;
+	  float error = *mySetpoint - input - overshoot;
 
 
-      if ((error < -1.5 || error > 1.5) && !aggressiveTuningMode) {
+      if ((error < -5.0 || error > 5.0) && !aggressiveTuningMode) {
     	  PID::SetTunings(aggKp, aggKi, aggKd);
+    	  ITerm = 80;
     	  aggressiveTuningMode = true;
       }
-      else if ((error >= -1.5 && error <= 1.5) && aggressiveTuningMode) {
+      else if ((error >= -5.0 && error <= 5.0) && aggressiveTuningMode) {
     	  PID::SetTunings(conKp, conKi, conKd);
+    	  ITerm = 80;
     	  aggressiveTuningMode = false;
       }
-
+      else if (error < -0.5) {
+    	  ITerm = 0;
+      }
 
       ITerm += (ki * error);
 
       if(ITerm > outMax)
-    	  ITerm= outMax;
+    	  ITerm = outMax;
       else if(ITerm < outMin)
-    	  ITerm= outMin;
+    	  ITerm = outMin;
 
       float dInput = (input - lastInput);
 
@@ -163,6 +168,11 @@ void PID::SetOutputLimits(float Min, float Max)
 	   else if(ITerm < outMin)
 		   ITerm= outMin;
    }
+}
+
+void PID::SetOvershoot(float overshoot)
+{
+	this->overshoot = overshoot;
 }
 
 /* SetMode(...)****************************************************************

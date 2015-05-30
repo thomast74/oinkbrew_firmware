@@ -51,7 +51,7 @@ private:
     bool parseJsonToken(char* val);
     int readNext();
     static void parseActingDeviceString(ParseActingDeviceCallback fn, ActingDevice* av, const char * data);
-    static void parseTempPhasesString(TemperaturePhase tempPhases[], const char * data);
+    static void parseTempPhasesString(TemperaturePhase *tempPhases, const char * data);
     
     static void processSparkInfo(const char * key, const char * val, void* pv);
     static void setDeviceMode(const char * key, const char * val, void* pv);
