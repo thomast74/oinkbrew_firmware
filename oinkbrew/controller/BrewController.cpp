@@ -52,11 +52,11 @@ bool BrewController::doProcess()
 
 	heatActuator->updatePwm();
 
-	if (!this->temperatureReached  && this->currentTemperature >= (this->targetTemperature - 0.1)) {
+	if (!this->temperatureReached  && this->currentTemperature >= this->targetTemperature) {
 
 		Helper::serialDebug("Temperature reached");
 
-		this->pid->SetOvershoot(0);
+		this->pid->SetOvershoot(OVERSHOOT_KEEP);
 		this->temperatureReached = true;
 		this->startTime =  millis();
 	}
@@ -78,7 +78,7 @@ bool BrewController::calculateTargetTemperatur()
 
 		this->config.temperaturePhases[i].done = true;
 		this->temperatureReached = false;
-		this->pid->SetOvershoot(OVERSHOOT);
+		this->pid->SetOvershoot(OVERSHOOT_HEAT);
 
 		if ((i + 1) < MAX_PHASES) {
 

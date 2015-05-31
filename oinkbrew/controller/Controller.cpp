@@ -42,7 +42,7 @@ Controller::Controller()
 	this->pid = new PID(&currentTemperature, &output, &targetTemperature,
 			4.00, 0.20, 1.00,
 			1.00, 0.05, 0.25,
-			OVERSHOOT, PID_DIRECT);
+			OVERSHOOT_HEAT, PID_DIRECT);
 }
 
 Controller::~Controller()

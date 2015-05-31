@@ -60,12 +60,12 @@ bool PID::Compute()
 
       if ((error < -5.0 || error > 5.0) && !aggressiveTuningMode) {
     	  PID::SetTunings(aggKp, aggKi, aggKd);
-    	  ITerm = 80;
+    	  ITerm = 65;
     	  aggressiveTuningMode = true;
       }
       else if ((error >= -5.0 && error <= 5.0) && aggressiveTuningMode) {
     	  PID::SetTunings(conKp, conKi, conKd);
-    	  ITerm = 80;
+    	  ITerm = 65;
     	  aggressiveTuningMode = false;
       }
       else if (error < -0.5) {
