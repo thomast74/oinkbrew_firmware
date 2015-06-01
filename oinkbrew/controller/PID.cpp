@@ -57,19 +57,18 @@ bool PID::Compute()
 	  float input = *myInput;
 	  float error = *mySetpoint - input - overshoot;
 
-
       if ((error < -5.0 || error > 5.0) && !aggressiveTuningMode) {
     	  PID::SetTunings(aggKp, aggKi, aggKd);
-    	  ITerm = 65;
+    	  ITerm = 60;
     	  aggressiveTuningMode = true;
+      }
+      else if (error >= -0.25 && error <= 0.25) {
+    	  ITerm = 3;
       }
       else if ((error >= -5.0 && error <= 5.0) && aggressiveTuningMode) {
     	  PID::SetTunings(conKp, conKi, conKd);
-    	  ITerm = 65;
+    	  ITerm = 60;
     	  aggressiveTuningMode = false;
-      }
-      else if (error < -0.5) {
-    	  ITerm = 0;
       }
 
       ITerm += (ki * error);

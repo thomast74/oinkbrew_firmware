@@ -110,10 +110,14 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
         client.println(aRequest.body);
     }
 
+    delay(20);
+
     unsigned long startTime = millis();
-    while (client.available() > 0 && millis() - startTime < 1000) {
+    while (client.available() > 0 && (millis() - startTime) < 2000) {
     	client.read();
     }
+
+    delay(10);
 
     client.stop();
 }
