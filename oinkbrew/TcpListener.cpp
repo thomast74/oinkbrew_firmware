@@ -121,7 +121,7 @@ bool TcpListener::processRequest(char action)
 		controllerManager.changeController(cr1);
 		client.write(ACK);
 		break;
-	// remove a controller from
+	// remove a configuration
 	case 'q':
 		ControllerConfiguration cr2;
 		parseJson(&TcpListener::receiveControllerRequest, &cr2);
@@ -366,6 +366,8 @@ void TcpListener::parseTempPhasesString(TemperaturePhase *tempPhases, const char
 				tempPhases[index].time = atol(val);
 			else if (type == 1)
 				tempPhases[index].duration = atol(val);
+			else if (type == 2)
+				tempPhases[index].targetTemperature = (float) atoi(val) / 1000.0000;
 
 			type++;
 			index_val = 0;
@@ -373,8 +375,7 @@ void TcpListener::parseTempPhasesString(TemperaturePhase *tempPhases, const char
 		else if (data[i] == '|') {
 			val[index_val] = 0;
 
-			tempPhases[index].targetTemperature = (float) atoi(val) / 1000.0000;
-			tempPhases[index].done = false;
+			tempPhases[index].done = atoi(val) == 1 ? true : false;
 
 			type = 0;
 			index++;
@@ -391,6 +392,6 @@ void TcpListener::parseTempPhasesString(TemperaturePhase *tempPhases, const char
 
 	if (type == 2 && index_val > 0) {
 		val[index_val] = 0;
-		tempPhases[index].targetTemperature = (float) atoi(val) / 1000.0000;
+		tempPhases[index].done = atoi(val) == 1 ? true : false;
 	}
 }
