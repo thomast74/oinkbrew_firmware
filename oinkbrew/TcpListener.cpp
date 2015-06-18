@@ -148,7 +148,7 @@ bool TcpListener::processRequest(char action)
 		break;
 	// bootloader mode
 	case '$':
-		System.bootloader();
+		System.dfu();
 		break;
 	// reset spark
 	case '!':
