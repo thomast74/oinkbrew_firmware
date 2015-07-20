@@ -27,6 +27,15 @@
 #ifndef SCREEN_H
 #define	SCREEN_H
 
+#include <stdint.h>
+
+enum ScreenType : uint8_t
+{
+	SCREEN_INFO = 0,
+	SCREEN_BREW = 1,
+	SCREEN_FERM = 2,
+	SCREEN_CONTROLLERS = 3
+};
 
 struct Screen {
     /**
@@ -57,7 +66,7 @@ struct Screen {
      * Display the Ferm 1  page and allow the user to see the current 
      * fermentation chamber 1 sensor data
      */
-    static void showFerm1Screen();
+    static void showFermScreen();
 
     /**
      * Display the Ferm 2  page and allow the user to see the current 
@@ -75,7 +84,7 @@ struct Screen {
      * Called from the main loop to update the current page and perform event
      * processing.
      */
-    static void update();
+    static void update(ScreenType screenType);
 
     /**
      * Show touch screen calibration screen store settings afterwards

@@ -41,8 +41,7 @@ void updateLabel(D4D_OBJECT* pThis, D4D_CHAR* text);
     
 D4D_EXTERN_OBJECT(scr_btnInfo);
 D4D_EXTERN_OBJECT(scr_btnBrew);
-D4D_EXTERN_OBJECT(scr_btnFerm1);
-D4D_EXTERN_OBJECT(scr_btnFerm2);
+D4D_EXTERN_OBJECT(scr_btnFerm);
 
 
 #define D4D_DECLARE_STD_LABEL_RIGHT(name, text, x, y, cx, cy, fontId, bg, fg) \

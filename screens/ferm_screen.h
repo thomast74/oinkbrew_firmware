@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    fonts.h
+ * @file    ferm_screen.h
  * @authors Thomas Trageser
- * @version V0.1
- * @date    2015-03-25
+ * @version V0.3
+ * @date    2015-07-18
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
   Copyright (c) 2015 Oink Brew;  All rights reserved.
@@ -23,15 +23,23 @@
  ******************************************************************************
  */
 
- 
-#ifndef __FONTS_H
-#define __FONTS_H
 
+#ifndef FERM_SCREEN_H
+#define	FERM_SCREEN_H
 
-#define FONT_ARIAL_11		2 
-#define FONT_NUMBER_MEDIUM  4
-
-extern const D4D_FONT_DESCRIPTOR d4dfnt_Arial_11_desc;
-extern const D4D_FONT_DESCRIPTOR d4dfnt_AlteDIN1451_16_desc;
-
+#ifdef	__cplusplus
+extern "C" {
 #endif
+
+    
+D4D_EXTERN_SCREEN(screen_ferm);
+
+D4D_EXTERN_OBJECT(scrFerm_Name);
+
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif	/* FERM_SCREEN_H */
+

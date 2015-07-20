@@ -32,7 +32,7 @@
 
 
 D4D_CHAR str_name[31] = "";
-D4D_CHAR str_mode[10] = "";
+D4D_CHAR str_mode[2] = "";
 D4D_CHAR str_id[31] = "";
 D4D_CHAR str_config[5] = "";
 D4D_CHAR str_TempType[2] = "";
@@ -63,8 +63,7 @@ D4D_DECLARE_STD_LABEL(scrInfo_valWeb,      str_OinkWeb,   110, 215, 200, 20, FON
 D4D_DECLARE_STD_SCREEN_BEGIN(screen_info, ScreenInfo_)
     D4D_DECLARE_SCREEN_OBJECT(scr_btnInfo)
     D4D_DECLARE_SCREEN_OBJECT(scr_btnBrew)
-    D4D_DECLARE_SCREEN_OBJECT(scr_btnFerm1)
-    D4D_DECLARE_SCREEN_OBJECT(scr_btnFerm2)
+    D4D_DECLARE_SCREEN_OBJECT(scr_btnFerm)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblName)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblMode)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblId)
@@ -93,8 +92,7 @@ static void ScreenInfo_OnActivate()
 {
     changeMenuButtonState((D4D_OBJECT*)&scr_btnInfo, D4D_TRUE, "Info");
     changeMenuButtonState((D4D_OBJECT*)&scr_btnBrew, D4D_FALSE, "Brew");
-    changeMenuButtonState((D4D_OBJECT*)&scr_btnFerm1, D4D_FALSE, "Ferm 1");
-    changeMenuButtonState((D4D_OBJECT*)&scr_btnFerm2, D4D_FALSE, "Ferm 2");
+    changeMenuButtonState((D4D_OBJECT*)&scr_btnFerm, D4D_FALSE, "Ferm");
 }
 
 static void ScreenInfo_OnDeactivate()

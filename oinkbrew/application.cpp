@@ -43,7 +43,7 @@ void wifiInit();
 
 static unsigned long lastRun = -1000;
 static unsigned long lastLog = 0;
-static unsigned long lastMsg = -121000;
+static unsigned long lastMsg = -181000;
 
 
 SYSTEM_MODE(MANUAL);
@@ -94,10 +94,6 @@ void loop()
 {
 	unsigned long time = millis();
 
-    // update screen and check for touch input
-    //screen.ticks();
-
-
     // every second read actuator and sensor values
     if((time - lastRun) >= DURATION_RUN)
     {
@@ -106,6 +102,9 @@ void loop()
 
         // process controllers and control temperature
         controllerManager.process();
+
+        // update brew and ferm screen if active
+        screen.update(SCREEN_CONTROLLERS);
     }
 
     // every 15 seconds log actuator and sensor values
@@ -126,8 +125,11 @@ void loop()
     // check for client connectivity
 	if (listener.connected())
 	{
-		//screen.update();
+		screen.update(SCREEN_INFO);
 	}
+
+    // update screen and check for touch input
+    screen.ticks();
 }
 
 /*******************************************************************************

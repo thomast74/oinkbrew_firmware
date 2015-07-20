@@ -31,88 +31,68 @@
 #include "widget_color_scheme.h"
 
 
-D4D_CHAR str_Process[25] = "";
-
-D4D_CHAR str_curHltIn[8] = "";
-D4D_CHAR str_curHltOut[8] = "";
-D4D_CHAR str_curMashIn[8] = "";
-D4D_CHAR str_curMashOut[8] = "";
-D4D_CHAR str_curBoilIn[8] = "";
-D4D_CHAR str_curBoilInside[8] = "";
-D4D_CHAR str_curBoilOut[8] = "";
-
-D4D_CHAR str_tarHltIn[8] = "";
-D4D_CHAR str_tarHltOut[8] = "";
-D4D_CHAR str_tarMashIn[8] = "";
-D4D_CHAR str_tarMashOut[8] = "";
-D4D_CHAR str_tarBoilIn[8] = "";
-D4D_CHAR str_tarBoilInside[8] = "";
-D4D_CHAR str_tarBoilOut[8] = "";
+#define INITIAL_BLOCK_COLOR D4D_COLOR_RGB(32,32,32)
 
 
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_Process,    "Process:",     5,  40, 100, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
-D4D_DECLARE_STD_LABEL_CENTER(scrBrew_Current,   "Current",    130,  65,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
-D4D_DECLARE_STD_LABEL_CENTER(scrBrew_Target,    "Target",     220,  65,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_HltIn,      "HLT In:",      5,  90,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_HltOut,     "HLT Out:",     5, 110,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_MashIn,     "Mash In:",     5, 135,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_MashOut,    "Mash Out:",    5, 155,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_BoilIn,     "Boil In:",     5, 180,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_BoilInside, "Boil Inside:", 5, 200,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_BoilOut,    "Boil Out:",    5, 220,  90, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_CHAR str_brew_name[31] = "";
 
-D4D_DECLARE_STD_LABEL(scrBrew_valProcess,       str_Process,       110,  40, 100, 20, FONT_ARIAL_11);
+D4D_CHAR str_curHlt[8] = "-.-";
+D4D_CHAR str_curMash[8] = "-.-";
+D4D_CHAR str_curBoil[8] = "-.-";
 
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curHltIn,      str_curHltIn,      130,  90,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curHltOut,     str_curHltOut,     130, 110,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curMashIn,     str_curMashIn,     130, 135,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curMashOut,    str_curMashOut,    130, 155,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curBoilIn,     str_curBoilIn,     130, 180,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curBoilInside, str_curBoilInside, 130, 200,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_curBoilOut,    str_curBoilOut,    130, 220,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_CHAR str_tarHlt[8] = "-.-";
+D4D_CHAR str_tarMash[8] = "-.-";
+D4D_CHAR str_tarBoil[8] = "-.-";
 
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarHltIn,      str_tarHltIn,      220,  90,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarHltOut,     str_tarHltOut,     220, 110,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarMashIn,     str_tarMashIn,     220, 135,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarMashOut,    str_tarMashOut,    220, 155,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarBoilIn,     str_tarBoilIn,     220, 180,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarBoilInside, str_tarBoilInside, 220, 200,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
-D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_tarBoilOut,    str_tarBoilOut,    220, 220,  70, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, D4D_COLOR_WHITE);
+D4D_CHAR str_togoHlt[8] = "";
+D4D_CHAR str_togoMash[8] = "";
+D4D_CHAR str_togoBoil[8] = "";
+
+D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_lblName, "Name:", 5, 45,  95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
+D4D_DECLARE_STD_LABEL(scrBrew_Name, str_brew_name, 110, 45,  200, 20, FONT_ARIAL_11)
+
+
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_Hlt,      "HLT",         15,  70,  90,  25, FONT_ARIAL_11,      OINK_COLOR_DARKGREY, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_curHlt,   str_curHlt,    15,  95,  90,  60, FONT_NUMBER_MEDIUM, OINK_COLOR_DARKGREY, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_tarHlt,   str_tarHlt,    15, 155,  90,  30, FONT_ARIAL_11,      OINK_COLOR_DARKGREY, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_togoHlt,  str_togoHlt,   15, 185,  90,  30, FONT_ARIAL_11,      OINK_COLOR_DARKGREY, D4D_COLOR_WHITE);
+
+
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_Mash,     "Mash",       115,  70,  90,  25, FONT_ARIAL_11,      OINK_COLOR_DARKGREY, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_curMash,  str_curMash,  115,  95,  90,  60, FONT_NUMBER_MEDIUM, OINK_COLOR_DARKGREY, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_tarMash,  str_tarMash,  115, 155,  90,  30, FONT_ARIAL_11,      OINK_COLOR_DARKGREY, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_togoMash, str_togoMash, 115, 185,  90,  30, FONT_ARIAL_11,      OINK_COLOR_DARKGREY, D4D_COLOR_WHITE);
+
+
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_Boil,     "Boil",       215,  70,  90,  25, FONT_ARIAL_11,      OINK_COLOR_DARKGREY, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_curBoil,  str_curBoil,  215,  95,  90,  60, FONT_NUMBER_MEDIUM, OINK_COLOR_DARKGREY, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_tarBoil,  str_tarBoil,  215, 155,  90,  30, FONT_ARIAL_11,      OINK_COLOR_DARKGREY, D4D_COLOR_WHITE);
+D4D_DECLARE_STD_LABEL_CENTER(scrBrew_togoBoil, str_togoBoil, 215, 185,  90,  30, FONT_ARIAL_11,      OINK_COLOR_DARKGREY, D4D_COLOR_WHITE);
 
         
 D4D_DECLARE_STD_SCREEN_BEGIN(screen_brew, ScreenBrew_)
     D4D_DECLARE_SCREEN_OBJECT(scr_btnInfo)
     D4D_DECLARE_SCREEN_OBJECT(scr_btnBrew)
-    D4D_DECLARE_SCREEN_OBJECT(scr_btnFerm1)
-    D4D_DECLARE_SCREEN_OBJECT(scr_btnFerm2)
+    D4D_DECLARE_SCREEN_OBJECT(scr_btnFerm)
 
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_Process)
+    D4D_DECLARE_SCREEN_OBJECT(scrBrew_lblName)
+	D4D_DECLARE_SCREEN_OBJECT(scrBrew_Name)
 
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_Current)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_Target)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_HltIn)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_HltOut)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_MashIn)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_MashOut)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_BoilIn)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_BoilInside)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_BoilOut)
+    D4D_DECLARE_SCREEN_OBJECT(scrBrew_Hlt)
+    D4D_DECLARE_SCREEN_OBJECT(scrBrew_Mash)
+    D4D_DECLARE_SCREEN_OBJECT(scrBrew_Boil)
 
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_curHltIn)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_curHltOut)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_curMashIn)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_curMashOut)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_curBoilIn)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_curBoilInside)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_curBoilOut)
+    D4D_DECLARE_SCREEN_OBJECT(scrBrew_curHlt)
+    D4D_DECLARE_SCREEN_OBJECT(scrBrew_curMash)
+    D4D_DECLARE_SCREEN_OBJECT(scrBrew_curBoil)
 
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_tarHltIn)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_tarHltOut)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_tarMashIn)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_tarMashOut)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_tarBoilIn)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_tarBoilInside)
-    D4D_DECLARE_SCREEN_OBJECT(scrBrew_tarBoilOut)
+    D4D_DECLARE_SCREEN_OBJECT(scrBrew_tarHlt)
+    D4D_DECLARE_SCREEN_OBJECT(scrBrew_tarMash)
+    D4D_DECLARE_SCREEN_OBJECT(scrBrew_tarBoil)
+
+    D4D_DECLARE_SCREEN_OBJECT(scrBrew_togoHlt)
+    D4D_DECLARE_SCREEN_OBJECT(scrBrew_togoMash)
+    D4D_DECLARE_SCREEN_OBJECT(scrBrew_togoBoil)
 D4D_DECLARE_SCREEN_END()    
 
 static void ScreenBrew_OnInit()
@@ -128,8 +108,7 @@ static void ScreenBrew_OnActivate()
 {
     changeMenuButtonState((D4D_OBJECT*)&scr_btnInfo, D4D_FALSE, "Info");
     changeMenuButtonState((D4D_OBJECT*)&scr_btnBrew, D4D_TRUE, "Brew");
-    changeMenuButtonState((D4D_OBJECT*)&scr_btnFerm1, D4D_FALSE, "Ferm 1");
-    changeMenuButtonState((D4D_OBJECT*)&scr_btnFerm2, D4D_FALSE, "Ferm 2");    
+    changeMenuButtonState((D4D_OBJECT*)&scr_btnFerm, D4D_FALSE, "Ferm");
 }
 
 static void ScreenBrew_OnDeactivate()
