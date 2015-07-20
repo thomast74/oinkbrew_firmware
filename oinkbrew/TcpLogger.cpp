@@ -62,12 +62,12 @@ void TcpLogger::logDeviceValues() {
 
 	ActiveDevice active;
 	bool notFirst = false;
-	short registered_deviced = deviceManager.noRegisteredDevices();
+	short registered_devices = deviceManager.noRegisteredDevices();
 	char buf[17];
 
 	request.body.concat('[');
 
-	for (short i = 0; i < registered_deviced; i++) {
+	for (short i = 0; i < registered_devices; i++) {
 		deviceManager.getDevice(i, active);
 		if (active.type != DEVICE_HARDWARE_NONE) {
 
