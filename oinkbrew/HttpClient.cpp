@@ -55,6 +55,7 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
 
     if (!connected) {
         client.stop();
+        delay(10);
         // If TCP Client can't connect to host, exit here.
         return;
     }
@@ -62,62 +63,42 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
     //
     // Send HTTP Headers
     //
-
     // Send initial headers (only HTTP 1.0 is supported for now).
-    client.print(aHttpMethod);
-    client.print(" ");
-    client.print(aRequest.path);
-    client.print(" HTTP/1.0\r\n");
+    String header(aHttpMethod);
+    header.concat(" ");
+    header.concat(aRequest.path);
+    header.concat(" HTTP/1.0\r\n");
 
     // Send General and Request Headers.
-    sendHeader("Connection", "close"); // Not supporting keep-alive for now.
-    if(aRequest.hostname!=NULL) {
-        sendHeader("HOST", aRequest.hostname.c_str());
-    }
+    header.concat("Connection: close\r\n");
+    header.concat("Content-Length: ");
+    header.concat(aRequest.body.length());
+    header.concat("\r\n");
+    header.concat("Content-Type: application/json\r\n");
+    header.concat("Accept: */*\r\n");
+    header.concat("\r\n");
 
-    //Send Entity Headers
-    // TODO: Check the standard, currently sending Content-Length : 0 for empty
-    // POST requests, and no content-length for other types.
-    if (aRequest.body != NULL) {
-        sendHeader("Content-Length", (aRequest.body).length());
-    } else if (strcmp(aHttpMethod, HTTP_METHOD_POST) == 0) { //Check to see if its a Post method.
-        sendHeader("Content-Length", 0);
-    }
-
-    if (headers != NULL)
-    {
-        int i = 0;
-        while (headers[i].header != NULL)
-        {
-            if (headers[i].value != NULL) {
-                sendHeader(headers[i].header, headers[i].value);
-            } else {
-                sendHeader(headers[i].header);
-            }
-            i++;
-        }
-    }
-
-    // Empty line to finish headers
-    client.println();
-    client.flush();
+    client.write(header.c_str());
 
     //
     // Send HTTP Request Body
     //
 
     if (aRequest.body != NULL) {
-        client.println(aRequest.body);
+    	client.write(aRequest.body.c_str());
     }
 
-    delay(20);
+    delay(100);
 
     unsigned long startTime = millis();
-    while (client.available() > 0 && (millis() - startTime) < 2000) {
+    while (client.available() == 0 && (millis() - startTime) < 1000) { }
+
+    startTime = millis();
+    while (client.available() != 0 && (millis() - startTime) < 1000) {
     	client.read();
+    	delay(25);
     }
 
-    delay(10);
-
     client.stop();
+    delay(25);
 }
