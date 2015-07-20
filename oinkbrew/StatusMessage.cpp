@@ -73,14 +73,17 @@ void StatusMessage::send() {
 
     udp.endPacket();
 
-    delay(20);
+    delay(100);
 
     unsigned long startTime = millis();
-    while (udp.available() > 0 && (millis() - startTime) < 2000) {
+    while (udp.available() == 0 && (millis() - startTime) < 1000) { }
+
+    startTime = millis();
+    while (udp.available() != 0 && (millis() - startTime) < 1000) {
     	udp.read();
+        delay(20);
     }
 
-    delay(10);
-
     udp.stop();
+    delay(20);
 }
