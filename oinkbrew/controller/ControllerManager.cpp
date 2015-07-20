@@ -57,7 +57,7 @@ void ControllerManager::loadControllersFromEEPROM()
 	conf.fetchControllers(configs);
 
 	Helper::serialDebug("Reg Controllers: ", false);
-	Helper::serialDebug(registered_controllers);
+	Helper::serialDebug(stored_controllers);
 
 	// add controllers for each configuration
 	for(int i=0; i < stored_controllers; i++) {
@@ -77,6 +77,42 @@ void ControllerManager::loadControllersFromEEPROM()
 			conf.removeController(configs[i]);
 		}
 	}
+}
+
+BrewController* ControllerManager::getBrewConfiguration(int noBrew)
+{
+	short brews = 0;
+
+	for(int i=0; i < registered_controllers; i++) {
+		if (active_controllers[i]->getConfig().type == TYPE_BREW) {
+
+			if (brews == noBrew) {
+				return (BrewController*)active_controllers[i];
+			}
+
+			brews++;
+		}
+	}
+
+	return 0;
+}
+
+FridgeController* ControllerManager::getFridgeConfiguration(int noFridge)
+{
+	short fridges = 0;
+
+	for(int i=0; i < registered_controllers; i++) {
+		if (active_controllers[i]->getConfig().type == TYPE_FRIDGE) {
+
+			if (fridges == noFridge) {
+				return (FridgeController*)active_controllers[i];
+			}
+
+			fridges++;
+		}
+	}
+
+	return 0;
 }
 
 bool ControllerManager::changeController(ControllerConfiguration request)
@@ -116,12 +152,16 @@ bool ControllerManager::changeController(ControllerConfiguration request)
 
 bool ControllerManager::removeController(int id)
 {
+	Helper::serialDebug("Remove controller: ", false);
+	Helper::serialDebug(id);
+
 	Controller* new_active_controllers[MAX_CONTROLLERS] = {};
 	bool removed = false;
 	short new_registered_controllers = 0;
 
 	for(int i=0; i < registered_controllers; i++) {
 		if (active_controllers[i]->getId() == id) {
+			Helper::serialDebug("EEPROM remove");
 			conf.removeController(active_controllers[i]->getConfig());
 			removed = true;
 		}

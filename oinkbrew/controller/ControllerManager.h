@@ -28,7 +28,8 @@
 
 #include "Controller.h"
 #include "ControllerConfiguration.h"
-
+#include "BrewController.h"
+#include "FridgeController.h"
 
 
 class ControllerManager
@@ -40,6 +41,9 @@ public:
 	static void process();
 
 	static void loadControllersFromEEPROM();
+
+	static BrewController* getBrewConfiguration(int noBrew);
+	static FridgeController* getFridgeConfiguration(int noFridge);
 
 	static bool changeController(ControllerConfiguration request);
 	static bool removeController(int id);

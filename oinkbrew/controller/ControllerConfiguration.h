@@ -40,6 +40,7 @@ struct ActingDevice
 {
 	uint8_t pin_nr;
 	DeviceAddress hw_address;
+	DeviceFunction function;
 };
 
 
@@ -60,6 +61,7 @@ enum ControllerType : uint8_t
 
 struct ControllerConfiguration {
 	int id;
+	char name[31];
 	ControllerType type;
 	ActingDevice tempSensor;
 	ActingDevice heatActuator;
