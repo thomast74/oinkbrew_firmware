@@ -46,9 +46,11 @@ public:
 	~BrewController() {
 	}
 
+	unsigned long timeToGo();
+
 protected:
 	bool doProcess();
-	bool calculateTargetTemperatur();
+	bool calculateTargetTemperature();
 
 private:
 	bool temperatureReached;

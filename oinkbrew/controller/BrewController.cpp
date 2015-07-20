@@ -26,6 +26,14 @@
 #include "BrewController.h"
 #include "../Helper.h"
 
+unsigned long BrewController::timeToGo() {
+
+	if (this->temperatureReached) {
+		return this->duration - (millis() - startTime);
+	}
+	else
+		return 0;
+}
 
 bool BrewController::doProcess()
 {
@@ -63,13 +71,13 @@ bool BrewController::doProcess()
 
 	if (this->temperatureReached) {
 		if (this->duration < (millis() - startTime))
-			return calculateTargetTemperatur();
+			return calculateTargetTemperature();
 	}
 
 	return false;
 }
 
-bool BrewController::calculateTargetTemperatur()
+bool BrewController::calculateTargetTemperature()
 {
 	for(int i=0; i < MAX_PHASES; i++) {
 
@@ -91,7 +99,7 @@ bool BrewController::calculateTargetTemperatur()
 			Helper::serialDebug(debug.c_str());
 
 			this->duration = this->config.temperaturePhases[i+1].duration;
-			setTargetTemperatur(this->config.temperaturePhases[i+1].targetTemperature);
+			setTargetTemperature(this->config.temperaturePhases[i+1].targetTemperature);
 
 			return true;
 		}
@@ -100,7 +108,7 @@ bool BrewController::calculateTargetTemperatur()
 			Helper::serialDebug(debug.c_str());
 
 			this->duration = 10000000;
-			setTargetTemperatur(0);
+			setTargetTemperature(0);
 		}
 		break;
 	}
