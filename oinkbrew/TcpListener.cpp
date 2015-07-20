@@ -55,12 +55,17 @@ bool TcpListener::connected()
 	if (client.connected()) {
 		if (client.available()) {
 			needsScreenUpdate = processRequest(client.read());
-
-			unsigned long startTime = millis();
-			while (client.available() > 0 && millis() - startTime < 1000) {
-				client.read();
-			}
 		}
+
+		unsigned long startTime = millis();
+	    while (client.available() != 0 && (millis() - startTime) < 1000) {
+	    	client.read();
+	    	delay(20);
+	    }
+
+	    client.stop();
+	    delay(20);
+
 	} else {
 		client = server.available();
 	}
@@ -148,7 +153,7 @@ bool TcpListener::processRequest(char action)
 		break;
 	// bootloader mode
 	case '$':
-		System.dfu();
+		System.bootloader();
 		break;
 	// reset spark
 	case '!':
@@ -198,6 +203,7 @@ void TcpListener::resetSettings()
 
 	conf.storeSparkInfo();
 	conf.removeDevices();
+	conf.removeControllers();
 	deviceManager.clearActiveDevices();
 
 	System.reset();
@@ -240,6 +246,8 @@ void TcpListener::receiveControllerRequest(const char * key, const char * val, v
 
 	if (strcmp(key, "config_id") == 0)
 		pControllerRequest->id = atoi(val);
+	else if (strcmp(key, "name") == 0)
+		memcpy(&pControllerRequest->name, val, strlen(val) + 1);
 	else if (strcmp(key, "config_type") == 0)
 		pControllerRequest->type = static_cast<ControllerType>(atoi(val));
 	else if (strcmp(key, "temp_sensor") == 0)
@@ -259,9 +267,10 @@ void TcpListener::parseActingDevice(ActingDevice* av, const char * key, const ch
 {
 	if (strcmp(key, "pin_nr") == 0)
 		av->pin_nr = atoi(val);
-	else if (strcmp(key, "hw_address") == 0) {
+	else if (strcmp(key, "hw_address") == 0)
 		Helper::setBytes(av->hw_address, val, 8);
-	}
+	else if (strcmp(key, "function") == 0)
+		av->function = static_cast<DeviceFunction>(atoi(val));
 }
 
 void TcpListener::updateFirmware()
@@ -296,7 +305,7 @@ bool TcpListener::parseJsonToken(char* val)
 	for (;;) // get value
 			{
 		int character = readNext();
-		if (index == 29 || character == '}' || character == -1) {
+		if (index == 299 || character == '}' || character == -1) {
 			result = false;
 			break;
 		}
@@ -327,14 +336,21 @@ int TcpListener::readNext()
 void TcpListener::parseActingDeviceString(ParseActingDeviceCallback fn, ActingDevice* av, const char * data)
 {
 	char val[30];
+	int type = 0;
 	int index = 0;
 	int length = strlen(data);
 
 	for (int i=0; i < length; i++) {
 		if (data[i] == ';') {
 			val[index] = 0;
+
+			if (type == 0)
+				fn(av, "pin_nr", val);
+			else if (type == 1)
+				fn(av, "hw_address", val);
+
+			type++;
 			index = 0;
-			fn(av, "pin_nr", val);
 		}
 		else {
 			val[index] = data[i];
@@ -343,7 +359,7 @@ void TcpListener::parseActingDeviceString(ParseActingDeviceCallback fn, ActingDe
 	}
 
 	val[index] = 0;
-	fn(av, "hw_address", val);
+	fn(av, "function", val);
 }
 
 void TcpListener::parseTempPhasesString(TemperaturePhase *tempPhases, const char * data)
