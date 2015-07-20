@@ -63,7 +63,7 @@ void Controller::setConfig(ControllerConfiguration& config)
 	setTempSensor(this->config.tempSensor);
 	setHeatActuator(this->config.heatActuator);
 
-	calculateTargetTemperatur();
+	calculateTargetTemperature();
 }
 
 ControllerConfiguration& Controller::getConfig()
@@ -103,7 +103,12 @@ void Controller::setHeatActuator(ActingDevice HeatActuator)
 	heatActuator = new PwmActuator(HeatActuator.pin_nr, 0);
 }
 
-void Controller:: setTargetTemperatur(float PointTemperature)
+void Controller::setTargetTemperature(float PointTemperature)
 {
 	targetTemperature = PointTemperature;
+}
+
+float Controller::getTargetTemperature()
+{
+	return targetTemperature;
 }
