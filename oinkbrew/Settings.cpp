@@ -37,4 +37,4 @@ const short LOCAL_LISTENER_PORT = 7873;
 
 const unsigned long DURATION_RUN = 1000;
 const unsigned long DURATION_LOG = 15000;
-const unsigned long DURATION_MSG = 120000;
+const unsigned long DURATION_MSG = 180000;
