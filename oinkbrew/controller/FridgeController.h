@@ -60,7 +60,7 @@ public:
 
 protected:
 	bool doProcess();
-	bool calculateTargetTemperatur();
+	bool calculateTargetTemperature();
 
 private:
 	void turnOnHeating();
