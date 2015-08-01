@@ -164,75 +164,106 @@ void updateBrewScreen()
 
     if (controller != 0) {
 
-    	ActiveDevice device;
-    	deviceManager.getDevice(controller->getConfig().tempSensor.pin_nr, controller->getConfig().tempSensor.hw_address, device);
+		updateLabel((D4D_OBJECT*)&scrBrew_Name, (D4D_CHAR*)controller->getConfig().name);
 
-    	if (device.type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
+		char cTargetTemp[8], cDurationToGo[9];
 
-    		hasBeerController = true;
+		float targetTemp = controller->getTargetTemperature();
+		float minTarget = controller->getTargetTemperature();
+		float maxTarget = controller->getTargetTemperature() + 0.99;
 
-    		float minTarget = controller->getTargetTemperature() - 0.5;
-    		float maxTarget = controller->getTargetTemperature() + 0.5;
+		if (sparkInfo.tempType == 'F') {
+			targetTemp = (targetTemp * 1.8) + 32;
+		}
 
-    		D4D_COLOR bg = OINK_COLOR_DARKGREY;
-    		if (minTarget <= device.value && device.value <= maxTarget) {
-    			bg = D4D_COLOR_RGB(0xb3, 0x98, 0x00);
-    		}
-    		else if (minTarget > device.value) {
-    			bg = D4D_COLOR_RGB(0x00, 0x4b, 0xb4);
-    		}
-    		else if (device.value > maxTarget) {
-    			bg = D4D_COLOR_RGB(0xb4, 0x00, 0x00);
-    		}
+		sprintf (cTargetTemp,   "%5.1f ", targetTemp);
+		cTargetTemp[6] = sparkInfo.tempType;
 
-    		char cCurrentTemp[8], cTargetTemp[8], cDurationToGo[8];
+		if (controller->isFinished()) {
+			memcpy ( &cDurationToGo, "Finished\x00", 9);
+		}
+		else if (!controller->isTemperatureReached()) {
+			memcpy ( &cDurationToGo, "Heating\x00", 8);
+		}
+		else {
+			sprintf (cDurationToGo, "%2i:%02i m", ((int) ((controller->timeToGo() / (1000*60)) % 60)), ((int) (controller->timeToGo() / 1000) % 60));
+		}
 
-    		float currentTemp = device.value;
-    		float targetTemp = controller->getTargetTemperature();
+    	for(int i = 0;i < MAX_FUNCTIONS; i++) {
 
-    		if (sparkInfo.tempType == 'F') {
-    			currentTemp = (currentTemp * 1.8) + 32.0;
-    			targetTemp = (targetTemp * 1.8) + 32;
-    		}
+			ActiveDevice device;
+			deviceManager.getDevice(controller->getConfig().functions[i].pin_nr, controller->getConfig().functions[i].hw_address, device);
 
-    		int seconds = (int) (controller->timeToGo() / 1000) % 60 ;
-    		int minutes = (int) ((controller->timeToGo() / (1000*60)) % 60);
+			if (device.type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
 
-    		sprintf (cCurrentTemp,  "%5.1f ", currentTemp);
-    		sprintf (cTargetTemp,   "%5.1f ", targetTemp);
-    		sprintf (cDurationToGo, "%2i:%02i m", minutes, seconds);
+				hasBeerController = true;
 
-    		cCurrentTemp[6] = sparkInfo.tempType;
-    		cTargetTemp[6] = sparkInfo.tempType;
+				D4D_COLOR bg = OINK_COLOR_DARKGREY;
+				if (minTarget <= device.value && device.value <= maxTarget) {
+					bg = OINK_COLOR_GREEN;
+				}
+				else if (minTarget > device.value) {
+					bg = OINK_COLOR_BLUE;
+				}
+				else if (device.value > maxTarget) {
+					bg = OINK_COLOR_RED;
+				}
 
-			updateLabel((D4D_OBJECT*)&scrBrew_Name, (D4D_CHAR*)controller->getConfig().name);
+				float currentTemp = device.value;
 
-    		switch (controller->getConfig().tempSensor.function) {
-    		case DEVICE_FUNCTION_HLT_IN_TEMP_SENSOR:
-    		case DEVICE_FUNCTION_HLT_INSIDE_TEMP_SENSOR:
-    		case DEVICE_FUNCTION_HLT_OUT_TEMP_SENSOR:
-					updateLabel((D4D_OBJECT*)&scrBrew_curHlt, (D4D_CHAR*)cCurrentTemp);
-					updateLabel((D4D_OBJECT*)&scrBrew_tarHlt, (D4D_CHAR*)cTargetTemp);
-					updateLabel((D4D_OBJECT*)&scrBrew_togoHlt, (D4D_CHAR*)cDurationToGo);
-					setBackgroundColor((D4D_OBJECT*)&scrBrew_curHlt, bg);
-					break;
-    		case DEVICE_FUNCTION_MASH_IN_TEMP_SENSOR:
-    		case DEVICE_FUNCTION_MASH_INSIDE_TEMP_SENSOR:
-    		case DEVICE_FUNCTION_MASH_OUT_TEMP_SENSOR:
-					updateLabel((D4D_OBJECT*)&scrBrew_curMash, (D4D_CHAR*)cCurrentTemp);
-					updateLabel((D4D_OBJECT*)&scrBrew_tarMash, (D4D_CHAR*)cTargetTemp);
-					updateLabel((D4D_OBJECT*)&scrBrew_togoMash, (D4D_CHAR*)cDurationToGo);
-					setBackgroundColor((D4D_OBJECT*)&scrBrew_curMash, bg);
-					break;
-    		case DEVICE_FUNCTION_BOIL_IN_TEMP_SENSOR:
-    		case DEVICE_FUNCTION_BOIL_INSIDE_TEMP_SENSOR:
-    		case DEVICE_FUNCTION_BOIL_OUT_TEMP_SENSOR:
-					updateLabel((D4D_OBJECT*)&scrBrew_curBoil, (D4D_CHAR*)cCurrentTemp);
-					updateLabel((D4D_OBJECT*)&scrBrew_tarBoil, (D4D_CHAR*)cTargetTemp);
-					updateLabel((D4D_OBJECT*)&scrBrew_togoBoil, (D4D_CHAR*)cDurationToGo);
-					setBackgroundColor((D4D_OBJECT*)&scrBrew_curBoil, bg);
-					break;
-    		}
+				if (sparkInfo.tempType == 'F') {
+					currentTemp = (currentTemp * 1.8) + 32.0;
+				}
+
+				char cCurrentTemp[8];
+				sprintf (cCurrentTemp,  "%5.1f ", currentTemp);
+				cCurrentTemp[6] = sparkInfo.tempType;
+
+				switch (controller->getConfig().functions[i].function) {
+				case DEVICE_FUNCTION_HLT_IN_TEMP_SENSOR:
+				case DEVICE_FUNCTION_HLT_INSIDE_TEMP_SENSOR:
+				case DEVICE_FUNCTION_HLT_OUT_TEMP_SENSOR:
+						updateLabel((D4D_OBJECT*)&scrBrew_curHlt, (D4D_CHAR*)cCurrentTemp);
+
+						if (controller->getConfig().functions[i].pin_nr == controller->getConfig().tempSensor.pin_nr &&
+							Helper::matchAddress(controller->getConfig().functions[i].hw_address, controller->getConfig().tempSensor.hw_address, 8)) {
+
+							updateLabel((D4D_OBJECT*)&scrBrew_tarHlt, (D4D_CHAR*)cTargetTemp);
+							updateLabel((D4D_OBJECT*)&scrBrew_togoHlt, (D4D_CHAR*)cDurationToGo);
+							setBackgroundColor((D4D_OBJECT*)&scrBrew_curHlt, bg);
+							setBackgroundColor((D4D_OBJECT*)&scrBrew_togoHlt, controller->isHeatActuatorActive() ? OINK_COLOR_GREEN : OINK_COLOR_DARKGREY);
+						}
+						break;
+				case DEVICE_FUNCTION_MASH_IN_TEMP_SENSOR:
+				case DEVICE_FUNCTION_MASH_INSIDE_TEMP_SENSOR:
+				case DEVICE_FUNCTION_MASH_OUT_TEMP_SENSOR:
+						updateLabel((D4D_OBJECT*)&scrBrew_curMash, (D4D_CHAR*)cCurrentTemp);
+
+						if (controller->getConfig().functions[i].pin_nr == controller->getConfig().tempSensor.pin_nr &&
+							Helper::matchAddress(controller->getConfig().functions[i].hw_address, controller->getConfig().tempSensor.hw_address, 8)) {
+
+							updateLabel((D4D_OBJECT*)&scrBrew_tarMash, (D4D_CHAR*)cTargetTemp);
+							updateLabel((D4D_OBJECT*)&scrBrew_togoMash, (D4D_CHAR*)cDurationToGo);
+							setBackgroundColor((D4D_OBJECT*)&scrBrew_curMash, bg);
+							setBackgroundColor((D4D_OBJECT*)&scrBrew_togoMash, controller->isHeatActuatorActive() ? OINK_COLOR_GREEN : OINK_COLOR_DARKGREY);
+						}
+						break;
+				case DEVICE_FUNCTION_BOIL_IN_TEMP_SENSOR:
+				case DEVICE_FUNCTION_BOIL_INSIDE_TEMP_SENSOR:
+				case DEVICE_FUNCTION_BOIL_OUT_TEMP_SENSOR:
+						updateLabel((D4D_OBJECT*)&scrBrew_curBoil, (D4D_CHAR*)cCurrentTemp);
+
+						if (controller->getConfig().functions[i].pin_nr == controller->getConfig().tempSensor.pin_nr &&
+							Helper::matchAddress(controller->getConfig().functions[i].hw_address, controller->getConfig().tempSensor.hw_address, 8)) {
+
+							updateLabel((D4D_OBJECT*)&scrBrew_tarBoil, (D4D_CHAR*)cTargetTemp);
+							updateLabel((D4D_OBJECT*)&scrBrew_togoBoil, (D4D_CHAR*)cDurationToGo);
+							setBackgroundColor((D4D_OBJECT*)&scrBrew_curBoil, bg);
+							setBackgroundColor((D4D_OBJECT*)&scrBrew_togoBoil, controller->isHeatActuatorActive() ? OINK_COLOR_GREEN : OINK_COLOR_DARKGREY);
+						}
+						break;
+				}
+			}
     	}
     }
     else

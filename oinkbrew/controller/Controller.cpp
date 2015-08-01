@@ -38,11 +38,9 @@ Controller::Controller()
 	this->targetTemperature = 0;
 	this->currentTemperature = 0;
 	this->heatActuator = NULL;
+	this->finished = false;
 
-	this->pid = new PID(&currentTemperature, &output, &targetTemperature,
-			4.00, 0.20, 1.00,
-			1.00, 0.05, 0.25,
-			OVERSHOOT_HEAT, PID_DIRECT);
+	this->pid = new PID(&currentTemperature, &output, &targetTemperature, 10, 0.005, -30, PID_DIRECT);
 }
 
 Controller::~Controller()
@@ -73,6 +71,9 @@ ControllerConfiguration& Controller::getConfig()
 
 bool Controller::process()
 {
+	if (this->finished)
+		return false;
+
 	if (pid->GetMode() == PID_MANUAL)
 		pid->SetMode(PID_AUTOMATIC);
 
@@ -111,4 +112,9 @@ void Controller::setTargetTemperature(float PointTemperature)
 float Controller::getTargetTemperature()
 {
 	return targetTemperature;
+}
+
+bool Controller::isFinished()
+{
+	return this->finished;
 }

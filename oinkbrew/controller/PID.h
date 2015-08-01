@@ -15,8 +15,7 @@ public:
 	//commonly used functions **************************************************************************
 
 	PID(float*, float*, float*, 			// * constructor.  links the PID to the Input, Output, and
-		float, float, float,
-		float, float, float, float, int); 	//   Setpoint.  Initial tuning parameters are also set here
+		float, float, float, int); 	        //   Setpoint.  Initial tuning parameters are also set here
 
 	void SetMode(int Mode);   				// * sets PID to either Manual (0) or Auto (non-0)
 
@@ -28,8 +27,6 @@ public:
 	void SetOutputLimits(float, float); 	//clamps the output to a specific range. 0-255 by default, but
 										  	//it's likely the user will want to change this depending on
 										  	//the application
-	void SetOvershoot(float);
-
 	//available but not commonly used functions ********************************************************
 
 	void SetTunings(float, float, float); 	// * While most users will set the tunings once in the
@@ -52,38 +49,31 @@ public:
 
 private:
 	void Initialize();
+	void Update();
 
 	float dispKp;							// * we'll hold on to the tuning parameters in user-entered
 	float dispKi;							//   format for display purposes
 	float dispKd;							//
 
-	float kp;                  			// * (P)roportional Tuning Parameter
-	float ki;                  			// * (I)ntegral Tuning Parameter
-	float kd;                  			// * (D)erivative Tuning Parameter
-
-	float aggKp;                  			// * (P)roportional Tuning Parameter
-	float aggKi;                  			// * (I)ntegral Tuning Parameter
-	float aggKd;                  			// * (D)erivative Tuning Parameter
-	float conKp;                  			// * (P)roportional Tuning Parameter
-	float conKi;                  			// * (I)ntegral Tuning Parameter
-	float conKd;                  			// * (D)erivative Tuning Parameter
+	float kp;                  				// * (P)roportional Tuning Parameter
+	float ki;                  				// * (I)ntegral Tuning Parameter
+	float kd;                  				// * (D)erivative Tuning Parameter
+	float ka;								// integrator anti windup gain
 
 	int controllerDirection;
 
-	float overshoot;
 	float *myInput;  						// * Pointers to the Input, Output, and Setpoint variables
 	float *myOutput; 						//   This creates a hard link between the variables and the
 	float *mySetpoint; 						//   PID, freeing the user from having to constantly tell us
 											//   what these values are.  with pointers we'll just know.
 
 	unsigned long lastTime;
-	float ITerm;
+	float integral;
 	float lastInput;
 
 	unsigned long SampleTime;
 	float outMin;
 	float outMax;
-	bool aggressiveTuningMode;
 	bool inAuto;
 };
 

@@ -33,14 +33,19 @@ class PwmActuator
 private:
 	uint8_t pin;
     uint8_t pwm;
+    uint8_t minVal;
+    uint8_t maxVal;
     bool active;
     bool simulate;
 
+    int32_t periodLate;
     int32_t dutyLate;
     int32_t dutyTime;
 
     unsigned long periodStartTime;
     const int32_t period = 10000;
+
+    void recalculate();
 
 public:
 	PwmActuator(uint8_t pin, uint8_t pwm);
@@ -48,6 +53,7 @@ public:
 
 	void setPwm(uint8_t pwm);
 	uint8_t getPwm();
+	void setMinMax(uint8_t minVal, uint8_t maxVal);
 	void updatePwm();
 
 	int32_t getPeriod(){

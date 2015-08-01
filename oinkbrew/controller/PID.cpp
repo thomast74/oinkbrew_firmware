@@ -1,37 +1,27 @@
 #include "PID.h"
 #include "spark_wiring.h"
+#include "../Helper.h"
 
 /*Constructor (...)*********************************************************
  *    The parameters specified here are those for for which we can't set up
  *    reliable defaults, so we need to have the user set them.
  ***************************************************************************/
 PID::PID(float* Input, float* Output, float* Setpoint,
-		 float AggKp, float AggKi, float AggKd,
-		 float ConKp, float ConKi, float ConKd,
-		 float overshoot, int ControllerDirection)
+		 float Kp, float Ki, float Kd,
+		 int ControllerDirection)
 {
-
-    myOutput = Output;
-    myInput = Input;
-    mySetpoint = Setpoint;
-	inAuto = false;
-	aggressiveTuningMode = false;
-
-	aggKp = AggKp;
-	aggKi = AggKi;
-	aggKd = AggKd;
-	conKp = ConKp;
-	conKi = ConKi;
-	conKd = ConKd;
+    this->myOutput = Output;
+    this->myInput = Input;
+    this->mySetpoint = Setpoint;
+    this->inAuto = false;
 
 	PID::SetOutputLimits(-255, 255);				//default output limit corresponds to
 													//the arduino pwm limits
 
     SampleTime = 1000;								//default Controller Sample Time is 1 seconds
-    this->overshoot = overshoot;
 
     PID::SetControllerDirection(ControllerDirection);
-    PID::SetTunings(conKp, conKp, conKd);
+    PID::SetTunings(Kp, Ki, Kd);
 
     lastTime = millis() - SampleTime;
 }
@@ -45,61 +35,74 @@ PID::PID(float* Input, float* Output, float* Setpoint,
  **********************************************************************************/
 bool PID::Compute()
 {
-   if(!inAuto)
-	   return false;
+	if(!inAuto)
+		return false;
 
-   unsigned long now = millis();
-   unsigned long timeChange = (now - lastTime);
+	unsigned long now = millis();
+	unsigned long timeChange = (now - lastTime);
 
-   if(timeChange>=SampleTime)
-   {
-      /*Compute all the working error variables*/
-	  float input = *myInput;
-	  float error = *mySetpoint - input - overshoot;
+	if(timeChange >= SampleTime)
+	{
+		Update();
 
-      if ((error < -5.0 || error > 5.0) && !aggressiveTuningMode) {
-    	  PID::SetTunings(aggKp, aggKi, aggKd);
-    	  ITerm = 60;
-    	  aggressiveTuningMode = true;
-      }
-      else if (error >= -0.25 && error <= 0.25) {
-    	  ITerm = 2;
-      }
-      else if ((error >= -5.0 && error <= 5.0) && aggressiveTuningMode) {
-    	  PID::SetTunings(conKp, conKi, conKd);
-    	  ITerm = 60;
-    	  aggressiveTuningMode = false;
-      }
-
-      ITerm += (ki * error);
-
-      if(ITerm > outMax)
-    	  ITerm = outMax;
-      else if(ITerm < outMin)
-    	  ITerm = outMin;
-
-      float dInput = (input - lastInput);
-
-      /*Compute PID Output*/
-      float output = kp * error + ITerm - kd * dInput;
-
-	  if(output > outMax)
-		  output = outMax;
-      else if(output < outMin)
-    	  output = outMin;
-
-	  *myOutput = output;
-
-      /*Remember some variables for next time*/
-      lastInput = input;
-      lastTime = now;
-
-	  return true;
-   }
-   else
-	   return false;
+		return true;
+	}
+	else
+		return false;
 }
 
+void PID::Update()
+{
+	// Compute all the working error variables
+	float input = *myInput;
+
+	if (lastInput == 0.0)
+		lastInput = input;
+
+	float error = *mySetpoint - input;
+	float delta = input - lastInput;
+	integral = integral + (this->ki * error);
+
+
+	if(integral> outMax) integral= outMax;
+	else if(integral< outMin) integral= outMin;
+
+
+    // calculate PID parts.
+    float p = this->kp * error;
+    float i = integral;
+    float d = this->kd * delta;
+
+    float pidResult = p + i + d;
+    float output    = pidResult;
+
+	if(output > outMax) output = outMax;
+	else if(output < outMin) output = outMin;
+
+	*myOutput = output;
+
+	String debug("input: ");
+	debug.concat(input);
+	debug.concat(" ; error: ");
+	debug.concat(error);
+	debug.concat(" ; delta: ");
+	debug.concat(delta);
+	debug.concat(" ; p: ");
+	debug.concat(p);
+	debug.concat(" ; i: ");
+	debug.concat(i);
+	debug.concat(" ; d: ");
+	debug.concat(d);
+	debug.concat(" ; output: ");
+	debug.concat(*myOutput);
+	debug.concat(" ; pidResult: ");
+	debug.concat(pidResult);
+	Helper::serialDebug(debug.c_str());
+
+	/*Remember some variables for next time*/
+	lastInput = input;
+	lastTime =  millis();
+}
 
 /* SetTunings(...)*************************************************************
  * This function allows the controller's dynamic performance to be adjusted.
@@ -108,21 +111,24 @@ bool PID::Compute()
  ******************************************************************************/
 void PID::SetTunings(float Kp, float Ki, float Kd)
 {
-   if (Kp<0 || Ki<0 || Kd<0) return;
+	dispKp = Kp;
+	dispKi = Ki;
+	dispKd = Kd;
 
-   dispKp = Kp; dispKi = Ki; dispKd = Kd;
+	if(controllerDirection == PID_REVERSE)
+	{
+		this->kp = (0 - Kp);
+		this->ki = (0 - Ki);
+		this->kd = (0 - Kd);
+	}
+	else
+	{
+		this->kp = Kp;
+		this->ki = Ki;
+		this->kd = Kd;
+	}
 
-   float SampleTimeInSec = ((float)SampleTime)/1000;
-   kp = Kp;
-   ki = Ki * SampleTimeInSec;
-   kd = Kd / SampleTimeInSec;
-
-  if(controllerDirection == PID_REVERSE)
-   {
-      kp = (0 - kp);
-      ki = (0 - ki);
-      kd = (0 - kd);
-   }
+	this->ka = 5.0 * this->kp;
 }
 
 /* SetSampleTime(...) *********************************************************
@@ -132,11 +138,6 @@ void PID::SetSampleTime(int NewSampleTime)
 {
    if (NewSampleTime > 0)
    {
-	  float ratio  = (float)NewSampleTime / (float)SampleTime;
-
-	  ki *= ratio;
-      kd /= ratio;
-
       SampleTime = (unsigned long)NewSampleTime;
    }
 }
@@ -151,7 +152,9 @@ void PID::SetSampleTime(int NewSampleTime)
  **************************************************************************/
 void PID::SetOutputLimits(float Min, float Max)
 {
-   if(Min >= Max) return;
+   if(Min >= Max)
+	   return;
+
    outMin = Min;
    outMax = Max;
 
@@ -161,17 +164,7 @@ void PID::SetOutputLimits(float Min, float Max)
 		   *myOutput = outMax;
 	   else if(*myOutput < outMin)
 		   *myOutput = outMin;
-
-	   if(ITerm > outMax)
-		   ITerm= outMax;
-	   else if(ITerm < outMin)
-		   ITerm= outMin;
    }
-}
-
-void PID::SetOvershoot(float overshoot)
-{
-	this->overshoot = overshoot;
 }
 
 /* SetMode(...)****************************************************************
@@ -195,13 +188,13 @@ void PID::SetMode(int Mode)
  ******************************************************************************/
 void PID::Initialize()
 {
-   ITerm = *myOutput;
+   integral = *myOutput;
    lastInput = *myInput;
 
-   if(ITerm > outMax)
-	   ITerm = outMax;
-   else if(ITerm < outMin)
-	   ITerm = outMin;
+   if(*myOutput > outMax)
+	   *myOutput = outMax;
+   else if(*myOutput < outMin)
+	   *myOutput = outMin;
 }
 
 /* SetControllerDirection(...)*************************************************

@@ -77,6 +77,9 @@ bool TcpListener::processRequest(char action)
 {
 	char response[50];
 
+	Helper::serialDebug("Action: ", false);
+	Helper::serialDebug(action);
+
 	switch (action) {
 	// do nothing wrong request
 	case ' ':
@@ -258,9 +261,10 @@ void TcpListener::receiveControllerRequest(const char * key, const char * val, v
 		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->coolActuator, val);
 	else if (strcmp(key, "fan_actuator") == 0)
 		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->fanActuator, val);
-	else if (strcmp(key, "temp_phases") == 0) {
+	else if (strcmp(key, "temp_phases") == 0)
 		parseTempPhasesString(pControllerRequest->temperaturePhases, val);
-	}
+	else if (strcmp(key, "functions") == 0)
+		parseFunctionsString(pControllerRequest->functions, val);
 }
 
 void TcpListener::parseActingDevice(ActingDevice* av, const char * key, const char * val)
@@ -360,6 +364,50 @@ void TcpListener::parseActingDeviceString(ParseActingDeviceCallback fn, ActingDe
 
 	val[index] = 0;
 	fn(av, "function", val);
+}
+
+void TcpListener::parseFunctionsString(ActingDevice *functions, const char * data)
+{
+	char val[30];
+	int type = 0;
+	int index = 0;
+	int index_val = 0;
+	int length = strlen(data);
+
+	for (int i=0; i < length; i++) {
+		if (data[i] == ';') {
+			val[index_val] = 0;
+
+			if (type == 0)
+				functions[index].pin_nr = atoi(val);
+			else if (type == 1)
+				Helper::setBytes(functions[index].hw_address, val, 8);
+
+			type++;
+			index_val = 0;
+		}
+		else if (data[i] == '|') {
+			val[index_val] = 0;
+
+			functions[index].function = static_cast<DeviceFunction>(atoi(val));
+
+			type = 0;
+			index++;
+			index_val = 0;
+
+			if (index == MAX_FUNCTIONS)
+				break;
+		}
+		else {
+			val[index_val] = data[i];
+			index_val++;
+		}
+	}
+
+	if (type == 2 && index_val > 0) {
+		val[index_val] = 0;
+		functions[index].function = static_cast<DeviceFunction>(atoi(val));
+	}
 }
 
 void TcpListener::parseTempPhasesString(TemperaturePhase *tempPhases, const char * data)

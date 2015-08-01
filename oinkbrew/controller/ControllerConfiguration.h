@@ -32,8 +32,9 @@
 #include <stdint.h>
 
 
-const short MAX_CONTROLLERS = 5;
+const short MAX_CONTROLLERS = 3;
 const short MAX_PHASES = 10;
+const short MAX_FUNCTIONS = 8;
 
 
 struct ActingDevice
@@ -68,6 +69,7 @@ struct ControllerConfiguration {
 	ActingDevice coolActuator;
 	ActingDevice fanActuator;
 	TemperaturePhase temperaturePhases[MAX_PHASES];
+	ActingDevice functions[MAX_FUNCTIONS];
 };
 
 

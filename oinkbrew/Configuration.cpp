@@ -436,12 +436,13 @@ void Configuration::storeControllers(ControllerConfiguration controllers[], shor
  ******************************************************************************/
 void Configuration::removeController(ControllerConfiguration& config)
 {
-	Helper::serialDebug("conf.removeController");
+	Helper::serialDebug("conf.removeController: ", false);
 	short no_controllers = fetchNumberControllers();
+	Helper::serialDebug(no_controllers);
 	short new_no_controllers = 0;
 
-	ControllerConfiguration controllers[MAX_DEVICES];
-	ControllerConfiguration new_controllers[MAX_DEVICES];
+	ControllerConfiguration controllers[MAX_CONTROLLERS];
+	ControllerConfiguration new_controllers[MAX_CONTROLLERS];
 	fetchControllers(controllers);
 
 	for(short slot = 0; slot < no_controllers; slot++) {
@@ -451,7 +452,7 @@ void Configuration::removeController(ControllerConfiguration& config)
 			new_no_controllers++;
 		}
 	}
-
+	Helper::serialDebug(new_no_controllers);
 	storeControllers(new_controllers, new_no_controllers);
 }
 
@@ -516,7 +517,7 @@ void Configuration::storeEguiSettings()
  * Output         :
  * Return         :
  ******************************************************************************/
-void Configuration::clear(uint8_t* p, uint8_t size)
+void Configuration::clear(uint8_t* p, uint16_t size)
 {
 	memset(p, 0, size);
 }

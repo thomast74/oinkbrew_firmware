@@ -93,6 +93,17 @@ bool FridgeController::doProcess()
 	return false;
 }
 
+void FridgeController::update()
+{
+	this->heatActuator->updatePwm();
+}
+
+void FridgeController::dispose()
+{
+	this->heatActuator->setPwm(0);
+	this->coolActuator->setActive(false);
+}
+
 void FridgeController::turnOnHeating()
 {
 	if (this->output > 5 && this->heatActuator->getPwm() != output) {

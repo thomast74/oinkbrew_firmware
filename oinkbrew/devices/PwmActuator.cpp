@@ -36,14 +36,30 @@ PwmActuator::PwmActuator(uint8_t pin, uint8_t pwm, bool simulate)
 	this->pin = pin;
 	this->periodStartTime = 0;
 	this->simulate = simulate;
+	this->periodLate = 0;
 	this->dutyTime = 0;
 	this->dutyLate = 0;
 	this->pwm = 0;
+	this->minVal = 0;
+	this->maxVal = 100;
+
 	this->active = false;
 
 	this->setPwm(pwm);
 
 	pinMode(this->pin, OUTPUT);
+}
+
+void PwmActuator::recalculate(){
+	int32_t newPeriod = this->pwm * this->period / 100;
+	int32_t correctionFactor = (this->period + periodLate) / this->period;
+    this->dutyTime = int32_t(newPeriod * correctionFactor);
+}
+
+void PwmActuator::setMinMax(uint8_t minVal, uint8_t maxVal)
+{
+	this->minVal = minVal;
+	this->maxVal = maxVal;
 }
 
 uint8_t PwmActuator::getPwm()
@@ -53,12 +69,22 @@ uint8_t PwmActuator::getPwm()
 
 void PwmActuator::setPwm(uint8_t val)
 {
-	this->pwm = val;
+    if (val <= minVal){
+    	val = minVal;
+    }
+    if (val >= maxVal){
+    	val = maxVal;
+    }
 
 	if (this->simulate) {
-		this->dutyLate = 0;
-		this->dutyTime = ((this->pwm * period) / 255);
-	}
+	    if(this->pwm != val){
+	    	uint8_t delta = (val > this->pwm) ? val - this->pwm : this->pwm - val;
+	    	this->pwm = val;
+	        if(delta > 1){
+	            dutyLate = 0;
+	        }
+	    }
+	    recalculate();	}
 	else {
 		analogWrite(this->pin, val);
 		this->active = val > 0;
@@ -70,39 +96,50 @@ void PwmActuator::updatePwm()
 	if (!this->simulate)
 		return;
 
-	int32_t adjDutyTime = dutyTime - this->dutyLate;
-	int32_t currentTime = millis();
-	int32_t elapsedTime = currentTime - this->periodStartTime;
+    int32_t adjDutyTime = this->dutyTime - this->dutyLate;
+    int32_t currentTime = millis();
+    int32_t elapsedTime = currentTime - periodStartTime;
 
-	if (this->isActive()) {
-		if (elapsedTime >= adjDutyTime) {
-			// end of duty cycle
-			digitalWrite(this->pin, LOW);
-			this->active = false;
-			this->dutyLate += elapsedTime - dutyTime;
-		}
-	}
-	if (!this->isActive()) {
-		if (elapsedTime >= period) {
-			// end of PWM cycle
-			if (adjDutyTime < 0) {
-				// skip going high for 1 period when previous periods built up
-				// more than one entire duty cycle (duty is ahead)
-				// subtract duty cycle form duty late accumulator
-				this->dutyLate = this->dutyLate - dutyTime;
-			} else {
-				digitalWrite(this->pin, HIGH);
-				this->active = true;
-			}
-			int32_t periodLate = elapsedTime - period;
+    if (this->pwm <= minVal) {
+    	digitalWrite(this->pin, LOW);
+    	this->active = false;
+        return;
+    }
 
-			// limit to half of the period
-			periodLate = (periodLate < period / 2) ? periodLate : period / 2;
+    if (this->pwm >= maxVal) {
+    	digitalWrite(this->pin, HIGH);
+    	this->active = true;
+        return;
+    }
 
-			// adjust next duty time to account for longer period due to infrequent updates
-			// low period was longer, increase high period (duty cycle) with same ratio
-			this->dutyTime = ((this->pwm * period) / 255) * (period + periodLate) / period;
-			this->periodStartTime = currentTime;
-		}
-	}
+    if (this->active) {
+        if (elapsedTime >= adjDutyTime) {
+            // end of duty cycle
+        	digitalWrite(this->pin, LOW);
+        	this->active = false;
+
+        	this->dutyLate += elapsedTime - this->dutyTime;
+        }
+    }
+    if (!this->active) { // <- do not replace with else if
+        if (elapsedTime >= this->period) {
+            // end of PWM cycle
+            if (adjDutyTime < 0) {
+                // skip going high for 1 period when previous periods built up
+                // more than one entire duty cycle (duty is ahead)
+                // subtract duty cycle form duty late accumulator
+            	this->dutyLate = this->dutyLate - this->dutyTime;
+            } else {
+            	digitalWrite(this->pin, HIGH);
+            	this->active = true;
+            }
+            this->periodLate = elapsedTime - this->period;
+            // limit to half of the period
+            this->periodLate = (this->periodLate < this->period / 2) ? this->periodLate : this->period / 2;
+            // adjust next duty time to account for longer period due to infrequent updates
+            // low period was longer, increase high period (duty cycle) with same ratio
+            recalculate();
+            this->periodStartTime = currentTime;
+        }
+    }
 }

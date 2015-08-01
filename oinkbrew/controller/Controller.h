@@ -26,8 +26,8 @@
 #ifndef OINKBREW_CONTROLLER_CONTROLLER_H_
 #define OINKBREW_CONTROLLER_CONTROLLER_H_
 
-#define OVERSHOOT_HEAT 0.5
-#define OVERSHOOT_KEEP -0.5
+#define OVERSHOOT_HEAT 0.0
+#define OVERSHOOT_KEEP 0.0
 
 
 #include "PID.h"
@@ -44,13 +44,19 @@ public:
 	virtual void setConfig(ControllerConfiguration& config);
 
 	bool process();
+
+	virtual void update() { };
+	virtual void dispose() { };
+
 	int getId();
 	ControllerConfiguration& getConfig();
 	void setTargetTemperature(float PointTemperature);
 	float getTargetTemperature();
+	bool isFinished();
 
 protected:
 	virtual bool doProcess() { return false; };
+
 
 	void setTempSensor(ActingDevice TempSensor);
 	void setHeatActuator(ActingDevice HeatActuator);
@@ -65,6 +71,7 @@ protected:
 	float currentTemperature;
 	float output;
 	PID* pid;
+	bool finished;
 };
 
 #endif /* OINKBREW_CONTROLLER_CONTROLLER_H_ */

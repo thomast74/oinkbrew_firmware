@@ -67,7 +67,7 @@ public:
     static bool loadEguiSettings();
     static void storeEguiSettings();
 
-    static void clear(uint8_t* p, uint8_t size);
+    static void clear(uint8_t* p, uint16_t size);
 };
 
 extern Configuration conf;

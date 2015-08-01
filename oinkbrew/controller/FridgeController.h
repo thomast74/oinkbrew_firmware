@@ -57,6 +57,8 @@ public:
 	~FridgeController();
 
 	void setConfig(ControllerConfiguration& config);
+	void update();
+	void dispose();
 
 protected:
 	bool doProcess();

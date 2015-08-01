@@ -26,8 +26,12 @@
 #ifndef OINKBREW_CONTROLLER_BREWCONTROLLER_H_
 #define OINKBREW_CONTROLLER_BREWCONTROLLER_H_
 
+#define BEER_OVERSHOOT_HEAT 0.5
+#define BEER_OVERSHOOT_KEEP 0.5
+
 
 #include "Controller.h"
+
 
 class BrewController : public Controller
 {
@@ -35,7 +39,7 @@ public:
 	BrewController(ControllerConfiguration& config)
 		: Controller()
 	{
-		this->pid->SetOutputLimits(0, 255);
+		this->pid->SetOutputLimits(0, 100);
 		this->temperatureReached = false;
 		this->startTime = 0;
 		this->duration = 0;
@@ -46,7 +50,11 @@ public:
 	~BrewController() {
 	}
 
+	void update();
+	void dispose();
 	unsigned long timeToGo();
+	bool isHeatActuatorActive();
+	bool isTemperatureReached();
 
 protected:
 	bool doProcess();

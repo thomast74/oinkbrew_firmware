@@ -107,6 +107,8 @@ void loop()
         screen.update(SCREEN_CONTROLLERS);
     }
 
+	controllerManager.update();
+
     // every 15 seconds log actuator and sensor values
     if((time - lastLog) >= DURATION_LOG)
     {

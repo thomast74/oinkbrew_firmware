@@ -45,7 +45,19 @@ void ControllerManager::process()
 	{
 		if (active_controllers[i]->process()) {
 			conf.storeController(active_controllers[i]->getConfig());
+			// send update that temp phase finishied to oink web
 		}
+	}
+}
+
+void ControllerManager::update()
+{
+	if (sparkInfo.mode != SPARK_MODE_AUTOMATIC)
+		return;
+
+	for(short i=0; i < registered_controllers; i++)
+	{
+		active_controllers[i]->update();
 	}
 }
 
@@ -162,6 +174,7 @@ bool ControllerManager::removeController(int id)
 	for(int i=0; i < registered_controllers; i++) {
 		if (active_controllers[i]->getId() == id) {
 			Helper::serialDebug("EEPROM remove");
+			active_controllers[i]->dispose();
 			conf.removeController(active_controllers[i]->getConfig());
 			removed = true;
 		}

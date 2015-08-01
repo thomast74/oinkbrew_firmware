@@ -26,45 +26,14 @@
 #include "BrewController.h"
 #include "../Helper.h"
 
-unsigned long BrewController::timeToGo() {
-
-	if (this->temperatureReached) {
-		return this->duration - (millis() - startTime);
-	}
-	else
-		return 0;
-}
-
 bool BrewController::doProcess()
 {
-	String debug("Output: ");
-	debug.concat(this->currentTemperature);
-	debug.concat(" -> ");
-	debug.concat(this->targetTemperature);
-	debug.concat(" : ");
-	debug.concat(output);
-	debug.concat(" : ");
-	debug.concat(heatActuator->isActive());
-	debug.concat(" -> ");
-	debug.concat(heatActuator->getPwm());
-	Helper::serialDebug(debug.c_str());
-
-	if (output >= 1.0) {
-		heatActuator->setPwm(output);
-	}
-	else {
-		if (heatActuator->isActive()) {
-			heatActuator->setPwm(0);
-		}
-	}
-
-	heatActuator->updatePwm();
+	heatActuator->setPwm(output);
 
 	if (!this->temperatureReached  && this->currentTemperature >= this->targetTemperature) {
 
 		Helper::serialDebug("Temperature reached");
 
-		this->pid->SetOvershoot(OVERSHOOT_KEEP);
 		this->temperatureReached = true;
 		this->startTime =  millis();
 	}
@@ -77,6 +46,17 @@ bool BrewController::doProcess()
 	return false;
 }
 
+void BrewController::update()
+{
+	heatActuator->updatePwm();
+}
+
+void BrewController::dispose()
+{
+	heatActuator->setPwm(0);
+	heatActuator->updatePwm();
+}
+
 bool BrewController::calculateTargetTemperature()
 {
 	for(int i=0; i < MAX_PHASES; i++) {
@@ -86,7 +66,6 @@ bool BrewController::calculateTargetTemperature()
 
 		this->config.temperaturePhases[i].done = true;
 		this->temperatureReached = false;
-		this->pid->SetOvershoot(OVERSHOOT_HEAT);
 
 		if ((i + 1) < MAX_PHASES) {
 
@@ -107,11 +86,34 @@ bool BrewController::calculateTargetTemperature()
 			String debug("New Target Temperatur off: 10000000 -> 0");
 			Helper::serialDebug(debug.c_str());
 
-			this->duration = 10000000;
+			heatActuator->setPwm(0);
+			heatActuator->updatePwm();
+
+			this->finished = true;
+			this->duration = 0;
 			setTargetTemperature(0);
 		}
 		break;
 	}
 
 	return false;
+}
+
+unsigned long BrewController::timeToGo() {
+
+	if (this->temperatureReached) {
+		return this->duration - (millis() - startTime);
+	}
+	else
+		return 0;
+}
+
+bool BrewController::isHeatActuatorActive()
+{
+	return this->heatActuator->isActive();
+}
+
+bool BrewController::isTemperatureReached()
+{
+	return this->temperatureReached;
 }

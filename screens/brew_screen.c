@@ -44,9 +44,9 @@ D4D_CHAR str_tarHlt[8] = "-.-";
 D4D_CHAR str_tarMash[8] = "-.-";
 D4D_CHAR str_tarBoil[8] = "-.-";
 
-D4D_CHAR str_togoHlt[8] = "";
-D4D_CHAR str_togoMash[8] = "";
-D4D_CHAR str_togoBoil[8] = "";
+D4D_CHAR str_togoHlt[9] = "";
+D4D_CHAR str_togoMash[9] = "";
+D4D_CHAR str_togoBoil[9] = "";
 
 D4D_DECLARE_STD_LABEL_RIGHT(scrBrew_lblName, "Name:", 5, 45,  95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
 D4D_DECLARE_STD_LABEL(scrBrew_Name, str_brew_name, 110, 45,  200, 20, FONT_ARIAL_11)

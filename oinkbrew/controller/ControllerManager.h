@@ -39,6 +39,7 @@ private:
 	static short registered_controllers;
 public:
 	static void process();
+	static void update();
 
 	static void loadControllersFromEEPROM();
 
