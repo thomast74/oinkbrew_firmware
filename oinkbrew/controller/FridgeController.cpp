@@ -57,7 +57,7 @@ void FridgeController::setConfig(ControllerConfiguration& config)
 	this->calculateTargetTemperature();
 }
 
-bool FridgeController::doProcess()
+int FridgeController::doProcess()
 {
 	if (this->state == COOLING)
 	{
@@ -87,10 +87,10 @@ bool FridgeController::doProcess()
 	checkFanActivity();
 
 	if (this->until < Time.now()) {
-		this->calculateTargetTemperature();
+		return this->calculateTargetTemperature();
 	}
 
-	return false;
+	return 0;
 }
 
 void FridgeController::update()
@@ -165,7 +165,7 @@ void FridgeController::setFanActuator(ActingDevice FanActuator)
 	this->fanActuator = new PwmActuator(FanActuator.pin_nr, 0, false);
 }
 
-bool FridgeController::calculateTargetTemperature()
+int FridgeController::calculateTargetTemperature()
 {
 	long now = Time.now();
 
@@ -176,5 +176,5 @@ bool FridgeController::calculateTargetTemperature()
 		}
 	}
 
-	return false;
+	return 0;
 }

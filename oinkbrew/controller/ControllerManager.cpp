@@ -31,6 +31,7 @@
 #include "../Configuration.h"
 #include "../Helper.h"
 #include "../SparkInfo.h"
+#include "../TcpLogger.h"
 
 Controller* ControllerManager::active_controllers[MAX_CONTROLLERS] = {};
 short ControllerManager::registered_controllers = 0;
@@ -43,9 +44,10 @@ void ControllerManager::process()
 
 	for(short i=0; i < registered_controllers; i++)
 	{
-		if (active_controllers[i]->process()) {
+		int tempPhaseId = active_controllers[i]->process();
+		if (tempPhaseId > 0) {
 			conf.storeController(active_controllers[i]->getConfig());
-			// send update that temp phase finishied to oink web
+			logger.logTemperaturePhase(active_controllers[i]->getId(), active_controllers[i]->getConfig().temperaturePhases[tempPhaseId]);
 		}
 	}
 }

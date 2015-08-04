@@ -57,8 +57,8 @@ public:
 	bool isTemperatureReached();
 
 protected:
-	bool doProcess();
-	bool calculateTargetTemperature();
+	int doProcess();
+	int calculateTargetTemperature();
 
 private:
 	bool temperatureReached;

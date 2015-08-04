@@ -61,8 +61,8 @@ public:
 	void dispose();
 
 protected:
-	bool doProcess();
-	bool calculateTargetTemperature();
+	int doProcess();
+	int calculateTargetTemperature();
 
 private:
 	void turnOnHeating();

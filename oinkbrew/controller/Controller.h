@@ -43,7 +43,7 @@ public:
 
 	virtual void setConfig(ControllerConfiguration& config);
 
-	bool process();
+	int process();
 
 	virtual void update() { };
 	virtual void dispose() { };
@@ -55,13 +55,13 @@ public:
 	bool isFinished();
 
 protected:
-	virtual bool doProcess() { return false; };
+	virtual int doProcess() { return 0; };
 
 
 	void setTempSensor(ActingDevice TempSensor);
 	void setHeatActuator(ActingDevice HeatActuator);
 
-	virtual bool calculateTargetTemperature() { return false; };
+	virtual int calculateTargetTemperature() { return 0; };
 
 	ActingDevice tempSensor;
 	PwmActuator* heatActuator;

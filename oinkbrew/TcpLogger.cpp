@@ -32,29 +32,27 @@
 #include "spark_wiring_ipaddress.h"
 #include <string.h>
 
-
-http_header_t headers[] = {
-	{ "Content-Type", "application/json" },
-	{ "Accept", "*/*" },
-	{ NULL, NULL }
-};
+http_header_t headers[] = { { "Content-Type", "application/json" }, { "Accept",
+		"*/*" }, { NULL, NULL } };
 
 http_request_t request;
 http_response_t response;
 
 HttpClient http;
 
-void TcpLogger::init() {
+void TcpLogger::init()
+{
 	//request.ip = Helper::getIp(sparkInfo.oinkWeb);
 	//request.port = sparkInfo.oinkWebPort;
 }
 
-void TcpLogger::logDeviceValues() {
-
+void TcpLogger::logDeviceValues()
+{
 	IPAddress oinkWebIp(sparkInfo.oinkWeb);
 
 	// only log if device is not in MANUAL mode
-	if (sparkInfo.mode == SPARK_MODE_MANUAL || oinkWebIp == IPAddress(0, 0, 0, 0))
+	if (sparkInfo.mode == SPARK_MODE_MANUAL
+			|| oinkWebIp == IPAddress(0, 0, 0, 0))
 		return;
 
 	request.ip = oinkWebIp;
@@ -100,38 +98,70 @@ void TcpLogger::logDeviceValues() {
 	request.body = "";
 }
 
-void TcpLogger::sendNewDevice(Device &device, float value) {
-
-	prepareDeviceRequest(device, value);
-
-	http.put(request, response, headers);
-
-	request.body = "";
-}
-
-void TcpLogger::sendRemoveDevice(uint8_t& pin_nr, DeviceAddress& hw_address) {
-	Device device;
-
-	device.hardware.pin_nr = pin_nr;
-	memcpy(device.hardware.hw_address, hw_address, 8);
-
-	prepareDeviceRequest(device, 0);
-
-	http.del(request, response, headers);
-
-	request.body = "";
-}
-
-void TcpLogger::prepareDeviceRequest(Device &device, float value) {
+void TcpLogger::logTemperaturePhase(int config_id, TemperaturePhase &tempPhase)
+{
 	IPAddress oinkWebIp(sparkInfo.oinkWeb);
 
 	// Only send new device message if Oink Brew web app is known
 	if (oinkWebIp == IPAddress(0, 0, 0, 0))
 		return;
 
+	request.path = "/api/spark/";
+	request.path.concat(Spark.deviceID().c_str());
+	request.path.concat("/config/");
+	request.path.concat(config_id);
+	request.path.concat("/phase/");
+
+	request.body.concat("{\"start_date\":");
+	request.body.concat(tempPhase.time);
+	request.body.concat(",\"duration\":");
+	request.body.concat(tempPhase.duration);
+	request.body.concat(",\"temperature\":");
+	request.body.concat((tempPhase.targetTemperature*1000));
+	request.body.concat(",\"done\":");
+	request.body.concat(tempPhase.done ? "true" : "false");
+	request.body.concat("}");
+
+	http.post(request, response, headers);
+
+	request.body = "";
+}
+
+void TcpLogger::sendNewDevice(Device &device, float value)
+{
+	if (prepareDeviceRequest(device, value))
+	{
+		http.put(request, response, headers);
+
+		request.body = "";
+	}
+}
+
+void TcpLogger::sendRemoveDevice(uint8_t& pin_nr, DeviceAddress& hw_address)
+{
+	Device device;
+
+	device.hardware.pin_nr = pin_nr;
+	memcpy(device.hardware.hw_address, hw_address, 8);
+
+	if (prepareDeviceRequest(device, 0))
+	{
+		http.del(request, response, headers);
+
+		request.body = "";
+	}
+}
+
+bool TcpLogger::prepareDeviceRequest(Device &device, float value)
+{
+	IPAddress oinkWebIp(sparkInfo.oinkWeb);
+
+	// Only send new device message if Oink Brew web app is known
+	if (oinkWebIp == IPAddress(0, 0, 0, 0))
+		return false;
+
 	request.ip = oinkWebIp;
 	request.port = sparkInfo.oinkWebPort;
-
 
 	char hw_address[17];
 	Helper::getBytes(device.hardware.hw_address, 8, hw_address);
@@ -155,5 +185,7 @@ void TcpLogger::prepareDeviceRequest(Device &device, float value) {
 	request.path = "/api/spark/";
 	request.path.concat(Spark.deviceID().c_str());
 	request.path.concat("/devices/");
+
+	return true;
 }
 

@@ -26,7 +26,7 @@
 #include "BrewController.h"
 #include "../Helper.h"
 
-bool BrewController::doProcess()
+int BrewController::doProcess()
 {
 	heatActuator->setPwm(output);
 
@@ -57,7 +57,7 @@ void BrewController::dispose()
 	heatActuator->updatePwm();
 }
 
-bool BrewController::calculateTargetTemperature()
+int BrewController::calculateTargetTemperature()
 {
 	for(int i=0; i < MAX_PHASES; i++) {
 
@@ -79,8 +79,6 @@ bool BrewController::calculateTargetTemperature()
 
 			this->duration = this->config.temperaturePhases[i+1].duration;
 			setTargetTemperature(this->config.temperaturePhases[i+1].targetTemperature);
-
-			return true;
 		}
 		else {
 			String debug("New Target Temperatur off: 10000000 -> 0");
@@ -93,10 +91,11 @@ bool BrewController::calculateTargetTemperature()
 			this->duration = 0;
 			setTargetTemperature(0);
 		}
-		break;
+
+		return i;
 	}
 
-	return false;
+	return 0;
 }
 
 unsigned long BrewController::timeToGo() {
