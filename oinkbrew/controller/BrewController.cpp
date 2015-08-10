@@ -67,7 +67,7 @@ int BrewController::calculateTargetTemperature()
 		this->config.temperaturePhases[i].done = true;
 		this->temperatureReached = false;
 
-		if ((i + 1) < MAX_PHASES) {
+		if ((i + 1) < MAX_PHASES && this->config.temperaturePhases[i+1].targetTemperature > 0) {
 
 			String debug("New Target Temperature ");
 			debug.concat(i);
