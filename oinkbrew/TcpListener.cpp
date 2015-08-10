@@ -121,20 +121,23 @@ bool TcpListener::processRequest(char action)
 		parseJson(&TcpListener::receiveDeviceRequest, &dr3);
 		deviceManager.setOffset(dr3);
 		client.write(ACK);
+		delay(50);
 		break;
 	// add or update a current configuration
 	case 'p':
 		ControllerConfiguration cr1;
 		parseJson(&TcpListener::receiveControllerRequest, &cr1);
 		controllerManager.changeController(cr1);
-		client.write(ACK);
+		client.write("!");
+		delay(50);
 		break;
 	// remove a configuration
 	case 'q':
 		ControllerConfiguration cr2;
 		parseJson(&TcpListener::receiveControllerRequest, &cr2);
 		controllerManager.removeController(cr2.id);
-		client.write(ACK);
+		client.write("!");
+		delay(50);
 		break;
 	// reset settings
 	case 'r':
