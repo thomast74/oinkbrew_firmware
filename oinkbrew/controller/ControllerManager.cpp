@@ -204,3 +204,26 @@ int ControllerManager::findController(int id)
 
 	return -1;
 }
+
+const char* ControllerManager::getTargetTemperatureJson()
+{
+	bool notFirst;
+	String targetsJson;
+
+	for(int i=0; i < registered_controllers; i++) {
+
+		if (notFirst) {
+			targetsJson.concat(',');
+		} else {
+			notFirst = true;
+		}
+
+		targetsJson.concat("{\"config_id\":");
+		targetsJson.concat(active_controllers[i]->getId());
+		targetsJson.concat(",\"temperature\":");
+		targetsJson.concat(active_controllers[i]->getTargetTemperature());
+		targetsJson.concat("}");
+	}
+
+	return targetsJson.c_str();
+}

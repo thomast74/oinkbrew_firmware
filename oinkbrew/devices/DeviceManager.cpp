@@ -474,3 +474,35 @@ void DeviceManager::printTouple(TCPClient& client, const char* name, bool value,
 	sprintf(tempString, "\"%s\":%s", name, value ? "true": "false");
 	client.write(tempString);
 }
+
+const char* DeviceManager::getDeviceTemperatureJson()
+{
+	bool notFirst = false;
+	ActiveDevice active;
+	char buf[17];
+	String temperatureJson;
+
+	for (short i = 0; i < registered_devices; i++) {
+		getDevice(i, active);
+		if (active.type != DEVICE_HARDWARE_NONE) {
+
+			if (notFirst) {
+				temperatureJson.concat(',');
+			} else {
+				notFirst = true;
+			}
+
+			Helper::getBytes(active.hw_address, 8, buf);
+
+			temperatureJson.concat("{\"pin_nr\":\"");
+			temperatureJson.concat(active.pin_nr);
+			temperatureJson.concat("\",\"hw_address\":\"");
+			temperatureJson.concat(buf);
+			temperatureJson.concat("\",\"value\":");
+			temperatureJson.concat(active.value);
+			temperatureJson.concat('}');
+		}
+	}
+
+	return temperatureJson.c_str();
+}

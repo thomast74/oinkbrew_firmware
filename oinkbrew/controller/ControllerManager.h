@@ -48,6 +48,8 @@ public:
 
 	static bool changeController(ControllerConfiguration request);
 	static bool removeController(int id);
+
+	static const char* getTargetTemperatureJson();
 private:
 	static int findController(int id);
 };

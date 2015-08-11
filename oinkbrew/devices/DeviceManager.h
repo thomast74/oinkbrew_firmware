@@ -67,6 +67,7 @@ public:
 	static void searchAndSendDeviceList(TCPClient& client);
 	static void toggleActuator(DeviceRequest& deviceRequest, char* response);
 	static void setOffset(DeviceRequest& deviceRequest);
+	static const char* getDeviceTemperatureJson();
 private:
 	static void processActuators(Device devices[], ActiveDevice activeDevices[], uint8_t& slot);
 	static void processOneWire(Device devices[], ActiveDevice activeDevices[], uint8_t& slot);

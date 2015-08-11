@@ -27,6 +27,7 @@
 #include "Configuration.h"
 #include "Helper.h"
 #include "SparkInfo.h"
+#include "controller/ControllerManager.h"
 #include "devices/Device.h"
 #include "devices/DeviceManager.h"
 #include "spark_wiring_ipaddress.h"
@@ -58,36 +59,12 @@ void TcpLogger::logDeviceValues()
 	request.ip = oinkWebIp;
 	request.port = sparkInfo.oinkWebPort;
 
-	ActiveDevice active;
-	bool notFirst = false;
-	short registered_devices = deviceManager.noRegisteredDevices();
-	char buf[17];
+	request.body.concat("{\"temperatures\":[");
+	request.body.concat(deviceManager.getDeviceTemperatureJson());
+	request.body.concat("],\"targets\":[");
+	request.body.concat(controllerManager.getTargetTemperatureJson());
+	request.body.concat("]}");
 
-	request.body.concat('[');
-
-	for (short i = 0; i < registered_devices; i++) {
-		deviceManager.getDevice(i, active);
-		if (active.type != DEVICE_HARDWARE_NONE) {
-
-			if (notFirst) {
-				request.body.concat(',');
-			} else {
-				notFirst = true;
-			}
-
-			Helper::getBytes(active.hw_address, 8, buf);
-
-			request.body.concat("{\"pin_nr\":\"");
-			request.body.concat(active.pin_nr);
-			request.body.concat("\",\"hw_address\":\"");
-			request.body.concat(buf);
-			request.body.concat("\",\"value\":");
-			request.body.concat(active.value);
-			request.body.concat('}');
-		}
-	}
-
-	request.body.concat(']');
 
 	request.path = "/api/spark/";
 	request.path.concat(Spark.deviceID().c_str());
