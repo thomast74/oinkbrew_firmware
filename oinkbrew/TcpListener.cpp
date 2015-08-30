@@ -448,7 +448,7 @@ void TcpListener::parseTempPhasesString(TemperaturePhase *tempPhases, const char
 			index++;
 			index_val = 0;
 
-			if (index == MAX_PHASES)
+			if (index == (MAX_PHASES-2))
 				break;
 		}
 		else {
@@ -460,5 +460,16 @@ void TcpListener::parseTempPhasesString(TemperaturePhase *tempPhases, const char
 	if (type == 2 && index_val > 0) {
 		val[index_val] = 0;
 		tempPhases[index].done = atoi(val) == 1 ? true : false;
+	}
+
+	index++;
+	if (index < MAX_PHASES) {
+		tempPhases[index].time = tempPhases[index-1].time + 7776000;
+		tempPhases[index].targetTemperature = 0;
+	}
+	index++;
+	for(;index < MAX_PHASES; index++) {
+		tempPhases[index].time = 0;
+		tempPhases[index].targetTemperature = 0;
 	}
 }

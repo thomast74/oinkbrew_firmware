@@ -108,13 +108,19 @@ void Screen::showFermScreen()
 
 void Screen::ticks()
 {
+#ifndef DEBUG_BUILD
+
 	D4D_TimeTickPut();
 	D4D_CheckTouchScreen();
 	D4D_Poll();
+
+#endif
 }
 
 void Screen::update(ScreenType screenType)
 {
+#ifndef DEBUG_BUILD
+
 	D4D_SCREEN* activeScreen =  D4D_GetActiveScreen();
 
 	if (screenType == SCREEN_INFO && activeScreen == &screen_info) {
@@ -126,10 +132,14 @@ void Screen::update(ScreenType screenType)
 	else if ((screenType == SCREEN_FERM || screenType == SCREEN_CONTROLLERS) && activeScreen == &screen_ferm) {
 		updateFermScreen();
 	}
+
+#endif
 }
 
 bool setBackgroundColor(const D4D_OBJECT* pThis, D4D_COLOR bg)
 {
+#ifndef DEBUG_BUILD
+
     D4D_COLOR existing = pThis->clrScheme->bckg;
     pThis->clrScheme->bckg = bg;
     pThis->clrScheme->bckgDis = bg;
@@ -137,11 +147,20 @@ bool setBackgroundColor(const D4D_OBJECT* pThis, D4D_COLOR bg)
     pThis->clrScheme->bckgFocus = bg;
     if (existing!=bg)
         D4D_InvalidateObject(pThis, D4D_TRUE);
+
     return existing!=bg;
+
+#else
+
+    return false;
+
+#endif
 }
 
 void updateInformationScreen()
 {
+#ifndef DEBUG_BUILD
+
 	char mode[] = { sparkInfo.mode };
 	char tempType[] = { sparkInfo.tempType };
 
@@ -156,10 +175,14 @@ void updateInformationScreen()
 	oinkWeb.concat(":");
 	oinkWeb.concat(sparkInfo.oinkWebPort);
 	updateLabel((D4D_OBJECT*) &scrInfo_valWeb, (D4D_CHAR*) oinkWeb.c_str());
+
+#endif
 }
 
 void updateBrewScreen()
 {
+#ifndef DEBUG_BUILD
+
     BrewController* controller = controllerManager.getBrewConfiguration(0);
 
     if (controller != 0) {
@@ -290,6 +313,8 @@ void updateBrewScreen()
     		hasBeerController = false;
     	}
     }
+
+#endif
 }
 
 void updateFermScreen()
@@ -299,8 +324,12 @@ void updateFermScreen()
 
 void Screen::calibrateTouchScreen()
 {
+#ifndef DEBUG_BUILD
+
 	D4D_CalibrateTouchScreen();
 	conf.storeEguiSettings();
+
+#endif
 }
 
 extern "C" void menuButtonClicked(D4D_OBJECT* pThis)

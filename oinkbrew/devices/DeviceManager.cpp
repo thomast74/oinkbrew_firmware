@@ -34,6 +34,7 @@
 #include "DallasTemperatureSensor.h"
 #include "DigitalActuator.h"
 #include "PwmActuator.h"
+#include "spark_wiring.h"
 #include <string.h>
 #include <stddef.h>
 
@@ -47,6 +48,12 @@ DallasTemperature sensors(&oneWire);
 
 
 void DeviceManager::init() {
+
+	// set all actuator to 0
+	int8_t pin_nr;
+	for (uint8_t count = 0; (pin_nr = enumerateActuatorPins(count)) >= 0; count++) {
+		analogWrite(pin_nr, 0);
+	}
 
 	// Start up the OneWire Library and temp sensors library
 	sensors.begin();
@@ -94,13 +101,7 @@ short DeviceManager::noRegisteredDevices() {
 void DeviceManager::readValues() {
 
 	for(short i=0; i < registered_devices; i++) {
-		if (activeDevices[i].type == DEVICE_HARDWARE_ACTUATOR_DIGITAL) {
-			activeDevices[i].value = digitalRead(activeDevices[i].pin_nr);
-		}
-		else if (activeDevices[i].type == DEVICE_HARDWARE_ACTUATOR_PWM) {
-			activeDevices[i].value = analogRead(activeDevices[i].pin_nr);
-		}
-		else if (activeDevices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
+		if (activeDevices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
 
 			activeDevices[i].value = sensors.getTempC(activeDevices[i].hw_address) + activeDevices[i].offset;
 
@@ -259,12 +260,12 @@ void DeviceManager::toggleActuator(DeviceRequest& deviceRequest, char* response)
 	getDevice(deviceRequest.pin_nr, deviceRequest.hw_address, active);
 
 	if (active.type == DEVICE_HARDWARE_ACTUATOR_DIGITAL) {
-		DigitalActuator actuator = DigitalActuator(active.pin_nr, false);
+		DigitalActuator actuator = DigitalActuator(active.pin_nr, active.hw_address, false);
 		actuator.toggle();
 		strcpy(response, actuator.isActive() > 0 ? "1" : "0");
 	}
 	else if (active.type == DEVICE_HARDWARE_ACTUATOR_PWM) {
-		PwmActuator actuator = PwmActuator(active.pin_nr, deviceRequest.value*2.55, false);
+		PwmActuator actuator = PwmActuator(active.pin_nr, active.hw_address, deviceRequest.value*2.55, false);
 		sprintf(response, "%2.2f", ((double)actuator.getPwm() / 255.0) * 100.0);
 	}
 }
@@ -292,6 +293,26 @@ void DeviceManager::setOffset(DeviceRequest& deviceRequest) {
 			}
 
 			return;
+		}
+	}
+}
+
+void DeviceManager::setDeviceType(uint8_t& pin_nr, DeviceAddress& hw_address, DeviceType type)
+{
+	for(uint8_t i=0;i < registered_devices; i++) {
+		if (activeDevices[i].pin_nr == pin_nr && Helper::matchAddress(hw_address, activeDevices[i].hw_address, 8)) {
+			activeDevices[i].type = type;
+			break;
+		}
+	}
+}
+
+void DeviceManager::setDeviceValue(uint8_t& pin_nr, DeviceAddress& hw_address, float value)
+{
+	for(uint8_t i=0;i < registered_devices; i++) {
+		if (activeDevices[i].pin_nr == pin_nr && Helper::matchAddress(hw_address, activeDevices[i].hw_address, 8)) {
+			activeDevices[i].value = value;
+			break;
 		}
 	}
 }
@@ -458,7 +479,7 @@ void DeviceManager::printTouple(TCPClient& client, const char* name, const char*
 void DeviceManager::printTouple(TCPClient& client, const char* name, int32_t value, bool first) {
 
 	if (!first)
-			client.write(',');
+		client.write(',');
 
 	char tempString[32];
 	sprintf(tempString, "\"%s\":%ld", name, value);
@@ -478,13 +499,11 @@ void DeviceManager::printTouple(TCPClient& client, const char* name, bool value,
 const char* DeviceManager::getDeviceTemperatureJson()
 {
 	bool notFirst = false;
-	ActiveDevice active;
 	char buf[17];
 	String temperatureJson;
 
 	for (short i = 0; i < registered_devices; i++) {
-		getDevice(i, active);
-		if (active.type != DEVICE_HARDWARE_NONE) {
+		if (activeDevices[i].type != DEVICE_HARDWARE_NONE) {
 
 			if (notFirst) {
 				temperatureJson.concat(',');
@@ -492,14 +511,14 @@ const char* DeviceManager::getDeviceTemperatureJson()
 				notFirst = true;
 			}
 
-			Helper::getBytes(active.hw_address, 8, buf);
+			Helper::getBytes(activeDevices[i].hw_address, 8, buf);
 
 			temperatureJson.concat("{\"pin_nr\":\"");
-			temperatureJson.concat(active.pin_nr);
+			temperatureJson.concat(activeDevices[i].pin_nr);
 			temperatureJson.concat("\",\"hw_address\":\"");
 			temperatureJson.concat(buf);
 			temperatureJson.concat("\",\"value\":");
-			temperatureJson.concat(active.value);
+			temperatureJson.concat(activeDevices[i].value);
 			temperatureJson.concat('}');
 		}
 	}

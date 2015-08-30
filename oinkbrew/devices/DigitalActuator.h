@@ -29,10 +29,12 @@ class DigitalActuator {
 private:
 	bool invert;
 	uint8_t pin;
+	DeviceAddress hw_address;
 	bool active;
 public:
-	DigitalActuator(uint8_t pin, bool invert) {
+	DigitalActuator(uint8_t pin, DeviceAddress& hw_address, bool invert) {
 		this->pin = pin;
+		memcpy(&this->hw_address, &hw_address, 8);
 		this->invert = invert;
 
 		pinMode(pin, OUTPUT);
@@ -56,5 +58,11 @@ public:
 
 	bool isActive() {
 		return active;
+	}
+	uint8_t& getPin() {
+		return pin;
+	}
+	DeviceAddress& getHwAddress() {
+		return hw_address;
 	}
 };

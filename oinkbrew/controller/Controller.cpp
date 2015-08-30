@@ -33,10 +33,10 @@
 
 Controller::Controller()
 {
-	this->output = 0;
+	this->output = 0.0;
 	this->pid = NULL;
-	this->targetTemperature = 0;
-	this->currentTemperature = 0;
+	this->targetTemperature = 0.0;
+	this->currentTemperature = 0.0;
 	this->heatActuator = NULL;
 	this->finished = false;
 
@@ -101,17 +101,18 @@ void Controller::setTempSensor(ActingDevice TempSensor)
 
 void Controller::setHeatActuator(ActingDevice HeatActuator)
 {
-	heatActuator = new PwmActuator(HeatActuator.pin_nr, 0);
+	heatActuator = new PwmActuator(HeatActuator.pin_nr, HeatActuator.hw_address, 0);
+	deviceManager.setDeviceType(HeatActuator.pin_nr, HeatActuator.hw_address, DEVICE_HARDWARE_ACTUATOR_DIGITAL);
 }
 
 void Controller::setTargetTemperature(float PointTemperature)
 {
-	targetTemperature = PointTemperature;
+	this->targetTemperature = PointTemperature;
 }
 
 float Controller::getTargetTemperature()
 {
-	return targetTemperature;
+	return this->targetTemperature;
 }
 
 bool Controller::isFinished()

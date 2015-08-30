@@ -24,11 +24,13 @@
  */
 
 #include "BrewController.h"
+#include "../devices/DeviceManager.h"
 #include "../Helper.h"
 
 int BrewController::doProcess()
 {
 	heatActuator->setPwm(output);
+	deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), output);
 
 	if (!this->temperatureReached  && this->currentTemperature >= this->targetTemperature) {
 
@@ -54,7 +56,10 @@ void BrewController::update()
 void BrewController::dispose()
 {
 	heatActuator->setPwm(0);
+	deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), 0);
 	heatActuator->updatePwm();
+
+	delete heatActuator;
 }
 
 int BrewController::calculateTargetTemperature()

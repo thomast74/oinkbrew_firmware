@@ -374,6 +374,7 @@ void Configuration::fetchControllers(ControllerConfiguration configs[])
 
 
 	for(short slot = 0; slot < no_controllers; slot++) {
+		conf.clear((uint8_t*) &configs[slot], sizeof(size_controller));
 		controllerSettingsFlash->read(&configs[slot], (size_controller*slot) + offset, size_controller);
 	}
 }

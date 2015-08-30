@@ -52,8 +52,7 @@ void TcpLogger::logDeviceValues()
 	IPAddress oinkWebIp(sparkInfo.oinkWeb);
 
 	// only log if device is not in MANUAL mode
-	if (sparkInfo.mode == SPARK_MODE_MANUAL
-			|| oinkWebIp == IPAddress(0, 0, 0, 0))
+	if (sparkInfo.mode == SPARK_MODE_MANUAL || oinkWebIp == IPAddress(0, 0, 0, 0))
 		return;
 
 	request.ip = oinkWebIp;

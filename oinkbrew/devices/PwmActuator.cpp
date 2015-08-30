@@ -27,13 +27,14 @@
 #include "PwmActuator.h"
 
 
-PwmActuator::PwmActuator(uint8_t pin, uint8_t pwm) : PwmActuator(pin, pwm, true)
+PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm) : PwmActuator(pin, hw_address, pwm, true)
 {
 }
 
-PwmActuator::PwmActuator(uint8_t pin, uint8_t pwm, bool simulate)
+PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, bool simulate)
 {
 	this->pin = pin;
+	memcpy(&this->hw_address, &hw_address, 8);
 	this->periodStartTime = 0;
 	this->simulate = simulate;
 	this->periodLate = 0;
@@ -69,14 +70,13 @@ uint8_t PwmActuator::getPwm()
 
 void PwmActuator::setPwm(uint8_t val)
 {
-    if (val <= minVal){
-    	val = minVal;
-    }
-    if (val >= maxVal){
-    	val = maxVal;
-    }
-
 	if (this->simulate) {
+	    if (val <= minVal){
+	    	val = minVal;
+	    }
+	    if (val >= maxVal){
+	    	val = maxVal;
+	    }
 	    if(this->pwm != val){
 	    	uint8_t delta = (val > this->pwm) ? val - this->pwm : this->pwm - val;
 	    	this->pwm = val;
@@ -86,8 +86,9 @@ void PwmActuator::setPwm(uint8_t val)
 	    }
 	    recalculate();	}
 	else {
-		analogWrite(this->pin, val);
-		this->active = val > 0;
+    	this->pwm = val;
+		analogWrite(this->pin, this->pwm);
+		this->active = this->pwm > 0;
 	}
 }
 

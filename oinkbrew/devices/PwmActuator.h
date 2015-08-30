@@ -26,12 +26,14 @@
 #ifndef OINKBREW_DEVICES_PWMACTUATOR_H_
 #define OINKBREW_DEVICES_PWMACTUATOR_H_
 
+#include "../devices/Device.h"
 #include "spark_wiring.h"
 
 class PwmActuator
 {
 private:
 	uint8_t pin;
+	DeviceAddress hw_address;
     uint8_t pwm;
     uint8_t minVal;
     uint8_t maxVal;
@@ -48,8 +50,8 @@ private:
     void recalculate();
 
 public:
-	PwmActuator(uint8_t pin, uint8_t pwm);
-	PwmActuator(uint8_t pin, uint8_t pwm, bool simulate);
+	PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm);
+	PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, bool simulate);
 
 	void setPwm(uint8_t pwm);
 	uint8_t getPwm();
@@ -60,7 +62,13 @@ public:
 		return period;
 	}
 	bool isActive() {
-		return active;
+		return pwm > 0;
+	}
+	uint8_t& getPin() {
+		return pin;
+	}
+	DeviceAddress& getHwAddress() {
+		return hw_address;
 	}
 };
 

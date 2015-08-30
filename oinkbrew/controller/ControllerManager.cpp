@@ -65,6 +65,7 @@ void ControllerManager::update()
 
 void ControllerManager::loadControllersFromEEPROM()
 {
+	registered_controllers = 0;
 	short stored_controllers = conf.fetchNumberControllers();
 	ControllerConfiguration configs[stored_controllers];
 
@@ -74,19 +75,42 @@ void ControllerManager::loadControllersFromEEPROM()
 	Helper::serialDebug(stored_controllers);
 
 	// add controllers for each configuration
-	for(int i=0; i < stored_controllers; i++) {
+	for(short i=0; i < stored_controllers; i++) {
 		if (configs[i].type == TYPE_BREW) {
-			Helper::serialDebug("Create Brew Controller");
+			Helper::serialDebug("Create Brew Controller: ", false);
+			Helper::serialDebug(configs[i].id);
+
 			active_controllers[registered_controllers] = new BrewController(configs[i]);
 			registered_controllers++;
 		}
 		else if (configs[i].type == TYPE_FRIDGE) {
-			Helper::serialDebug("Create Fridge Controller");
+			Helper::serialDebug("Create Fridge Controller: ", false);
+			Helper::serialDebug(configs[i].id);
+
+			bool phasesWrong = false;
+			for(int j=1;j < (MAX_PHASES-1); j++) {
+				if (configs[i].temperaturePhases[j].time > configs[i].temperaturePhases[j+1].time) {
+					phasesWrong = true;
+					j++;
+					configs[i].temperaturePhases[j].time = configs[i].temperaturePhases[j-1].time + 7776000;
+					configs[i].temperaturePhases[j].targetTemperature = 0;
+					j++;
+					for(;j < (MAX_PHASES-1); j++) {
+						configs[i].temperaturePhases[j].time = 0;
+						configs[i].temperaturePhases[j].targetTemperature = 0;
+					}
+				}
+			}
+
+			if (phasesWrong) {
+				conf.storeController(configs[i]);
+			}
+
 			active_controllers[registered_controllers] = new FridgeController(configs[i]);
 			registered_controllers++;
 		}
 		else {
-			Helper::serialDebug("Uknown controller: ", false);
+			Helper::serialDebug("Unknown controller: ", false);
 			Helper::serialDebug(configs[i].type);
 			conf.removeController(configs[i]);
 		}
@@ -177,6 +201,8 @@ bool ControllerManager::removeController(int id)
 		if (active_controllers[i]->getId() == id) {
 			Helper::serialDebug("EEPROM remove");
 			active_controllers[i]->dispose();
+			delete active_controllers[i];
+
 			conf.removeController(active_controllers[i]->getConfig());
 			removed = true;
 		}
@@ -196,7 +222,7 @@ bool ControllerManager::removeController(int id)
 
 int ControllerManager::findController(int id)
 {
-	for(int i=0; i < registered_controllers; i++) {
+	for(short i=0; i < registered_controllers; i++) {
 		if (active_controllers[i]->getId() == id) {
 			return i;
 		}
@@ -207,10 +233,10 @@ int ControllerManager::findController(int id)
 
 const char* ControllerManager::getTargetTemperatureJson()
 {
-	bool notFirst;
+	bool notFirst = false;
 	String targetsJson;
 
-	for(int i=0; i < registered_controllers; i++) {
+	for(short i=0; i < registered_controllers; i++) {
 
 		if (notFirst) {
 			targetsJson.concat(',');
