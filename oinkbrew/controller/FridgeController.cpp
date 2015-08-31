@@ -142,17 +142,15 @@ void FridgeController::turnOnCooling()
 
 void FridgeController::setIdle()
 {
-	if (this->heatActuator->isActive()) {
-		this->heatActuator->setPwm(0);
-		deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), 0);
-	}
-	if (this->coolActuator->isActive()) {
-		this->coolActuator->setActive(false);
-		deviceManager.setDeviceValue(this->coolActuator->getPin(), this->coolActuator->getHwAddress(), 0);
-		this->coolingOffTime = millis();
-		this->idleStartTime = 0;
-		this->coolingOnTime = 0;
-	}
+	this->heatActuator->setPwm(0);
+	deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), 0);
+
+	this->coolActuator->setActive(false);
+	deviceManager.setDeviceValue(this->coolActuator->getPin(), this->coolActuator->getHwAddress(), 0);
+	this->coolingOffTime = millis();
+	this->idleStartTime = 0;
+	this->coolingOnTime = 0;
+
 	this->idleStartTime = millis();
 	this->state = IDLE;
 }

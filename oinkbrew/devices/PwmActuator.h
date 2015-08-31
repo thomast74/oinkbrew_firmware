@@ -62,7 +62,7 @@ public:
 		return period;
 	}
 	bool isActive() {
-		return pwm > 0;
+		return pwm > 0.0;
 	}
 	uint8_t& getPin() {
 		return pin;
