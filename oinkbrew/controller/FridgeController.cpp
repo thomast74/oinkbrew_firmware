@@ -43,6 +43,7 @@ FridgeController::FridgeController(ControllerConfiguration& config)
 	this->setConfig(config);
 
 	pid->SetOutputLimits(-2, 100);
+	pid->SetTunings(10, 0.003, -10);
 }
 
 FridgeController::~FridgeController()
@@ -124,12 +125,10 @@ void FridgeController::turnOnHeating()
 
 void FridgeController::turnOnCooling()
 {
-	if (this->heatActuator->isActive()) {
+	if (!this->coolActuator->isActive() && (millis() - this->coolingOffTime) > MIN_COOL_OFF_TIME) {
 		this->heatActuator->setPwm(0);
 		deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), 0);
-	}
 
-	if (!this->coolActuator->isActive() && (millis() - this->coolingOffTime) > MIN_COOL_OFF_TIME) {
 		this->coolActuator->setActive(true);
 		deviceManager.setDeviceValue(this->coolActuator->getPin(), this->coolActuator->getHwAddress(), 1);
 		this->coolingOnTime = millis();
