@@ -34,8 +34,8 @@ const unsigned long MIN_COOL_OFF_TIME = 180000;	// 5 minutes
 const unsigned long MIN_COOL_ON_TIME = 60000;	// 1 minutes
 const unsigned long MAX_COOL_ON_TIME = 120000;	// 2 minutes
 const unsigned long WAIT_FAN_ON_TIME = 30000;	// 30 seconds
-const uint8_t FAN_LOW = 40;
-const uint8_t FAN_HIGH = 140;
+const uint8_t FAN_LOW = 80;
+const uint8_t FAN_HIGH = 180;
 
 
 enum State {
