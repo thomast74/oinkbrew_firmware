@@ -186,6 +186,7 @@ void FridgeController::setFanActuator(ActingDevice FanActuator)
 
 	this->fanActuator = new PwmActuator(FanActuator.pin_nr, FanActuator.hw_address, 0, false);
 	this->fanActuator->setMinMax(0, 255);
+	this->fanActuator->setPwm(FAN_LOW);
 	deviceManager.setDeviceType(FanActuator.pin_nr, FanActuator.hw_address, DEVICE_HARDWARE_ACTUATOR_PWM);
 }
 
