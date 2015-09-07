@@ -44,6 +44,7 @@ void wifiInit();
 static unsigned long lastRun = -1000;
 static unsigned long lastLog = 0;
 static unsigned long lastMsg = -181000;
+static bool controllerInitialised = false;;
 
 
 SYSTEM_MODE(MANUAL);
@@ -93,6 +94,13 @@ void setup()
 void loop()
 {
 	unsigned long time = millis();
+
+	if (!controllerInitialised) {
+		if (Time.now() > 5000) {
+			controllerManager.loadControllersFromEEPROM();
+			controllerInitialised = true;
+		}
+	}
 
     // every second read actuator and sensor values
     if((time - lastRun) >= DURATION_RUN)
@@ -153,9 +161,6 @@ void applicationInit()
     screen.printStatusMessage("Initialise actuators and sensors");
     deviceManager.init();
     deviceManager.loadDevicesFromEEPROM();
-
-    screen.printStatusMessage("Initialise controllers");
-    controllerManager.loadControllersFromEEPROM();
 }
 
 /*******************************************************************************
