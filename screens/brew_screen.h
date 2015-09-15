@@ -27,6 +27,8 @@
 #ifndef BREW_SCREEN_H
 #define	BREW_SCREEN_H
 
+#ifdef CONFIG_BREW
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -51,6 +53,8 @@ D4D_EXTERN_OBJECT(scrBrew_togoBoil);
 
 #ifdef	__cplusplus
 }
+#endif
+
 #endif
 
 #endif	/* BREW_SCREEN_H */

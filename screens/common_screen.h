@@ -40,9 +40,12 @@ void updateLabel(D4D_OBJECT* pThis, D4D_CHAR* text);
 
     
 D4D_EXTERN_OBJECT(scr_btnInfo);
+#ifdef CONFIG_BREW
 D4D_EXTERN_OBJECT(scr_btnBrew);
+#endif
+#ifdef CONFIG_FERM
 D4D_EXTERN_OBJECT(scr_btnFerm);
-
+#endif
 
 #define D4D_DECLARE_STD_LABEL_RIGHT(name, text, x, y, cx, cy, fontId, bg, fg) \
     static D4D_STR_PROPERTIES name##_strPrties = { D4D_LBL_FNT_PRTY_DEFAULT, D4D_LBL_TXT_PRTY_RIGHT}; \

@@ -23,6 +23,8 @@
  ******************************************************************************
  */
 
+#ifdef CONFIG_FERM
+
 
 #include "d4d.h"
 #include "fonts.h"
@@ -73,3 +75,5 @@ static Byte ScreenFerm_OnObjectMsg(D4D_MESSAGE* pMsg)
     D4D_UNUSED(pMsg);
     return 0;
 }
+
+#endif

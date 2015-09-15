@@ -23,6 +23,7 @@
  ******************************************************************************
  */
 
+#ifdef CONFIG_BREW
 
 #include "d4d.h"
 #include "fonts.h"
@@ -120,3 +121,5 @@ static Byte ScreenBrew_OnObjectMsg(D4D_MESSAGE* pMsg)
     D4D_UNUSED(pMsg);
     return 0;
 }
+
+#endif

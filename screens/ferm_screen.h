@@ -27,6 +27,8 @@
 #ifndef FERM_SCREEN_H
 #define	FERM_SCREEN_H
 
+#ifdef CONFIG_FERM
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -39,6 +41,8 @@ D4D_EXTERN_OBJECT(scrFerm_Name);
 
 #ifdef	__cplusplus
 }
+#endif
+
 #endif
 
 #endif	/* FERM_SCREEN_H */

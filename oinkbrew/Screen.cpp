@@ -97,13 +97,17 @@ void Screen::showInformationScreen()
 
 void Screen::showBrewScreen()
 {
+#ifdef CONFIG_BREW
 	D4D_ActivateScreen(&screen_brew, D4D_TRUE);
 	updateBrewScreen();
+#endif
 }
 
 void Screen::showFermScreen()
 {
+#ifdef CONFIG_FERM
 	D4D_ActivateScreen(&screen_ferm, D4D_TRUE);
+#endif
 }
 
 void Screen::ticks()
@@ -126,12 +130,17 @@ void Screen::update(ScreenType screenType)
 	if (screenType == SCREEN_INFO && activeScreen == &screen_info) {
 		updateInformationScreen();
 	}
+#ifdef CONFIG_BREW
 	else if ((screenType == SCREEN_BREW || screenType == SCREEN_CONTROLLERS) && activeScreen == &screen_brew) {
 		updateBrewScreen();
 	}
+#endif
+#ifdef CONFIG_FERM
+
 	else if ((screenType == SCREEN_FERM || screenType == SCREEN_CONTROLLERS) && activeScreen == &screen_ferm) {
 		updateFermScreen();
 	}
+#endif
 
 #endif
 }
@@ -182,6 +191,7 @@ void updateInformationScreen()
 void updateBrewScreen()
 {
 #ifndef DEBUG_BUILD
+#ifdef CONFIG_BREW
 
     BrewController* controller = controllerManager.getBrewConfiguration(0);
 
@@ -313,13 +323,15 @@ void updateBrewScreen()
     		hasBeerController = false;
     	}
     }
-
+#endif
 #endif
 }
 
 void updateFermScreen()
 {
+#ifdef CONFIG_FERM
 
+#endif
 }
 
 void Screen::calibrateTouchScreen()
@@ -336,8 +348,12 @@ extern "C" void menuButtonClicked(D4D_OBJECT* pThis)
 {
 	if (pThis == &scr_btnInfo)
 		Screen::showInformationScreen();
+#ifdef CONFIG_BREW
 	else if (pThis == &scr_btnBrew)
 		Screen::showBrewScreen();
+#endif
+#ifdef CONFIG_FERM
 	else if (pThis == &scr_btnFerm)
 		Screen::showFermScreen();
+#endif
 }
