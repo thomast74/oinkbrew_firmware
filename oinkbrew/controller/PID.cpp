@@ -81,6 +81,7 @@ void PID::Update()
 
 	*myOutput = output;
 
+	/*
 	String debug("input: ");
 	debug.concat(input);
 	debug.concat(" ; error: ");
@@ -98,6 +99,7 @@ void PID::Update()
 	debug.concat(" ; pidResult: ");
 	debug.concat(pidResult);
 	Helper::serialDebug(debug.c_str());
+	*/
 
 	/*Remember some variables for next time*/
 	lastInput = input;
