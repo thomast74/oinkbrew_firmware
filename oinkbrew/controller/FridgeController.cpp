@@ -43,7 +43,7 @@ FridgeController::FridgeController(ControllerConfiguration& config)
 	this->setConfig(config);
 
 	pid->SetOutputLimits(-2, 100);
-	pid->SetTunings(10, 0.003, -10);
+	pid->SetTunings(10, 0.001, -30);
 }
 
 FridgeController::~FridgeController()
@@ -72,7 +72,7 @@ int FridgeController::doProcess()
 		if (this->output > 0) {
 			turnOnHeating();
 		}
-		else if(this->output < 0) {
+		else if(this->output <= 0) {
 			setIdle();
 		}
 	}
@@ -132,8 +132,6 @@ void FridgeController::turnOnCooling()
 		this->coolActuator->setActive(true);
 		deviceManager.setDeviceValue(this->coolActuator->getPin(), this->coolActuator->getHwAddress(), 1);
 		this->coolingOnTime = millis();
-		this->idleStartTime = 0;
-		this->coolingOffTime = 0;
 		this->state = COOLING;
 		Helper::serialDebug("Cooling turned on");
 	}
@@ -144,11 +142,11 @@ void FridgeController::setIdle()
 	this->heatActuator->setPwm(0);
 	deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), 0);
 
-	this->coolActuator->setActive(false);
-	deviceManager.setDeviceValue(this->coolActuator->getPin(), this->coolActuator->getHwAddress(), 0);
-	this->coolingOffTime = millis();
-	this->idleStartTime = 0;
-	this->coolingOnTime = 0;
+	if (this->coolActuator->isActive()) {
+		this->coolActuator->setActive(false);
+		deviceManager.setDeviceValue(this->coolActuator->getPin(), this->coolActuator->getHwAddress(), 0);
+		this->coolingOffTime = millis();
+	}
 
 	this->idleStartTime = millis();
 	this->state = IDLE;
