@@ -40,7 +40,8 @@ void BrewController::setConfig(ControllerConfiguration& config)
 	getPID()->SetOutputLimits(0, 100);
 
 	if (getConfig().temperature > 0) {
-		getPID()->SetMode(PID_AUTOMATIC)
+		getPID()->SetMode(PID_AUTOMATIC);
+		setTargetTemperature(getConfig().temperature);
 	}
 	else {
 		getPID()->SetMode(PID_MANUAL);

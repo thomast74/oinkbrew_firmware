@@ -65,6 +65,8 @@ void FridgeController::setConfig(ControllerConfiguration& config)
 	getPID()->SetOutputLimits(-2, 100);
 	getPID()->SetMode(PID_AUTOMATIC);
 
+	setTargetTemperature(getConfig().temperature);
+
 	turnOnFan();
 }
 

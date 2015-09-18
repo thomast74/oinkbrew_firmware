@@ -126,6 +126,11 @@ float Controller::getTargetTemperature()
 	return this->targetTemperature;
 }
 
+void Controller::setTargetTemperature(float target)
+{
+	this->targetTemperature = target;
+}
+
 PID * Controller::getPID()
 {
 	return this->pid;

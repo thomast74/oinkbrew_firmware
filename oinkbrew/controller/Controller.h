@@ -56,6 +56,7 @@ public:
 	virtual void update();
 
 	float getTargetTemperature();
+	void setTargetTemperature(float target);
 
 	int getId();
 
