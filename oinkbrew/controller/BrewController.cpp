@@ -30,31 +30,28 @@
 BrewController::BrewController(ControllerConfiguration& config)
 	: Controller()
 {
-	this->pid->SetOutputLimits(0, 100);
 	setConfig(config);
+}
+
+void BrewController::setConfig(ControllerConfiguration& config)
+{
+	Controller::setConfig(config);
+
+	getPID()->SetOutputLimits(0, 100);
+
+	if (getConfig().temperature > 0) {
+		getPID()->SetMode(PID_AUTOMATIC)
+	}
+	else {
+		getPID()->SetMode(PID_MANUAL);
+		turnOnHeater(getConfig().heaterPwm);
+	}
 }
 
 void BrewController::doProcess()
 {
-	heatActuator->setPwm(output);
-	deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), output);
-}
-
-void BrewController::update()
-{
-	heatActuator->updatePwm();
-}
-
-void BrewController::dispose()
-{
-	getHeatActuator()->setPwm(0);
-	heatActuator->updatePwm();
-	deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), 0);
-
-	delete heatActuator;
-}
-
-bool BrewController::isHeatActuatorActive()
-{
-	return this->heatActuator->isActive();
+	if (getConfig().temperature > 0)
+	{
+		turnOnHeater(getOutput());
+	}
 }

@@ -33,8 +33,6 @@
 
 
 const short MAX_CONTROLLERS = 3;
-const short MAX_PHASES = 10;
-const short MAX_FUNCTIONS = 8;
 
 
 struct ActingDevice
@@ -50,7 +48,6 @@ enum ControllerType : uint8_t
 	TYPE_FRIDGE = 2
 };
 
-
 struct ControllerConfiguration {
 	int id;
 	char name[31];
@@ -60,7 +57,11 @@ struct ControllerConfiguration {
 	ActingDevice coolActuator;
 	ActingDevice fanActuator;
 	float temperature;
-	uint8_t pwm;
+	float heaterPwm;
+	float fanPwm;
+	float p;
+	float i;
+	float d;
 };
 
 

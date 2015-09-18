@@ -191,8 +191,16 @@ void TcpListener::receiveConfiguration(const char * key, const char * val, void*
 		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->fanActuator, val);
 	else if (strcmp(key, "temperature") == 0)
 		pControllerRequest->temperature = (float) atoi(val) / 1000.0000;
-	else if (strcmp(key, "pwm") == 0)
-		pControllerRequest->pwm = atoi(val);
+	else if (strcmp(key, "heaterPwm") == 0)
+		pControllerRequest->heaterPwm = (float) atoi(val) / 1000.0000;
+	else if (strcmp(key, "fanPwm") == 0)
+		pControllerRequest->fanPwm = (float) atoi(val) / 1000.0000;
+	else if (strcmp(key, "p") == 0)
+		pControllerRequest->p = (float) atoi(val) / 1000.0000;
+	else if (strcmp(key, "i") == 0)
+		pControllerRequest->i = (float) atoi(val) / 1000.0000;
+	else if (strcmp(key, "d") == 0)
+		pControllerRequest->d = (float) atoi(val) / 1000.0000;
 }
 
 void TcpListener::parseActingDevice(ActingDevice* av, const char * key, const char * val)

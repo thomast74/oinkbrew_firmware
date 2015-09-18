@@ -34,6 +34,12 @@
 #include "ControllerConfiguration.h"
 #include "../devices/PwmActuator.h"
 
+enum ControllerState {
+	IDLE,
+	HEATING,
+	COOLING
+};
+
 
 class Controller
 {
@@ -41,22 +47,30 @@ public:
 	Controller();
 	virtual ~Controller();
 
+	virtual void dispose();
+
+	ControllerConfiguration& getConfig();
 	virtual void setConfig(ControllerConfiguration& config);
 
 	void process();
-	void update() { };
-	void dispose() { };
+	virtual void update();
+
+	float getTargetTemperature();
 
 	int getId();
-	ControllerConfiguration& getConfig();
-	void setTargetTemperature(float PointTemperature);
-	float getTargetTemperature();
 
 protected:
 	virtual void doProcess() { };
 
 	void setTempSensor(ActingDevice TempSensor);
 	void setHeatActuator(ActingDevice HeatActuator);
+
+	bool isHeaterOn();
+	virtual void turnOnHeater(float pwm);
+	virtual void turnOffHeater();
+
+	PID* getPID();
+	float getOutput();
 
 private:
 	ActingDevice tempSensor;

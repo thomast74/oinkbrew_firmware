@@ -38,9 +38,7 @@ class BrewController : public Controller
 public:
 	BrewController(ControllerConfiguration& config);
 
-	void update();
-	void dispose();
-	bool isHeatActuatorActive();
+	void setConfig(ControllerConfiguration& config);
 
 protected:
 	void doProcess();

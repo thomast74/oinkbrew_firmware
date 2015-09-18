@@ -33,17 +33,26 @@ FridgeController::FridgeController(ControllerConfiguration& config)
 	: Controller()
 {
 	this->state = IDLE;
-	this->idleStartTime = 0;
+
 	this->coolingOnTime = 0;
 	this->coolingOffTime = 0;
+
 	this->coolActuator = NULL;
 	this->fanActuator = NULL;
-	this->until = 0;
 
 	this->setConfig(config);
+}
 
-	pid->SetOutputLimits(-2, 100);
-	pid->SetTunings(10, 0.001, -15);
+void FridgeController::dispose()
+{
+	Controller::dispose();
+
+	turnOffHeater();
+	turnOffCooler();
+	turnOffFan();
+
+	delete this->coolActuator;
+	delete this->fanActuator;
 }
 
 void FridgeController::setConfig(ControllerConfiguration& config)
@@ -52,108 +61,102 @@ void FridgeController::setConfig(ControllerConfiguration& config)
 
 	this->setCoolActuator(this->config.coolActuator);
 	this->setFanActuator(this->config.fanActuator);
+
+	getPID()->SetOutputLimits(-2, 100);
+	getPID()->SetMode(PID_AUTOMATIC);
+
+	turnOnFan();
 }
 
 void FridgeController::doProcess()
 {
+	float output = getOutput();
+
 	if (this->state == COOLING)
 	{
 		if ((millis() - this->coolingOnTime) > MIN_COOL_ON_TIME) {
-			if (this->output >= 0 || (millis() - this->coolingOnTime) > MAX_COOL_ON_TIME) {
+			if (output >= 0 || (millis() - this->coolingOnTime) > MAX_COOL_ON_TIME) {
 				setIdle();
 			}
 		}
 	}
 	else if (this->state == HEATING) {
-		if (this->output > 0) {
-			turnOnHeating();
+		if (output > 0) {
+			turnOnHeater(output);
 		}
-		else if(this->output <= 0) {
+		else if(output < 0) {
+			turnOnCooler();
+		}
+		else {
 			setIdle();
 		}
 	}
 	else if (this->state == IDLE) {
-		if (this->output > 0) {
-			turnOnHeating();
+		if (output > 0) {
+			turnOnHeater(output);
 		}
-		else if (this->output < 0) {
-			turnOnCooling();
+		else if (output < 0) {
+			turnOnCooler();
 		}
 	}
 }
 
-void FridgeController::update()
+void FridgeController::turnOnHeater(float pwm)
 {
-	this->heatActuator->updatePwm();
-}
+	Controller::turnOnHeater(pwm);
 
-void FridgeController::dispose()
-{
-	this->heatActuator->setPwm(0);
-	deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), 0);
-	this->heatActuator->updatePwm();
-
-	this->coolActuator->setActive(false);
-	deviceManager.setDeviceValue(this->coolActuator->getPin(), this->coolActuator->getHwAddress(), 0);
-
-	this->fanActuator->setPwm(0);
-	deviceManager.setDeviceValue(this->coolActuator->getPin(), this->coolActuator->getHwAddress(), 0);
-
-	delete this->heatActuator;
-	delete this->coolActuator;
-	delete this->fanActuator;
-}
-
-void FridgeController::turnOnHeating()
-{
-	this->heatActuator->setPwm(output);
-	deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), output);
 	this->state = HEATING;
 }
 
-void FridgeController::turnOnCooling()
+void FridgeController::turnOnCooler()
 {
 	if (!this->coolActuator->isActive() && (millis() - this->coolingOffTime) > MIN_COOL_OFF_TIME) {
-		this->heatActuator->setPwm(0);
-		deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), 0);
+		turnOffHeater();
 
 		this->coolActuator->setActive(true);
-		deviceManager.setDeviceValue(this->coolActuator->getPin(), this->coolActuator->getHwAddress(), 1);
 		this->coolingOnTime = millis();
+
+		deviceManager.setDeviceValue(this->coolActuator->getPin(), this->coolActuator->getHwAddress(), 1);
+
 		this->state = COOLING;
-		Helper::serialDebug("Cooling turned on");
 	}
+}
+
+void FridgeController::turnOffCooler()
+{
+	if (this->coolActuator->isActive()) {
+		this->coolActuator->setActive(false);
+		this->coolingOffTime = millis();
+
+		deviceManager.setDeviceValue(this->coolActuator->getPin(), this->coolActuator->getHwAddress(), 0);
+	}
+}
+
+void FridgeController::turnOnFan()
+{
+	this->fanActuator->setPwm(getConfig().fanPwm);
+}
+
+void FridgeController::turnOffFan()
+{
+	this->fanActuator->setPwm(LOW);
 }
 
 void FridgeController::setIdle()
 {
-	this->heatActuator->setPwm(0);
-	deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), 0);
+	turnOffHeater();
+	turnOffCooler();
 
-	if (this->coolActuator->isActive()) {
-		this->coolActuator->setActive(false);
-		deviceManager.setDeviceValue(this->coolActuator->getPin(), this->coolActuator->getHwAddress(), 0);
-		this->coolingOffTime = millis();
-	}
-
-	this->idleStartTime = millis();
 	this->state = IDLE;
 }
 
 void FridgeController::setCoolActuator(ActingDevice CoolActuator)
 {
-	Helper::serialDebug("set Cool Actuator", false);
-	Helper::serialDebug(CoolActuator.pin_nr);
-
 	this->coolActuator = new DigitalActuator(CoolActuator.pin_nr, CoolActuator.hw_address, false);
 }
 
 void FridgeController::setFanActuator(ActingDevice FanActuator)
 {
-	Helper::serialDebug("set Fan Actuator", false);
-	Helper::serialDebug(FanActuator.pin_nr);
-
 	this->fanActuator = new PwmActuator(FanActuator.pin_nr, FanActuator.hw_address, 0, false);
-	this->fanActuator->setMinMax(0, 255);
-	this->fanActuator->setPwm(FAN_HIGH);
+	this->fanActuator->setMinMax(LOW, HIGH);
 }

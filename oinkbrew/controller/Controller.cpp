@@ -33,22 +33,24 @@
 
 Controller::Controller()
 {
-	this->output = 0.0;
-	this->targetTemperature = 0.0;
-	this->currentTemperature = 0.0;
 	this->pid = NULL;
 	this->heatActuator = NULL;
 
-	this->pid = new PID(&currentTemperature, &output, &targetTemperature, 10, 0.001, -5, PID_DIRECT);
+	this->output = 0.0;
+	this->targetTemperature = 0.0;
+	this->currentTemperature = 0.0;
 }
 
 Controller::~Controller()
 {
 }
 
-int Controller::getId()
+void Controller::dispose()
 {
-	return this->config.id;
+	turnOffHeater();
+
+	delete this->heatActuator;
+	delete this->pid;
 }
 
 void Controller::setConfig(ControllerConfiguration& config)
@@ -57,6 +59,8 @@ void Controller::setConfig(ControllerConfiguration& config)
 
 	setTempSensor(this->config.tempSensor);
 	setHeatActuator(this->config.heatActuator);
+
+	this->pid = new PID(&currentTemperature, &output, &targetTemperature, this->config.p, this->config.i, this->config.d, PID_DIRECT);
 }
 
 ControllerConfiguration& Controller::getConfig()
@@ -67,7 +71,7 @@ ControllerConfiguration& Controller::getConfig()
 void Controller::process()
 {
 	if (pid->GetMode() == PID_MANUAL)
-		pid->SetMode(PID_AUTOMATIC);
+		return;
 
 	Device tempSensorDevice;
 	deviceManager.getDevice(this->tempSensor.pin_nr, this->tempSensor.hw_address, tempSensorDevice);
@@ -81,6 +85,11 @@ void Controller::process()
 	}
 }
 
+void Controller::update()
+{
+	this->heatActuator->updatePwm();
+}
+
 void Controller::setTempSensor(ActingDevice activeDevice)
 {
 	memcpy(&this->tempSensor, &activeDevice, sizeof(ActingDevice));
@@ -91,12 +100,43 @@ void Controller::setHeatActuator(ActingDevice actingDevicer)
 	this->heatActuator = new PwmActuator(actingDevicer.pin_nr, actingDevicer.hw_address, 0);
 }
 
-void Controller::setTargetTemperature(float temperature)
+bool Controller::isHeaterOn()
 {
-	this->targetTemperature = temperature;
+	return this->heatActuator->isActive();
+}
+
+void Controller::turnOnHeater(float pwm)
+{
+	this->heatActuator->setPwm(pwm);
+	deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), pwm);
+}
+
+void Controller::turnOffHeater()
+{
+	if (isHeaterOn()) {
+		this->heatActuator->setPwm(0.0);
+		this->heatActuator->updatePwm();
+
+		deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), 0);
+	}
 }
 
 float Controller::getTargetTemperature()
 {
 	return this->targetTemperature;
+}
+
+PID * Controller::getPID()
+{
+	return this->pid;
+}
+
+int Controller::getId()
+{
+	return this->config.id;
+}
+
+float Controller::getOutput()
+{
+	return this->output;
 }
