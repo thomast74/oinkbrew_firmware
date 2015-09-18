@@ -49,8 +49,6 @@ void StatusMessage::send() {
     jsonMessage.concat(Spark.deviceID().c_str());
     jsonMessage.concat("\",\"datetime\":");
     jsonMessage.concat(Time.now());
-    jsonMessage.concat(",\"device_mode\":\"");
-    jsonMessage.concat(sparkInfo.mode);
     jsonMessage.concat("\", \"firmware_version\":\"");
     jsonMessage.concat(OINK_BREW_VERSION);
     jsonMessage.concat("\",\"ip_address\":\"");

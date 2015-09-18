@@ -38,11 +38,9 @@ public:
     void init();
     bool connected();
 private:
-    void resetSettings();
+    void reset();
     bool processRequest(char action);
-    
-    void updateFirmware();
-    
+
     typedef void (*ParseJsonCallback)(const char* key, const char* val, void* data);
     typedef void (*ParseActingDeviceCallback)(ActingDevice* av, const char * key, const char * val);
 
@@ -51,13 +49,11 @@ private:
     bool parseJsonToken(char* val);
     int readNext();
     static void parseActingDeviceString(ParseActingDeviceCallback fn, ActingDevice* av, const char * data);
-    static void parseFunctionsString(ActingDevice *functions, const char * data);
-    static void parseTempPhasesString(TemperaturePhase *tempPhases, const char * data);
     
-    static void processSparkInfo(const char * key, const char * val, void* pv);
+    static void processDeviceInfo(const char * key, const char * val, void* pv);
     static void setDeviceMode(const char * key, const char * val, void* pv);
     static void receiveDeviceRequest(const char * key, const char * val, void* pv);
-    static void receiveControllerRequest(const char * key, const char * val, void* pv);
+    static void receiveConfiguration(const char * key, const char * val, void* pv);
     static void parseActingDevice(ActingDevice* av, const char * key, const char * val);
 };
 

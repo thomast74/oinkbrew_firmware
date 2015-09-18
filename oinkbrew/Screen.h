@@ -31,10 +31,7 @@
 
 enum ScreenType : uint8_t
 {
-	SCREEN_INFO = 0,
-	SCREEN_BREW = 1,
-	SCREEN_FERM = 2,
-	SCREEN_CONTROLLERS = 3
+	SCREEN_INFO = 0
 };
 
 struct Screen {
@@ -58,23 +55,6 @@ struct Screen {
     static void showInformationScreen();
 
     /**
-     * Display the brew page and allow the user to see the current brew sensor information
-     */
-    static void showBrewScreen();
-
-    /**
-     * Display the Ferm 1  page and allow the user to see the current 
-     * fermentation chamber 1 sensor data
-     */
-    static void showFermScreen();
-
-    /**
-     * Display the Ferm 2  page and allow the user to see the current 
-     * fermentation chamber 1 sensor data
-     */
-    static void showFerm2Screen();
-
-    /**
      * Called as often as possible by the application. Allows the UI to peform
      * quick background tasks, such as reading the touch screen.
      */
@@ -84,7 +64,7 @@ struct Screen {
      * Called from the main loop to update the current page and perform event
      * processing.
      */
-    static void update(ScreenType screenType);
+    static void update();
 
     /**
      * Show touch screen calibration screen store settings afterwards

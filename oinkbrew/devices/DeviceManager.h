@@ -47,41 +47,25 @@ struct DeviceRequest {
 
 class DeviceManager {
 private:
-	static ActiveDevice activeDevices[MAX_DEVICES];
+	static Device activeDevices[MAX_DEVICES];
 	static short registered_devices;
 public:
 	static void init();
-	static void loadDevicesFromEEPROM();
-	static short noRegisteredDevices();
-	static void getDevice(short index, ActiveDevice& active);
-	static void getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, ActiveDevice& active);
 	static void readValues();
 	static bool findNewDevices();
 
-	static void removeDevice(DeviceRequest& deviceRequest, char* response);
+	static void getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Device& active);
 	static bool removeDevice(uint8_t& pin_nr, DeviceAddress& hw_address);
+	static void clearDevices();
 
-	static void clearActiveDevices();
-
-	static void sendDevice(TCPClient& client, DeviceRequest& deviceRequest);
-	static void searchAndSendDeviceList(TCPClient& client);
-	static void toggleActuator(DeviceRequest& deviceRequest, char* response);
 	static void setOffset(DeviceRequest& deviceRequest);
-	static void setDeviceType(uint8_t& pin_nr, DeviceAddress& hw_address, DeviceType type);
 	static void setDeviceValue(uint8_t& pin_nr, DeviceAddress& hw_address, float value);
 	static const char* getDeviceTemperatureJson();
 private:
-	static void processActuators(Device devices[], ActiveDevice activeDevices[], uint8_t& slot);
-	static void processOneWire(Device devices[], ActiveDevice activeDevices[], uint8_t& slot);
-
-	static void fetchDeviceFromConfig(Device& device);
+	static void processActuators(Device devices[], uint8_t& slot);
+	static void processOneWire(Device devices[], uint8_t& slot);
 
 	static int8_t enumerateActuatorPins(uint8_t offset);
-
-	static void printDevice(TCPClient& client, Device& device, ActiveDevice& active, bool& first);
-	static void printTouple(TCPClient& client, const char* name, const char* value, bool first);
-	static void printTouple(TCPClient& client, const char* name, int32_t value, bool first);
-	static void printTouple(TCPClient& client, const char* name, bool value, bool first);
 };
 
 extern DeviceManager deviceManager;

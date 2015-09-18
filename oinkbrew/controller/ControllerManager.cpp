@@ -28,7 +28,6 @@
 #include "ControllerConfiguration.h"
 #include "BrewController.h"
 #include "FridgeController.h"
-#include "../Configuration.h"
 #include "../Helper.h"
 #include "../SparkInfo.h"
 #include "../TcpLogger.h"
@@ -39,142 +38,34 @@ short ControllerManager::registered_controllers = 0;
 
 void ControllerManager::process()
 {
-	if (sparkInfo.mode != SPARK_MODE_AUTOMATIC)
-		return;
-
 	for(short i=0; i < registered_controllers; i++)
 	{
-		int tempPhaseId = active_controllers[i]->process();
-		if (tempPhaseId > 0) {
-			conf.storeController(active_controllers[i]->getConfig());
-			logger.logTemperaturePhase(active_controllers[i]->getId(), active_controllers[i]->getConfig().temperaturePhases[tempPhaseId]);
-		}
+		active_controllers[i]->process();
 	}
 }
 
 void ControllerManager::update()
 {
-	if (sparkInfo.mode != SPARK_MODE_AUTOMATIC)
-		return;
-
 	for(short i=0; i < registered_controllers; i++)
 	{
 		active_controllers[i]->update();
 	}
 }
 
-void ControllerManager::loadControllersFromEEPROM()
-{
-	registered_controllers = 0;
-	short stored_controllers = conf.fetchNumberControllers();
-	ControllerConfiguration configs[stored_controllers];
-
-	conf.fetchControllers(configs);
-
-	Helper::serialDebug("Reg Controllers: ", false);
-	Helper::serialDebug(stored_controllers);
-
-	// add controllers for each configuration
-	for(short i=0; i < stored_controllers; i++) {
-		if (configs[i].type == TYPE_BREW) {
-			Helper::serialDebug("Create Brew Controller: ", false);
-			Helper::serialDebug(configs[i].id);
-
-			active_controllers[registered_controllers] = new BrewController(configs[i]);
-			registered_controllers++;
-		}
-		else if (configs[i].type == TYPE_FRIDGE) {
-			Helper::serialDebug("Create Fridge Controller: ", false);
-			Helper::serialDebug(configs[i].id);
-
-			bool phasesWrong = false;
-			for(int j=1;j < (MAX_PHASES-1); j++) {
-				if (configs[i].temperaturePhases[j].time > configs[i].temperaturePhases[j+1].time) {
-					phasesWrong = true;
-					j++;
-					configs[i].temperaturePhases[j].time = configs[i].temperaturePhases[j-1].time + 7776000;
-					configs[i].temperaturePhases[j].targetTemperature = 0;
-					j++;
-					for(;j < (MAX_PHASES-1); j++) {
-						configs[i].temperaturePhases[j].time = 0;
-						configs[i].temperaturePhases[j].targetTemperature = 0;
-					}
-				}
-			}
-
-			if (phasesWrong) {
-				conf.storeController(configs[i]);
-			}
-
-			active_controllers[registered_controllers] = new FridgeController(configs[i]);
-			registered_controllers++;
-		}
-		else {
-			Helper::serialDebug("Unknown controller: ", false);
-			Helper::serialDebug(configs[i].type);
-			conf.removeController(configs[i]);
-		}
-	}
-}
-
-BrewController* ControllerManager::getBrewConfiguration(int noBrew)
-{
-	short brews = 0;
-
-	for(int i=0; i < registered_controllers; i++) {
-		if (active_controllers[i]->getConfig().type == TYPE_BREW) {
-
-			if (brews == noBrew) {
-				return (BrewController*)active_controllers[i];
-			}
-
-			brews++;
-		}
-	}
-
-	return 0;
-}
-
-FridgeController* ControllerManager::getFridgeConfiguration(int noFridge)
-{
-	short fridges = 0;
-
-	for(int i=0; i < registered_controllers; i++) {
-		if (active_controllers[i]->getConfig().type == TYPE_FRIDGE) {
-
-			if (fridges == noFridge) {
-				return (FridgeController*)active_controllers[i];
-			}
-
-			fridges++;
-		}
-	}
-
-	return 0;
-}
-
 bool ControllerManager::changeController(ControllerConfiguration request)
 {
-	String debug("Add or update controller: ");
-	debug.concat(request.id);
-	debug.concat(" -> ");
-	debug.concat(request.type);
-	Helper::serialDebug(debug.c_str());
-
 	int index = findController(request.id);
 
 	if (index >= 0) {
-		Helper::serialDebug("Updating existing controller");
+		active_controllers[index]->dispose();
 		active_controllers[index]->setConfig(request);
 	}
 	else {
 		if (request.type == TYPE_BREW) {
-			Helper::serialDebug("Create Brew Controller");
 			active_controllers[registered_controllers] = new BrewController(request);
 			registered_controllers++;
 		}
 		else if (request.type == TYPE_FRIDGE) {
-			Helper::serialDebug("Create Fridge Controller");
 			active_controllers[registered_controllers] = new FridgeController(request);
 			registered_controllers++;
 		}
@@ -183,16 +74,11 @@ bool ControllerManager::changeController(ControllerConfiguration request)
 		}
 	}
 
-	conf.storeController(request);
-
 	return true;
 }
 
 bool ControllerManager::removeController(int id)
 {
-	Helper::serialDebug("Remove controller: ", false);
-	Helper::serialDebug(id);
-
 	Controller* new_active_controllers[MAX_CONTROLLERS] = {};
 	bool removed = false;
 	short new_registered_controllers = 0;
@@ -203,7 +89,6 @@ bool ControllerManager::removeController(int id)
 			active_controllers[i]->dispose();
 			delete active_controllers[i];
 
-			conf.removeController(active_controllers[i]->getConfig());
 			removed = true;
 		}
 		else {

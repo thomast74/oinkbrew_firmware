@@ -36,34 +36,14 @@
 class BrewController : public Controller
 {
 public:
-	BrewController(ControllerConfiguration& config)
-		: Controller()
-	{
-		this->pid->SetOutputLimits(0, 100);
-		this->temperatureReached = false;
-		this->startTime = 0;
-		this->duration = 0;
-
-		setConfig(config);
-	}
-
-	~BrewController() {
-	}
+	BrewController(ControllerConfiguration& config);
 
 	void update();
 	void dispose();
-	unsigned long timeToGo();
 	bool isHeatActuatorActive();
-	bool isTemperatureReached();
 
 protected:
-	int doProcess();
-	int calculateTargetTemperature();
-
-private:
-	bool temperatureReached;
-	unsigned long startTime;
-	unsigned long duration;
+	void doProcess();
 };
 
 

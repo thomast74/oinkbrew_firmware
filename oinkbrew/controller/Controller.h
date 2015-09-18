@@ -43,35 +43,30 @@ public:
 
 	virtual void setConfig(ControllerConfiguration& config);
 
-	int process();
-
-	virtual void update() { };
-	virtual void dispose() { };
+	void process();
+	void update() { };
+	void dispose() { };
 
 	int getId();
 	ControllerConfiguration& getConfig();
 	void setTargetTemperature(float PointTemperature);
 	float getTargetTemperature();
-	bool isFinished();
 
 protected:
-	virtual int doProcess() { return 0; };
-
+	virtual void doProcess() { };
 
 	void setTempSensor(ActingDevice TempSensor);
 	void setHeatActuator(ActingDevice HeatActuator);
 
-	virtual int calculateTargetTemperature() { return 0; };
-
+private:
 	ActingDevice tempSensor;
 	PwmActuator* heatActuator;
-
 	ControllerConfiguration config;
+
 	float targetTemperature;
 	float currentTemperature;
 	float output;
 	PID* pid;
-	bool finished;
 };
 
 #endif /* OINKBREW_CONTROLLER_CONTROLLER_H_ */

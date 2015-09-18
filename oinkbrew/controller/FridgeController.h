@@ -35,7 +35,7 @@ const unsigned long MIN_COOL_ON_TIME = 60000;	// 1 minutes
 const unsigned long MAX_COOL_ON_TIME = 120000;	// 2 minutes
 const unsigned long WAIT_FAN_ON_TIME = 30000;	// 30 seconds
 const uint8_t FAN_LOW = 80;
-const uint8_t FAN_HIGH = 200;
+const uint8_t FAN_HIGH = 255;
 
 
 enum State {
@@ -56,21 +56,18 @@ private:
 	long until;
 public:
 	FridgeController(ControllerConfiguration& config);
-	~FridgeController();
 
 	void setConfig(ControllerConfiguration& config);
 	void update();
 	void dispose();
 
 protected:
-	int doProcess();
-	int calculateTargetTemperature();
+	void doProcess();
 
 private:
 	void turnOnHeating();
 	void turnOnCooling();
 	void setIdle();
-	void checkFanActivity();
 	void setCoolActuator(ActingDevice CoolActuator);
 	void setFanActuator(ActingDevice FanActuator);
 };

@@ -43,11 +43,7 @@ FridgeController::FridgeController(ControllerConfiguration& config)
 	this->setConfig(config);
 
 	pid->SetOutputLimits(-2, 100);
-	pid->SetTunings(10, 0.001, -30);
-}
-
-FridgeController::~FridgeController()
-{
+	pid->SetTunings(10, 0.001, -15);
 }
 
 void FridgeController::setConfig(ControllerConfiguration& config)
@@ -58,7 +54,7 @@ void FridgeController::setConfig(ControllerConfiguration& config)
 	this->setFanActuator(this->config.fanActuator);
 }
 
-int FridgeController::doProcess()
+void FridgeController::doProcess()
 {
 	if (this->state == COOLING)
 	{
@@ -84,14 +80,6 @@ int FridgeController::doProcess()
 			turnOnCooling();
 		}
 	}
-
-	checkFanActivity();
-
-	if (this->until < Time.now()) {
-		return this->calculateTargetTemperature();
-	}
-
-	return 0;
 }
 
 void FridgeController::update()
@@ -152,29 +140,12 @@ void FridgeController::setIdle()
 	this->state = IDLE;
 }
 
-void FridgeController::checkFanActivity()
-{
-	if (this->state == IDLE) {
-		if (this->fanActuator->getPwm() != FAN_LOW && (millis() - this->idleStartTime) > WAIT_FAN_ON_TIME) {
-			this->fanActuator->setPwm(FAN_LOW);
-			deviceManager.setDeviceValue(this->fanActuator->getPin(), this->fanActuator->getHwAddress(), FAN_LOW);
-		}
-	}
-	else {
-		if (this->fanActuator->getPwm() != FAN_HIGH) {
-			this->fanActuator->setPwm(FAN_HIGH);
-			deviceManager.setDeviceValue(this->fanActuator->getPin(), this->fanActuator->getHwAddress(), FAN_HIGH);
-		}
-	}
-}
-
 void FridgeController::setCoolActuator(ActingDevice CoolActuator)
 {
 	Helper::serialDebug("set Cool Actuator", false);
 	Helper::serialDebug(CoolActuator.pin_nr);
 
 	this->coolActuator = new DigitalActuator(CoolActuator.pin_nr, CoolActuator.hw_address, false);
-	deviceManager.setDeviceType(CoolActuator.pin_nr, CoolActuator.hw_address, DEVICE_HARDWARE_ACTUATOR_DIGITAL);
 }
 
 void FridgeController::setFanActuator(ActingDevice FanActuator)
@@ -184,42 +155,5 @@ void FridgeController::setFanActuator(ActingDevice FanActuator)
 
 	this->fanActuator = new PwmActuator(FanActuator.pin_nr, FanActuator.hw_address, 0, false);
 	this->fanActuator->setMinMax(0, 255);
-	this->fanActuator->setPwm(FAN_LOW);
-	deviceManager.setDeviceType(FanActuator.pin_nr, FanActuator.hw_address, DEVICE_HARDWARE_ACTUATOR_PWM);
-}
-
-int FridgeController::calculateTargetTemperature()
-{
-	Helper::serialDebug("Calculate target temperature");
-	long now = Time.now();
-
-	for(int i=1; i < (MAX_PHASES-1); i++) {
-
-		if (this->config.temperaturePhases[i].time < now &&
-            this->config.temperaturePhases[i+1].time > now) {
-
-			String debug("New Target Temperature ");
-			debug.concat(i);
-			debug.concat(": ");
-			debug.concat(this->config.temperaturePhases[i+1].time);
-			debug.concat(" ( ");
-			debug.concat(now);
-			debug.concat(" ) -> ");
-			debug.concat(this->config.temperaturePhases[i].targetTemperature);
-			Helper::serialDebug(debug.c_str());
-
-			this->until = this->config.temperaturePhases[i+1].time;
-			setTargetTemperature(this->config.temperaturePhases[i].targetTemperature);
-
-			return (i-1);
-		}
-	}
-
-	Helper::serialDebug("Finished");
-
-	this->finished = true;
-	setTargetTemperature(0);
-	this->until = 0;
-
-	return 0;
+	this->fanActuator->setPwm(FAN_HIGH);
 }

@@ -38,62 +38,15 @@ enum DeviceType : uint8_t
 	DEVICE_HARDWARE_ONEWIRE_TEMP = 3,		// a onewire temperature sensor
 };
 
-enum DeviceFunction : uint8_t
-{
-	DEVICE_FUNCTION_NONE = 0,
-	DEVICE_FUNCTION_FRIDGE_COOLING_ACTUATOR = 1,
-	DEVICE_FUNCTION_FRIDGE_HEATING_ACTUATOR = 2,
-	DEVICE_FUNCTION_FRIDGE_FAN_ACTUATOR = 3,
-
-	DEVICE_FUNCTION_HLT_HEATING_ACTUATOR = 4,
-	DEVICE_FUNCTION_BOIL_HEATING_ACTUATOR = 5,
-	DEVICE_FUNCTION_PUMP_1_ACTUATOR = 6,
-	DEVICE_FUNCTION_PUMP_2_ACTUATOR = 7,
-
-	DEVICE_FUNCTION_FRIDGE_BEER_1_TEMP_SENSOR = 8,
-	DEVICE_FUNCTION_FRIDGE_BEER_2_TEMP_SENSOR = 9,
-	DEVICE_FUNCTION_FRIDGE_BEER_3_TEMP_SENSOR = 10,
-	DEVICE_FUNCTION_FRIDGE_INSIDE_TEMP_SENSOR = 11,
-	DEVICE_FUNCTION_FRIDGE_OUTSIDE_TEMP_SENSOR = 12,
-
-    DEVICE_FUNCTION_HLT_IN_TEMP_SENSOR = 13,
-    DEVICE_FUNCTION_HLT_INSIDE_TEMP_SENSOR = 14,
-    DEVICE_FUNCTION_HLT_OUT_TEMP_SENSOR = 15,
-    DEVICE_FUNCTION_MASH_IN_TEMP_SENSOR = 16,
-    DEVICE_FUNCTION_MASH_INSIDE_TEMP_SENSOR = 17,
-    DEVICE_FUNCTION_MASH_OUT_TEMP_SENSOR = 18,
-    DEVICE_FUNCTION_BOIL_IN_TEMP_SENSOR = 19,
-    DEVICE_FUNCTION_BOIL_INSIDE_TEMP_SENSOR = 20,
-    DEVICE_FUNCTION_BOIL_OUT_TEMP_SENSOR = 21
-};
-
-struct ActiveDevice
+struct Device
 {
 	uint8_t pin_nr;
 	DeviceAddress hw_address;
 	DeviceType type;
-	DeviceFunction function;
 	float value;
 	float offset;
 	bool newly_found;
 	unsigned long lastSeen;
-};
-
-struct Device
-{
-
-	DeviceType type;
-	DeviceFunction function;
-
-	struct Hardware
-	{
-		uint8_t pin_nr;		// the arduino pin nr this device is connected to
-		DeviceAddress hw_address;// for onewire devices, if address[0]==0 then use the first matching device type, otherwise use the device with the specific address
-		float offset;			// calibrated offset for temperatur sensor
-		bool is_invert;	// for actuators/sensors, controls if the signal value is inverted.
-		bool is_deactivate;	// In case device is deactivated. no logging or data collection will be done
-	} hardware;
-	bool reserved;
 };
 
 #endif	/* DEVICE_H */

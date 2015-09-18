@@ -24,7 +24,6 @@
  */
 
 #include "TcpListener.h"
-#include "Configuration.h"
 #include "devices/DeviceManager.h"
 #include "controller/ControllerManager.h"
 #include "controller/ControllerConfiguration.h"
@@ -75,8 +74,6 @@ bool TcpListener::connected()
 
 bool TcpListener::processRequest(char action)
 {
-	char response[50];
-
 	Helper::serialDebug("Action: ", false);
 	Helper::serialDebug(action);
 
@@ -86,98 +83,57 @@ bool TcpListener::processRequest(char action)
 	case '\n':
 	case '\r':
 		break;
-	// request one sensor data
-	case 'a':
-		DeviceRequest dr1;
-		parseJson(&TcpListener::receiveDeviceRequest, &dr1);
-		deviceManager.sendDevice(client, dr1);
-		client.write(ACK);
-		break;
-	// request the device list
-	case 'd':
-		deviceManager.searchAndSendDeviceList(client);
-		client.write(ACK);
-		break;
-	// remove device from Spark
-	case 'e':
-		DeviceRequest dr2;
-		parseJson(&TcpListener::receiveDeviceRequest, &dr2);
-		deviceManager.removeDevice(dr2, response);
-		client.write(response);
-		break;
-	// receive new firmware
-	case 'f':
-		updateFirmware();
-		break;
-	// receive and set device mode
-	case 'm':
-		parseJson(&TcpListener::processSparkInfo, NULL);
-		conf.storeSparkInfo();
-		client.write("Ok");
-		return true;
 	// set offset for temp sensor
 	case 'o':
 		DeviceRequest dr3;
 		parseJson(&TcpListener::receiveDeviceRequest, &dr3);
 		deviceManager.setOffset(dr3);
-		client.write(ACK);
-		delay(50);
+		client.write("Ok");
+		delay(100);
 		break;
 	// add or update a current configuration
 	case 'p':
 		ControllerConfiguration cr1;
-		parseJson(&TcpListener::receiveControllerRequest, &cr1);
+		parseJson(&TcpListener::receiveConfiguration, &cr1);
 		controllerManager.changeController(cr1);
-		client.write("!");
-		delay(50);
+		client.write("Ok");
+		delay(100);
 		break;
 	// remove a configuration
 	case 'q':
 		ControllerConfiguration cr2;
-		parseJson(&TcpListener::receiveControllerRequest, &cr2);
+		parseJson(&TcpListener::receiveConfiguration, &cr2);
 		controllerManager.removeController(cr2.id);
-		client.write("!");
-		delay(50);
-		break;
-	// reset settings
-	case 'r':
-		resetSettings();
 		client.write("Ok");
+		delay(100);
+		break;
+	// reset
+	case 'r':
+		client.write("Ok");
+		delay(100);
+		System.reset();
 		return true;
 	// receive and process spark info
 	case 's':
-		parseJson(&TcpListener::processSparkInfo, NULL);
-		conf.storeSparkInfo();
+		parseJson(&TcpListener::processDeviceInfo, NULL);
+		sparkInfo.received = true;
 		client.write("Ok");
 		return true;
-	// toggle actuator
-	case 't':
-		DeviceRequest dr4;
-		parseJson(&TcpListener::receiveDeviceRequest, &dr4);
-		deviceManager.toggleActuator(dr4, response);
-		client.write(response);
-		break;
 	// bootloader mode
 	case '$':
+		client.write("Ok");
+		delay(100);
 		System.bootloader();
-		break;
-	// reset spark
-	case '!':
-		System.reset();
 		break;
 	}
 
 	return false;
 }
 
-void TcpListener::processSparkInfo(const char * key, const char * val, void* pv)
+void TcpListener::processDeviceInfo(const char * key, const char * val, void* pv)
 {
 	if (strcmp(key, "name") == 0)
 		memcpy(&sparkInfo.name, val, strlen(val) + 1);
-	else if (strcmp(key, "mode") == 0)
-		sparkInfo.mode = val[0];
-	else if (strcmp(key, "tempType") == 0)
-		sparkInfo.tempType = val[0];
 	else if (strcmp(key, "oinkweb") == 0) {
 		uint8_t address[4];
 		Helper::getRawIp(val, address);
@@ -187,32 +143,6 @@ void TcpListener::processSparkInfo(const char * key, const char * val, void* pv)
 	else if (strcmp(key, "datetime") == 0) {
 		Time.setTime(atoi(val));
 	}
-}
-
-void TcpListener::setDeviceMode(const char * key, const char * val, void* pv)
-{
-	if (strcmp(key, "mode") == 0) {
-		sparkInfo.mode = val[0];
-	}
-}
-
-void TcpListener::resetSettings()
-{
-	memcpy(&sparkInfo.name, "", 1);
-	sparkInfo.mode = 'M';
-	sparkInfo.tempType = 'C';
-	sparkInfo.oinkWeb[0] = 0;
-	sparkInfo.oinkWeb[1] = 0;
-	sparkInfo.oinkWeb[2] = 0;
-	sparkInfo.oinkWeb[3] = 0;
-	sparkInfo.oinkWebPort = 80;
-
-	conf.storeSparkInfo();
-	conf.removeDevices();
-	conf.removeControllers();
-	deviceManager.clearActiveDevices();
-
-	System.reset();
 }
 
 void TcpListener::receiveDeviceRequest(const char * key, const char * val, void* pv)
@@ -241,14 +171,9 @@ void TcpListener::receiveDeviceRequest(const char * key, const char * val, void*
 	}
 }
 
-void TcpListener::receiveControllerRequest(const char * key, const char * val, void* pv)
+void TcpListener::receiveConfiguration(const char * key, const char * val, void* pv)
 {
 	ControllerConfiguration *pControllerRequest = static_cast<ControllerConfiguration*>(pv);
-
-	String debug(key);
-	debug.concat(":");
-	debug.concat(val);
-	Helper::serialDebug(debug.c_str());
 
 	if (strcmp(key, "config_id") == 0)
 		pControllerRequest->id = atoi(val);
@@ -264,10 +189,10 @@ void TcpListener::receiveControllerRequest(const char * key, const char * val, v
 		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->coolActuator, val);
 	else if (strcmp(key, "fan_actuator") == 0)
 		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->fanActuator, val);
-	else if (strcmp(key, "temp_phases") == 0)
-		parseTempPhasesString(pControllerRequest->temperaturePhases, val);
-	else if (strcmp(key, "functions") == 0)
-		parseFunctionsString(pControllerRequest->functions, val);
+	else if (strcmp(key, "temperature") == 0)
+		pControllerRequest->temperature = (float) atoi(val) / 1000.0000;
+	else if (strcmp(key, "pwm") == 0)
+		pControllerRequest->pwm = atoi(val);
 }
 
 void TcpListener::parseActingDevice(ActingDevice* av, const char * key, const char * val)
@@ -276,12 +201,6 @@ void TcpListener::parseActingDevice(ActingDevice* av, const char * key, const ch
 		av->pin_nr = atoi(val);
 	else if (strcmp(key, "hw_address") == 0)
 		Helper::setBytes(av->hw_address, val, 8);
-	else if (strcmp(key, "function") == 0)
-		av->function = static_cast<DeviceFunction>(atoi(val));
-}
-
-void TcpListener::updateFirmware()
-{
 }
 
 void TcpListener::parseJson(ParseJsonCallback fn, void* data)
@@ -343,20 +262,13 @@ int TcpListener::readNext()
 void TcpListener::parseActingDeviceString(ParseActingDeviceCallback fn, ActingDevice* av, const char * data)
 {
 	char val[30];
-	int type = 0;
 	int index = 0;
 	int length = strlen(data);
 
 	for (int i=0; i < length; i++) {
 		if (data[i] == ';') {
 			val[index] = 0;
-
-			if (type == 0)
-				fn(av, "pin_nr", val);
-			else if (type == 1)
-				fn(av, "hw_address", val);
-
-			type++;
+			fn(av, "pin_nr", val);
 			index = 0;
 		}
 		else {
@@ -366,110 +278,5 @@ void TcpListener::parseActingDeviceString(ParseActingDeviceCallback fn, ActingDe
 	}
 
 	val[index] = 0;
-	fn(av, "function", val);
-}
-
-void TcpListener::parseFunctionsString(ActingDevice *functions, const char * data)
-{
-	char val[30];
-	int type = 0;
-	int index = 0;
-	int index_val = 0;
-	int length = strlen(data);
-
-	for (int i=0; i < length; i++) {
-		if (data[i] == ';') {
-			val[index_val] = 0;
-
-			if (type == 0)
-				functions[index].pin_nr = atoi(val);
-			else if (type == 1)
-				Helper::setBytes(functions[index].hw_address, val, 8);
-
-			type++;
-			index_val = 0;
-		}
-		else if (data[i] == '|') {
-			val[index_val] = 0;
-
-			functions[index].function = static_cast<DeviceFunction>(atoi(val));
-
-			type = 0;
-			index++;
-			index_val = 0;
-
-			if (index == MAX_FUNCTIONS)
-				break;
-		}
-		else {
-			val[index_val] = data[i];
-			index_val++;
-		}
-	}
-
-	if (type == 2 && index_val > 0) {
-		val[index_val] = 0;
-		functions[index].function = static_cast<DeviceFunction>(atoi(val));
-	}
-}
-
-void TcpListener::parseTempPhasesString(TemperaturePhase *tempPhases, const char * data)
-{
-	char val[30];
-	int type = 0;
-	int index = 1;
-	int index_val = 0;
-	int length = strlen(data);
-
-	tempPhases[0].time = 0;
-	tempPhases[0].duration = 0;
-	tempPhases[0].done = false;
-
-	for (int i=0; i < length; i++) {
-		if (data[i] == ';') {
-			val[index_val] = 0;
-
-			if (type == 0)
-				tempPhases[index].time = atol(val);
-			else if (type == 1)
-				tempPhases[index].duration = atol(val);
-			else if (type == 2)
-				tempPhases[index].targetTemperature = (float) atoi(val) / 1000.0000;
-
-			type++;
-			index_val = 0;
-		}
-		else if (data[i] == '|') {
-			val[index_val] = 0;
-
-			tempPhases[index].done = atoi(val) == 1 ? true : false;
-
-			type = 0;
-			index++;
-			index_val = 0;
-
-			if (index == (MAX_PHASES-2))
-				break;
-		}
-		else {
-			val[index_val] = data[i];
-			index_val++;
-		}
-	}
-
-	if (type == 2 && index_val > 0) {
-		val[index_val] = 0;
-		tempPhases[index].done = atoi(val) == 1 ? true : false;
-	}
-
-	index++;
-	if (index < MAX_PHASES) {
-		tempPhases[index].time = tempPhases[index-1].time + 7776000;
-		tempPhases[index].targetTemperature = 0;
-	}
-	index++;
-	for(;index < MAX_PHASES; index++) {
-		tempPhases[index].time = 0;
-		tempPhases[index].targetTemperature = 0;
-	}
+	fn(av, "hw_address", val);
 }

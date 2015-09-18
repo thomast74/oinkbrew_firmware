@@ -42,18 +42,14 @@ D4D_CHAR str_OinkWeb[21] = "";
 
 
 D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblName,     "Name:",       5, 45,  95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblMode,     "Mode:",       5, 65,  95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
 D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblId,       "Id:",         5, 85,  95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
-D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblTemp,     "Temp. Type:", 5, 130, 95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
 D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblFirmware, "Firmware:",   5, 165, 95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
 D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblIp,       "IP Address:", 5, 190, 95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
 D4D_DECLARE_STD_LABEL_RIGHT(scrInfo_lblWeb,      "Oink Web:",   5, 215, 95, 20, FONT_ARIAL_11, D4D_COLOR_BLACK, OINK_COLOR_GREY);
 
 
 D4D_DECLARE_STD_LABEL(scrInfo_valName,     str_name,      110, 45,  200, 20, FONT_ARIAL_11);
-D4D_DECLARE_STD_LABEL(scrInfo_valMode,     str_mode,      110, 65,  200, 20, FONT_ARIAL_11);
 D4D_DECLARE_STD_LABEL(scrInfo_valId,       str_id,        110, 85,  200, 20, FONT_ARIAL_11);
-D4D_DECLARE_STD_LABEL(scrInfo_valTemp,     str_TempType,  110, 130, 200, 20, FONT_ARIAL_11);
 D4D_DECLARE_STD_LABEL(scrInfo_valFirmware, str_Firmware,  110, 165, 200, 20, FONT_ARIAL_11);
 D4D_DECLARE_STD_LABEL(scrInfo_valIp,       str_IpAddress, 110, 190, 200, 20, FONT_ARIAL_11);
 D4D_DECLARE_STD_LABEL(scrInfo_valWeb,      str_OinkWeb,   110, 215, 200, 20, FONT_ARIAL_11);
@@ -61,24 +57,13 @@ D4D_DECLARE_STD_LABEL(scrInfo_valWeb,      str_OinkWeb,   110, 215, 200, 20, FON
 
 
 D4D_DECLARE_STD_SCREEN_BEGIN(screen_info, ScreenInfo_)
-    D4D_DECLARE_SCREEN_OBJECT(scr_btnInfo)
-#ifdef CONFIG_BREW
-    D4D_DECLARE_SCREEN_OBJECT(scr_btnBrew)
-#endif
-#ifdef CONFIG_FERM
-    D4D_DECLARE_SCREEN_OBJECT(scr_btnFerm)
-#endif
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblName)
-    D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblMode)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblId)
-    D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblTemp)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblFirmware)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblIp)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_lblWeb)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_valName)
-    D4D_DECLARE_SCREEN_OBJECT(scrInfo_valMode)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_valId)
-    D4D_DECLARE_SCREEN_OBJECT(scrInfo_valTemp)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_valFirmware)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_valIp)
     D4D_DECLARE_SCREEN_OBJECT(scrInfo_valWeb)
@@ -94,13 +79,6 @@ static void ScreenInfo_OnMain()
 
 static void ScreenInfo_OnActivate()
 {
-    changeMenuButtonState((D4D_OBJECT*)&scr_btnInfo, D4D_TRUE, "Info");
-#ifdef CONFIG_BREW
-    changeMenuButtonState((D4D_OBJECT*)&scr_btnBrew, D4D_FALSE, "Brew");
-#endif
-#ifdef CONFIG_FERM
-    changeMenuButtonState((D4D_OBJECT*)&scr_btnFerm, D4D_FALSE, "Ferm");
-#endif
 }
 
 static void ScreenInfo_OnDeactivate()

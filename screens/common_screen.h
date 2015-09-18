@@ -34,19 +34,9 @@ extern "C" {
 #include "fonts.h"
 #include "widget_color_scheme.h"
 
-void menuButtonClicked(D4D_OBJECT* pThis);
-void changeMenuButtonState(D4D_OBJECT* pThis, D4D_BOOL state, D4D_CHAR* text);
 void updateLabel(D4D_OBJECT* pThis, D4D_CHAR* text);
 
     
-D4D_EXTERN_OBJECT(scr_btnInfo);
-#ifdef CONFIG_BREW
-D4D_EXTERN_OBJECT(scr_btnBrew);
-#endif
-#ifdef CONFIG_FERM
-D4D_EXTERN_OBJECT(scr_btnFerm);
-#endif
-
 #define D4D_DECLARE_STD_LABEL_RIGHT(name, text, x, y, cx, cy, fontId, bg, fg) \
     static D4D_STR_PROPERTIES name##_strPrties = { D4D_LBL_FNT_PRTY_DEFAULT, D4D_LBL_TXT_PRTY_RIGHT}; \
     static D4D_CONST D4D_LABEL name##_params = \
@@ -66,17 +56,6 @@ D4D_EXTERN_OBJECT(scr_btnFerm);
     \
 	WIDGET_COLOR_SCHEME name##_color = { bg, bg, bg, bg, fg, fg, fg, fg }; \
     D4D_DECLARE_OBJECT(D4D_CONST, name, x, y, cx, cy, 0, NULL, NULL, NULL, &d4d_labelSysFunc, &(name##_params), (D4D_LBL_F_DEFAULT), NULL, AS_D4D_COLOR_SCHEME(&name##_color))
-
-
-
-#define D4D_DECLARE_MENU_BUTTON(name, x, y, cx, cy, fontId) \
-    _D4D_DECLARE_MENU_BUTTON(scr_btn##name, name, x, y, cx, cy, fontId) \
-
-#define _D4D_DECLARE_MENU_BUTTON(name, text, x, y, cx, cy, fontId) \
-    char name##text[10] = ""; \
-    D4D_CLR_SCHEME name##scheme; \
-    _D4D_DECLARE_BUTTON(D4D_CONST, name, name##text, x, y, cx, cy, 0, NULL, NULL, (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH ), NULL, NULL, &name##scheme, fontId, NULL, menuButtonClicked, NULL);
-
 
 
 #ifdef	__cplusplus

@@ -41,15 +41,6 @@ struct ActingDevice
 {
 	uint8_t pin_nr;
 	DeviceAddress hw_address;
-	DeviceFunction function;
-};
-
-
-struct TemperaturePhase {
-	long time;
-	unsigned long duration;
-	float targetTemperature;
-	bool done;
 };
 
 enum ControllerType : uint8_t
@@ -68,8 +59,8 @@ struct ControllerConfiguration {
 	ActingDevice heatActuator;
 	ActingDevice coolActuator;
 	ActingDevice fanActuator;
-	TemperaturePhase temperaturePhases[MAX_PHASES];
-	ActingDevice functions[MAX_FUNCTIONS];
+	float temperature;
+	uint8_t pwm;
 };
 
 

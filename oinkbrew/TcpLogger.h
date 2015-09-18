@@ -35,11 +35,11 @@ class TcpLogger {
 public:
 	static void init();
 	static void logDeviceValues();
-	static void logTemperaturePhase(int config_id, TemperaturePhase &tempPhase);
-	static void sendNewDevice(Device &device, float value);
+	static void requestConfigurations();
+	static void sendNewDevice(Device &device);
 	static void sendRemoveDevice(uint8_t& pin_nr, DeviceAddress& hw_address);
 private:
-	static bool prepareDeviceRequest(Device &device, float value);
+	static bool prepareDeviceRequest(Device &device);
 };
 
 extern TcpLogger logger;
