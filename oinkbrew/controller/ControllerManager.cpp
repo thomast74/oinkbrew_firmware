@@ -58,7 +58,18 @@ bool ControllerManager::changeController(ControllerConfiguration request)
 
 	if (index >= 0) {
 		active_controllers[index]->dispose();
-		active_controllers[index]->setConfig(request);
+		if (active_controllers[index]->getConfig().type == request.type) {
+			active_controllers[index]->setConfig(request);
+		}
+		else {
+			delete active_controllers[index];
+			if (request.type == TYPE_BREW) {
+				active_controllers[index] = new BrewController(request);
+			}
+			else if (request.type == TYPE_FRIDGE) {
+				active_controllers[index] = new FridgeController(request);
+			}
+		}
 	}
 	else {
 		if (request.type == TYPE_BREW) {
