@@ -61,11 +61,11 @@ void TcpLogger::logDeviceValues()
 	request.body.concat("]}");
 
 
-	request.path = "/api/sparks/";
+	request.path = "/api/logs/";
 	request.path.concat(Spark.deviceID().c_str());
-	request.path.concat("/logs/");
+	request.path.concat("/");
 
-	http.put(request, response, headers);
+	http.post(request, response, headers);
 
 	request.body = "";
 }
@@ -81,9 +81,9 @@ void TcpLogger::requestConfigurations()
 	request.ip = oinkWebIp;
 	request.port = sparkInfo.oinkWebPort;
 
-	request.path = "/api/sparks/";
+	request.path = "/api/configs/";
 	request.path.concat(Spark.deviceID().c_str());
-	request.path.concat("/configs/request/");
+	request.path.concat("/request/");
 
 	http.put(request, response, headers);
 
@@ -129,21 +129,21 @@ bool TcpLogger::prepareDeviceRequest(Device &device)
 	char hw_address[17];
 	Helper::getBytes(device.hw_address, 8, hw_address);
 
-	request.body.concat("{\"type\":");
+	request.body.concat("{\"device_type\":");
 	request.body.concat(device.type);
 	request.body.concat(",\"value\":");
 	request.body.concat(device.value);
-	request.body.concat(",\"hardware\":{\"pin_nr\":");
+	request.body.concat(",\"pin_nr\":");
 	request.body.concat(device.pin_nr);
 	request.body.concat(",\"hw_address\":\"");
 	request.body.concat(hw_address);
-	request.body.concat("\",\"offset\":");
+	request.body.concat("\",\"offset_from_brewpi\":");
 	request.body.concat(device.offset);
-	request.body.concat("}}");
+	request.body.concat("}");
 
-	request.path = "/api/sparks/";
+	request.path = "/api/devices/";
 	request.path.concat(Spark.deviceID().c_str());
-	request.path.concat("/devices/");
+	request.path.concat("/");
 
 	return true;
 }
