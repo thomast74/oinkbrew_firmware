@@ -28,7 +28,7 @@
 #define	SPARKINFO_H
 
 struct SparkInfo {
-    unsigned char name[31] = "";
+    char name[31] = "";
     uint8_t oinkWeb[4] = { 0, 0, 0, 0 };
     int oinkWebPort = 80;
     bool requested = false;
