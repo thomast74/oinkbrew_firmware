@@ -43,7 +43,7 @@ FridgeController::FridgeController(ControllerConfiguration& config)
 	this->setConfig(config);
 
 	pid->SetOutputLimits(-2, 100);
-	pid->SetTunings(10, 0.001, -30);
+	pid->SetTunings(5, 0.001, -3);
 }
 
 FridgeController::~FridgeController()
