@@ -153,10 +153,6 @@ void TcpListener::receiveDeviceRequest(const char * key, const char * val, void*
 		pDeviceRequest->pin_nr = atoi(val);
 	else if (strcmp(key, "hw_address") == 0)
 		Helper::setBytes(pDeviceRequest->hw_address, val, 8);
-	else if (strcmp(key, "is_invert") == 0)
-		pDeviceRequest->is_invert = strcmp(val, "1") == 0 ? true : false;
-	else if (strcmp(key, "value") == 0)
-		pDeviceRequest->value = atoi(val);
 	else if (strcmp(key, "offset") == 0) {
 		int pOffset = atoi(val);
 		float offset = (float) pOffset / 10000.0000;
@@ -190,17 +186,17 @@ void TcpListener::receiveConfiguration(const char * key, const char * val, void*
 	else if (strcmp(key, "fan_actuator") == 0)
 		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->fanActuator, val);
 	else if (strcmp(key, "temperature") == 0)
-		pControllerRequest->temperature = (float) atoi(val) / 1000.0000;
+		pControllerRequest->temperature = (float) atoi(val) / 10000.0000;
 	else if (strcmp(key, "heaterPwm") == 0)
-		pControllerRequest->heaterPwm = (float) atoi(val) / 1000.0000;
+		pControllerRequest->heaterPwm = (float) atoi(val) / 10000.0000;
 	else if (strcmp(key, "fanPwm") == 0)
-		pControllerRequest->fanPwm = (float) atoi(val) / 1000.0000;
+		pControllerRequest->fanPwm = (float) atoi(val) / 10000.0000;
 	else if (strcmp(key, "p") == 0)
-		pControllerRequest->p = (float) atoi(val) / 1000.0000;
+		pControllerRequest->p = (float) atoi(val) / 10000.0000;
 	else if (strcmp(key, "i") == 0)
-		pControllerRequest->i = (float) atoi(val) / 1000.0000;
+		pControllerRequest->i = (float) atoi(val) / 10000.0000;
 	else if (strcmp(key, "d") == 0)
-		pControllerRequest->d = (float) atoi(val) / 1000.0000;
+		pControllerRequest->d = (float) atoi(val) / 10000.0000;
 }
 
 void TcpListener::parseActingDevice(ActingDevice* av, const char * key, const char * val)

@@ -51,7 +51,6 @@ private:
     static void parseActingDeviceString(ParseActingDeviceCallback fn, ActingDevice* av, const char * data);
     
     static void processDeviceInfo(const char * key, const char * val, void* pv);
-    static void setDeviceMode(const char * key, const char * val, void* pv);
     static void receiveDeviceRequest(const char * key, const char * val, void* pv);
     static void receiveConfiguration(const char * key, const char * val, void* pv);
     static void parseActingDevice(ActingDevice* av, const char * key, const char * val);

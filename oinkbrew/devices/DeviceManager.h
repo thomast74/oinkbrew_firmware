@@ -39,8 +39,6 @@ const short MAX_DEVICES = 16;
 struct DeviceRequest {
 	uint8_t pin_nr;
 	DeviceAddress hw_address;
-	bool is_invert;
-	float value;
 	float offset;
 };
 
