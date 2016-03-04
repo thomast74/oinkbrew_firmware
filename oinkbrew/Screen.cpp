@@ -99,7 +99,7 @@ void Screen::update()
 void updateInformationScreen()
 {
 	updateLabel((D4D_OBJECT*) &scrInfo_valName, (D4D_CHAR*) sparkInfo.name);
-	updateLabel((D4D_OBJECT*) &scrInfo_valId, (D4D_CHAR*) Spark.deviceID().c_str());
+	updateLabel((D4D_OBJECT*) &scrInfo_valId, (D4D_CHAR*) Particle.deviceID().c_str());
 	updateLabel((D4D_OBJECT*) &scrInfo_valFirmware, (D4D_CHAR*) OINK_BREW_VERSION);
 	updateLabel((D4D_OBJECT*) &scrInfo_valIp, (D4D_CHAR*) Helper::getLocalIpStr().c_str());
 

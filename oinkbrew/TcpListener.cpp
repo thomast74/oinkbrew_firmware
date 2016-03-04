@@ -32,6 +32,7 @@
 #include "SparkInfo.h"
 #include "spark_wiring_tcpclient.h"
 #include "spark_wiring_tcpserver.h"
+#include "spark_wiring_time.h"
 #include "rgbled.h"
 #include <stdint.h>
 
@@ -123,7 +124,7 @@ bool TcpListener::processRequest(char action)
 	case '$':
 		client.write("Ok");
 		delay(100);
-		System.bootloader();
+		System.dfu(true);
 		break;
 	}
 

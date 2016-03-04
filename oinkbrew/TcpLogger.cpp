@@ -62,7 +62,7 @@ void TcpLogger::logDeviceValues()
 
 
 	request.path = "/api/logs/";
-	request.path.concat(Spark.deviceID().c_str());
+	request.path.concat(Particle.deviceID().c_str());
 	request.path.concat("/");
 
 	http.post(request, response, headers);
@@ -82,7 +82,7 @@ void TcpLogger::requestConfigurations()
 	request.port = sparkInfo.oinkWebPort;
 
 	request.path = "/api/configs/";
-	request.path.concat(Spark.deviceID().c_str());
+	request.path.concat(Particle.deviceID().c_str());
 	request.path.concat("/request/");
 
 	http.put(request, response, headers);
@@ -142,7 +142,7 @@ bool TcpLogger::prepareDeviceRequest(Device &device)
 	request.body.concat("}");
 
 	request.path = "/api/devices/";
-	request.path.concat(Spark.deviceID().c_str());
+	request.path.concat(Particle.deviceID().c_str());
 	request.path.concat("/");
 
 	return true;

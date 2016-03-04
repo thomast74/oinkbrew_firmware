@@ -51,7 +51,7 @@ void StatusMessage::send() {
     String jsonMessage("{");
     jsonMessage.concat("\"command\":\"status\"");
     jsonMessage.concat(",\"device_id\":\"");
-    jsonMessage.concat(Spark.deviceID().c_str());
+    jsonMessage.concat(Particle.deviceID().c_str());
     jsonMessage.concat("\",\"name\":\"");
     jsonMessage.concat(sparkInfo.name);
     jsonMessage.concat("\",\"firmware_version\":\"");
