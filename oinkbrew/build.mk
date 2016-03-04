@@ -23,8 +23,5 @@ include $(SRC_EGUI)/egui.mk
 
 
 $(info source path $(SOURCE_PATH))
-LIBS_DIR = $(SOURCE_PATH)/libs
-include $(LIBS_DIR)/libs.mk
-
 
 CFLAGS += -fdata-sections

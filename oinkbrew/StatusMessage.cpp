@@ -44,25 +44,26 @@ void StatusMessage::send() {
     
     if (!spark::WiFi.ready())
         return;
-    
-    String jsonMessage = "{\"device_id\":\"";
-    jsonMessage.concat(Spark.deviceID().c_str());
-    jsonMessage.concat("\",\"datetime\":");
-    jsonMessage.concat(Time.now());
-    jsonMessage.concat(",\"device_mode\":\"");
-    jsonMessage.concat(sparkInfo.mode);
-    jsonMessage.concat("\", \"firmware_version\":\"");
+
+    char buf[16];
+    sprintf(buf, "%i.%i.%i.%i", sparkInfo.oinkWeb[0], sparkInfo.oinkWeb[1], sparkInfo.oinkWeb[2], sparkInfo.oinkWeb[3]);
+
+    String jsonMessage("{");
+    jsonMessage.concat("\"command\":\"status\"");
+    jsonMessage.concat(",\"device_id\":\"");
+    jsonMessage.concat(Particle.deviceID().c_str());
+    jsonMessage.concat("\",\"name\":\"");
+    jsonMessage.concat(sparkInfo.name);
+    jsonMessage.concat("\",\"firmware_version\":\"");
     jsonMessage.concat(OINK_BREW_VERSION);
     jsonMessage.concat("\",\"ip_address\":\"");
     jsonMessage.concat(Helper::getLocalIpStr().c_str());
     jsonMessage.concat("\",\"web_address\":\"");
-
-    char buf[16];
-    sprintf(buf, "%i.%i.%i.%i", sparkInfo.oinkWeb[0], sparkInfo.oinkWeb[1], sparkInfo.oinkWeb[2], sparkInfo.oinkWeb[3]);
     jsonMessage.concat(buf);
-
     jsonMessage.concat("\",\"web_port\":\"");
     jsonMessage.concat(sparkInfo.oinkWebPort);
+    jsonMessage.concat(",\"brewpi_time\":\"");
+    jsonMessage.concat(Time.now());
     jsonMessage.concat("\"}");
 
     UDP udp;

@@ -26,7 +26,6 @@
 
 /* Includes ------------------------------------------------------------------*/  
 #include "application.h"
-#include "Configuration.h"
 #include "Helper.h"
 #include "Settings.h"
 #include "StatusMessage.h"
@@ -37,14 +36,13 @@
 #include "controller/ControllerManager.h"
 
 /* Declarations --------------------------------------------------------------*/  
-void applicationInit();
+void initialise();
+void processing();
 void wifiInit();
 
-
+static bool initialised = false;
 static unsigned long lastRun = -1000;
 static unsigned long lastLog = 0;
-static unsigned long lastMsg = -181000;
-static bool controllerInitialised = false;;
 
 
 SYSTEM_MODE(MANUAL);
@@ -69,19 +67,48 @@ void setup()
         Serial.begin(9600);
         delay(2000);
     }
-    
-    conf.init();
 
     screen.init();
     screen.showStartupScreen();
     
-    // turn on and configure WiFi
     wifiInit();
     
-    // initialise application
-    applicationInit();
-        
-    screen.startupFinished();
+    screen.printStatusMessage("Start TCP Server");
+    listener.init();
+    logger.init();
+
+    screen.printStatusMessage("Initialise actuators and sensors");
+    deviceManager.init();
+}
+
+/*******************************************************************************
+ * Function Name  : wifiInit
+ * Description    : turn on WiFi and starts listening mode if not configured
+ * Input          :
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void wifiInit()
+{
+    screen.printStatusMessage("Turn on WiFi");
+    WiFi.on();
+
+    if (!WiFi.hasCredentials())
+    {
+        screen.printStatusMessage("No credentials, change to Listen mode after connect");
+    }
+
+    screen.printStatusMessage("Connect to WiFi");
+    WiFi.connect();
+
+    // wait until WiFi is ready
+    while (!WiFi.ready())
+    {
+        delay(500);
+    }
+
+    delay(1000);
+    screen.printStatusMessage("WiFi ready");
 }
 
 /*******************************************************************************
@@ -93,31 +120,54 @@ void setup()
  ******************************************************************************/
 void loop()
 {
+	if (!initialised) {
+		initialise();
+	}
+	else {
+		processing();
+	}
+}
+
+/*******************************************************************************
+ * Function Name  : initialise
+ * Description    : initialise everything for the device to run
+ * Input          :
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void initialise()
+{
+	if (!sparkInfo.requested && !sparkInfo.received) {
+		StatusMessage::send();
+		sparkInfo.requested = true;
+	}
+	else if (sparkInfo.received) {
+		deviceManager.findNewDevices();
+		logger.requestConfigurations();
+		initialised = true;
+	}
+}
+
+/*******************************************************************************
+ * Function Name  : processing
+ * Description    : main loop for the controller
+ * Input          :
+ * Output         :
+ * Return         :
+ ******************************************************************************/
+void processing()
+{
 	unsigned long time = millis();
 
-	if (!controllerInitialised) {
-		if (Time.now() > 5000) {
-			controllerManager.loadControllersFromEEPROM();
-			controllerInitialised = true;
-		}
-	}
-
-    // every second read actuator and sensor values
     if((time - lastRun) >= DURATION_RUN)
     {
         lastRun = time;
         deviceManager.readValues();
-
-        // process controllers and control temperature
         controllerManager.process();
-
-        // update brew and ferm screen if active
-        screen.update(SCREEN_CONTROLLERS);
     }
 
 	controllerManager.update();
 
-    // every 15 seconds log actuator and sensor values
     if((time - lastLog) >= DURATION_LOG)
     {
     	lastLog = time;
@@ -125,70 +175,9 @@ void loop()
     	logger.logDeviceValues();
     }
 
-    // every 2 minutes send a status message
-    if((time - lastMsg) >= DURATION_MSG)
-    {
-        lastMsg = time;
-        StatusMessage::send();
-    }    
-
     // check for client connectivity
 	if (listener.connected())
 	{
-		screen.update(SCREEN_INFO);
+		screen.update();
 	}
-
-    // update screen and check for touch input
-    screen.ticks();
-}
-
-/*******************************************************************************
- * Function Name  : applicationInit
- * Description    : initialise everything for the application to run
- * Input          : 
- * Output         : 
- * Return         : 
- ******************************************************************************/
-void applicationInit()
-{
-    screen.printStatusMessage("Load configuration data");
-    conf.loadDeviceInfo();
-
-    screen.printStatusMessage("Start TCP Server");
-    listener.init();
-    logger.init();
-
-    screen.printStatusMessage("Initialise actuators and sensors");
-    deviceManager.init();
-    deviceManager.loadDevicesFromEEPROM();
-}
-
-/*******************************************************************************
- * Function Name  : wifiInit
- * Description    : turn on WiFi and starts listening mode if not configured
- * Input          : 
- * Output         : 
- * Return         : 
- ******************************************************************************/
-void wifiInit()
-{
-    screen.printStatusMessage("Turn on WiFi");
-    WiFi.on();
-
-    if (!WiFi.hasCredentials())
-    {
-        screen.printStatusMessage("No credentials, change to Listen mode after connect");
-    }
-    
-    screen.printStatusMessage("Connect to WiFi");
-    WiFi.connect();
-    
-    // wait until WiFi is ready
-    while (!WiFi.ready())
-    {
-        delay(500);
-    }
-    
-    delay(1000);        
-    screen.printStatusMessage("WiFi ready");
 }

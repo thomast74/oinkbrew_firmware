@@ -31,48 +31,40 @@
 
 
 const unsigned long MIN_COOL_OFF_TIME = 180000;	// 5 minutes
-const unsigned long MIN_COOL_ON_TIME = 60000;	// 1 minutes
-const unsigned long MAX_COOL_ON_TIME = 180000;	// 2 minutes
-const unsigned long WAIT_FAN_ON_TIME = 30000;	// 30 seconds
-const uint8_t FAN_LOW = 80;
-const uint8_t FAN_HIGH = HIGH;
+const unsigned long MIN_COOL_ON_TIME = 120000;	// 2 minutes
+const unsigned long MAX_COOL_ON_TIME = 180000;	// 3 minutes
 
-
-enum State {
-	IDLE,
-	HEATING,
-	COOLING
-};
 
 class FridgeController : public Controller
 {
-private:
-	DigitalActuator *coolActuator;
-	PwmActuator *fanActuator;
-	State state;
-	unsigned long idleStartTime;
-	unsigned long coolingOffTime;
-	unsigned long coolingOnTime;
-	long until;
 public:
 	FridgeController(ControllerConfiguration& config);
-	~FridgeController();
-
-	void setConfig(ControllerConfiguration& config);
-	void update();
 	void dispose();
 
+	void setConfig(ControllerConfiguration& config);
+
 protected:
-	int doProcess();
-	int calculateTargetTemperature();
+	void doProcess();
+	void turnOnHeater(float pwm);
 
 private:
-	void turnOnHeating();
-	void turnOnCooling();
+	void turnOnCooler();
+	void turnOffCooler();
+
+	void turnOnFan();
+	void turnOffFan();
+
 	void setIdle();
-	void checkFanActivity();
+
 	void setCoolActuator(ActingDevice CoolActuator);
 	void setFanActuator(ActingDevice FanActuator);
+
+	DigitalActuator *coolActuator;
+	PwmActuator *fanActuator;
+	ControllerState state;
+
+	unsigned long coolingOffTime;
+	unsigned long coolingOnTime;
 };
 
 

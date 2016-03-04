@@ -1,16 +1,23 @@
-$(MAKECMDGOALS): run_make
+$(MAKECMDGOALS) %: run_make
 
 .PHONY: run_make
 
-APPDIR = ../../oinkbrew_firmware
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+current_dir := $(patsubst %/,%,$(dir $(mkfile_path)))
+
+PARTICLE_FIRMWARE?=../spark-firmware
+APPDIR=$(abspath $(current_dir))
+PLATFORM=photon
+
+
+include $(PARTICLE_FIRMWARE)/build/platform-id.mk
 
 
 run_make:
-	@$(MAKE) -e -C ../spark-firmware/main \
+	@$(MAKE) -s -C $(PARTICLE_FIRMWARE)/main \
+	PLATFORM=$(PLATFORM) \
 	APPDIR=$(APPDIR) \
 	USER_MAKEFILE=build.mk \
-	TARGET_FILE=oinkbrew \
-	TARGET_DIR=$(APPDIR)/target \
-	SPARK_CLOUD=n \
+	BUILD_PATH_BASE=$(APPDIR)/target \
 	$(MAKEOVERRIDES) \
 	$(MAKECMDGOALS) 

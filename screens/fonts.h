@@ -29,9 +29,7 @@
 
 
 #define FONT_ARIAL_11		2 
-#define FONT_NUMBER_MEDIUM  4
 
 extern const D4D_FONT_DESCRIPTOR d4dfnt_Arial_11_desc;
-extern const D4D_FONT_DESCRIPTOR d4dfnt_AlteDIN1451_16_desc;
 
 #endif

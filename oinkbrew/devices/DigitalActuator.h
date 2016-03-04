@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "spark_wiring.h"
+
 class DigitalActuator {
 private:
 	bool invert;

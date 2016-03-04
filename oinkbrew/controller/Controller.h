@@ -34,6 +34,12 @@
 #include "ControllerConfiguration.h"
 #include "../devices/PwmActuator.h"
 
+enum ControllerState {
+	IDLE,
+	HEATING,
+	COOLING
+};
+
 
 class Controller
 {
@@ -41,37 +47,41 @@ public:
 	Controller();
 	virtual ~Controller();
 
+	virtual void dispose();
+
+	ControllerConfiguration& getConfig();
 	virtual void setConfig(ControllerConfiguration& config);
 
-	int process();
+	void process();
+	virtual void update();
 
-	virtual void update() { };
-	virtual void dispose() { };
+	float getTargetTemperature();
+	void setTargetTemperature(float target);
 
 	int getId();
-	ControllerConfiguration& getConfig();
-	void setTargetTemperature(float PointTemperature);
-	float getTargetTemperature();
-	bool isFinished();
 
 protected:
-	virtual int doProcess() { return 0; };
-
+	virtual void doProcess() { };
 
 	void setTempSensor(ActingDevice TempSensor);
 	void setHeatActuator(ActingDevice HeatActuator);
 
-	virtual int calculateTargetTemperature() { return 0; };
+	bool isHeaterOn();
+	virtual void turnOnHeater(float pwm);
+	virtual void turnOffHeater();
 
+	PID* getPID();
+	float getOutput();
+
+private:
 	ActingDevice tempSensor;
 	PwmActuator* heatActuator;
-
 	ControllerConfiguration config;
+
 	float targetTemperature;
 	float currentTemperature;
 	float output;
 	PID* pid;
-	bool finished;
 };
 
 #endif /* OINKBREW_CONTROLLER_CONTROLLER_H_ */

@@ -27,97 +27,32 @@
 #include "../devices/DeviceManager.h"
 #include "../Helper.h"
 
-int BrewController::doProcess()
+BrewController::BrewController(ControllerConfiguration& config)
+	: Controller()
 {
-	heatActuator->setPwm(output);
-	deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), output);
+	setConfig(config);
+}
 
-	if (!this->temperatureReached  && this->currentTemperature >= this->targetTemperature) {
+void BrewController::setConfig(ControllerConfiguration& config)
+{
+	Controller::setConfig(config);
 
-		Helper::serialDebug("Temperature reached");
+	getPID()->SetOutputLimits(0, 100);
 
-		this->temperatureReached = true;
-		this->startTime =  millis();
+	if (getConfig().temperature > 0) {
+		getPID()->SetMode(PID_AUTOMATIC);
+		setTargetTemperature(getConfig().temperature);
 	}
-
-	if (this->temperatureReached) {
-		if (this->duration < (millis() - startTime))
-			return calculateTargetTemperature();
+	else {
+		getPID()->SetMode(PID_MANUAL);
+		turnOnHeater(getConfig().heaterPwm);
 	}
-
-	return false;
 }
 
-void BrewController::update()
+void BrewController::doProcess()
 {
-	heatActuator->updatePwm();
-}
-
-void BrewController::dispose()
-{
-	heatActuator->setPwm(0);
-	deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), 0);
-	heatActuator->updatePwm();
-
-	delete heatActuator;
-}
-
-int BrewController::calculateTargetTemperature()
-{
-	for(int i=0; i < MAX_PHASES; i++) {
-
-		if (this->config.temperaturePhases[i].done)
-			continue;
-
-		this->config.temperaturePhases[i].done = true;
-		this->temperatureReached = false;
-
-		if ((i + 1) < MAX_PHASES && this->config.temperaturePhases[i+1].targetTemperature > 0) {
-
-			String debug("New Target Temperature ");
-			debug.concat(i);
-			debug.concat(": ");
-			debug.concat(this->config.temperaturePhases[i+1].duration);
-			debug.concat(" -> ");
-			debug.concat(this->config.temperaturePhases[i+1].targetTemperature);
-			Helper::serialDebug(debug.c_str());
-
-			this->duration = this->config.temperaturePhases[i+1].duration;
-			setTargetTemperature(this->config.temperaturePhases[i+1].targetTemperature);
-		}
-		else {
-			String debug("New Target Temperatur off: 10000000 -> 0");
-			Helper::serialDebug(debug.c_str());
-
-			heatActuator->setPwm(0);
-			heatActuator->updatePwm();
-
-			this->finished = true;
-			this->duration = 0;
-			setTargetTemperature(0);
-		}
-
-		return i;
+	if (getConfig().temperature > 0)
+	{
+		turnOnHeater(getOutput());
 	}
-
-	return 0;
-}
-
-unsigned long BrewController::timeToGo() {
-
-	if (this->temperatureReached) {
-		return this->duration - (millis() - startTime);
-	}
-	else
-		return 0;
-}
-
-bool BrewController::isHeatActuatorActive()
-{
-	return this->heatActuator->isActive();
-}
-
-bool BrewController::isTemperatureReached()
-{
-	return this->temperatureReached;
 }

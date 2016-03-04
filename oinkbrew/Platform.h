@@ -45,7 +45,6 @@
 #define memcpy_P memcpy
 #define vsnprintf_P vsnprintf
 #define PROGMEM
-#define PSTR
 #define pgm_read_byte(x)  (*(x))
 
 
