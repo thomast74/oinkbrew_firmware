@@ -59,6 +59,9 @@ struct ControllerConfiguration {
 	float temperature;
 	float heaterPwm;
 	float fanPwm;
+	uint32_t heatingPeriod;
+	uint32_t coolingOnPeriod;
+	uint32_t coolingOffPeriod;
 	float p;
 	float i;
 	float d;

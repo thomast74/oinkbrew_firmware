@@ -27,11 +27,13 @@
 #include "PwmActuator.h"
 
 
-PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm) : PwmActuator(pin, hw_address, pwm, true)
+PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, uint32_t period)
+  : PwmActuator(pin, hw_address, pwm, period, true)
 {
 }
 
-PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, bool simulate)
+
+PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, uint32_t period, bool simulate)
 {
 	this->pin = pin;
 	memcpy(&this->hw_address, &hw_address, 8);
@@ -43,6 +45,7 @@ PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, bo
 	this->pwm = 0;
 	this->minVal = 0;
 	this->maxVal = 100;
+    this->period = period;
 
 	this->active = false;
 
@@ -97,9 +100,9 @@ void PwmActuator::updatePwm()
 	if (!this->simulate)
 		return;
 
-    int32_t adjDutyTime = this->dutyTime - this->dutyLate;
-    int32_t currentTime = millis();
-    int32_t elapsedTime = currentTime - periodStartTime;
+    uint32_t adjDutyTime = this->dutyTime - this->dutyLate;
+    uint32_t currentTime = millis();
+    uint32_t elapsedTime = currentTime - periodStartTime;
 
     if (this->pwm <= minVal) {
     	digitalWrite(this->pin, LOW);

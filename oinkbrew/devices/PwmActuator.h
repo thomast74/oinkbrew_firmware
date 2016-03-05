@@ -37,21 +37,21 @@ private:
     uint8_t pwm;
     uint8_t minVal;
     uint8_t maxVal;
+    uint32_t period;
     bool active;
     bool simulate;
 
-    int32_t periodLate;
-    int32_t dutyLate;
-    int32_t dutyTime;
+    uint32_t periodLate;
+    uint32_t dutyLate;
+    uint32_t dutyTime;
 
     unsigned long periodStartTime;
-    const int32_t period = 10000;
 
     void recalculate();
 
 public:
-	PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm);
-	PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, bool simulate);
+	PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, uint32_t period);
+	PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, uint32_t period, bool simulate);
 
 	void setPwm(uint8_t pwm);
 	uint8_t getPwm();

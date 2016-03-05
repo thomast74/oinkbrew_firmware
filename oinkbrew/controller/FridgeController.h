@@ -30,11 +30,6 @@
 #include "../devices/DigitalActuator.h"
 
 
-const unsigned long MIN_COOL_OFF_TIME = 180000;	// 5 minutes
-const unsigned long MIN_COOL_ON_TIME = 120000;	// 2 minutes
-const unsigned long MAX_COOL_ON_TIME = 180000;	// 3 minutes
-
-
 class FridgeController : public Controller
 {
 public:
@@ -48,7 +43,7 @@ protected:
 	void turnOnHeater(float pwm);
 
 private:
-	void turnOnCooler();
+	void turnOnCooler(float pwm);
 	void turnOffCooler();
 
 	void turnOnFan();
@@ -59,7 +54,7 @@ private:
 	void setCoolActuator(ActingDevice CoolActuator);
 	void setFanActuator(ActingDevice FanActuator);
 
-	DigitalActuator *coolActuator;
+	PwmActuator *coolActuator;
 	PwmActuator *fanActuator;
 	ControllerState state;
 

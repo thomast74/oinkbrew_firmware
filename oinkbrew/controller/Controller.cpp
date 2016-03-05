@@ -97,7 +97,7 @@ void Controller::setTempSensor(ActingDevice activeDevice)
 
 void Controller::setHeatActuator(ActingDevice actingDevicer)
 {
-	this->heatActuator = new PwmActuator(actingDevicer.pin_nr, actingDevicer.hw_address, 0);
+	this->heatActuator = new PwmActuator(actingDevicer.pin_nr, actingDevicer.hw_address, 0, getConfig().heatingPeriod, false);
 }
 
 bool Controller::isHeaterOn()
