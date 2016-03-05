@@ -192,11 +192,11 @@ void TcpListener::receiveConfiguration(const char * key, const char * val, void*
 		pControllerRequest->heaterPwm = (float) atoi(val) / 10000.0000;
 	else if (strcmp(key, "fanPwm") == 0)
 		pControllerRequest->fanPwm = (float) atoi(val) / 10000.0000;
-	else if (strcmp(key, "heatingPeriod") == 0)
+	else if (strcmp(key, "heating_period") == 0)
 		pControllerRequest->heatingPeriod = atoi(val);
-	else if (strcmp(key, "coolingOnTime") == 0)
+	else if (strcmp(key, "cooling_on_time") == 0)
 		pControllerRequest->coolingOnPeriod = atoi(val);
-	else if (strcmp(key, "coolingOffPeriod") == 0)
+	else if (strcmp(key, "cooling_off_period") == 0)
 		pControllerRequest->coolingOffPeriod = atoi(val);
 	else if (strcmp(key, "p") == 0)
 		pControllerRequest->p = (float) atoi(val) / 10000.0000;
