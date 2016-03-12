@@ -25,6 +25,7 @@
 
 
 #include "PwmActuator.h"
+#include "spark_wiring.h"
 
 
 PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, uint32_t period)

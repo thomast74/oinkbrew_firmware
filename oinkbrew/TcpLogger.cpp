@@ -29,6 +29,7 @@
 #include "controller/ControllerManager.h"
 #include "devices/Device.h"
 #include "devices/DeviceManager.h"
+#include "spark_wiring_cloud.h"
 #include "spark_wiring_ipaddress.h"
 #include <string.h>
 

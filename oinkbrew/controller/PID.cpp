@@ -1,6 +1,7 @@
 #include "PID.h"
-#include "spark_wiring.h"
 #include "../Helper.h"
+#include "spark_wiring_ticks.h"
+
 
 /*Constructor (...)*********************************************************
  *    The parameters specified here are those for for which we can't set up

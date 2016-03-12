@@ -26,7 +26,7 @@
 #include "FridgeController.h"
 #include "../Helper.h"
 #include "../devices/DeviceManager.h"
-#include "spark_wiring_time.h"
+#include "spark_wiring_ticks.h"
 
 
 FridgeController::FridgeController(ControllerConfiguration& config)
@@ -139,7 +139,7 @@ void FridgeController::turnOnFan()
 
 void FridgeController::turnOffFan()
 {
-	this->fanActuator->setPwm(LOW);
+	this->fanActuator->setPwm(0);
 }
 
 void FridgeController::setIdle()
@@ -158,5 +158,5 @@ void FridgeController::setCoolActuator(ActingDevice CoolActuator)
 void FridgeController::setFanActuator(ActingDevice FanActuator)
 {
 	this->fanActuator = new PwmActuator(FanActuator.pin_nr, FanActuator.hw_address, 0, getConfig().heatingPeriod, false);
-	this->fanActuator->setMinMax(LOW, HIGH);
+	this->fanActuator->setMinMax(0, 1);
 }

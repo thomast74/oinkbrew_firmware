@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    PwmActuator.h
+ * @file    DigitalActuator.cpp
  * @authors Thomas Trageser
  * @version V0.1
  * @date    2015-03-27
@@ -23,52 +23,43 @@
  ******************************************************************************
  */
 
-#ifndef OINKBREW_DEVICES_PWMACTUATOR_H_
-#define OINKBREW_DEVICES_PWMACTUATOR_H_
+#include "DigitalActuator.h"
+#include "spark_wiring.h"
+#include <string.h>
 
-#include "../devices/Device.h"
 
-class PwmActuator
-{
-private:
-	uint8_t pin;
-	DeviceAddress hw_address;
-    uint8_t pwm;
-    uint8_t minVal;
-    uint8_t maxVal;
-    uint32_t period;
-    bool active;
-    bool simulate;
+DigitalActuator::DigitalActuator(uint8_t pin, DeviceAddress& hw_address, bool invert) {
+		this->pin = pin;
+		memcpy(&this->hw_address, &hw_address, 8);
+		this->invert = invert;
 
-    uint32_t periodLate;
-    uint32_t dutyLate;
-    uint32_t dutyTime;
+		pinMode(pin, OUTPUT);
 
-    unsigned long periodStartTime;
-
-    void recalculate();
-
-public:
-	PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, uint32_t period);
-	PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, uint32_t period, bool simulate);
-
-	void setPwm(uint8_t pwm);
-	uint8_t getPwm();
-	void setMinMax(uint8_t minVal, uint8_t maxVal);
-	void updatePwm();
-
-	int32_t getPeriod(){
-		return period;
+		this->active =
+				digitalRead(pin) == HIGH ?
+						true ^ this->invert : false ^ this->invert;
 	}
-	bool isActive() {
-		return pwm > 0.0;
+
+	void DigitalActuator::setActive(bool active) {
+		this->active = active;
+
+		digitalWrite(pin, active ^ invert ? HIGH : LOW);
 	}
-	uint8_t& getPin() {
+
+	bool DigitalActuator::toggle() {
+		setActive(!this->active);
+
+		return this->active;
+	}
+
+	bool DigitalActuator::isActive() {
+		return active;
+	}
+
+	uint8_t& DigitalActuator::getPin() {
 		return pin;
 	}
-	DeviceAddress& getHwAddress() {
+
+	DeviceAddress& DigitalActuator::getHwAddress() {
 		return hw_address;
 	}
-};
-
-#endif // OINKBREW_DEVICES_PWMACTUATOR_H_

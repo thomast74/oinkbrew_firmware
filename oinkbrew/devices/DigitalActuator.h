@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "spark_wiring.h"
+#include "../devices/Device.h"
 
 class DigitalActuator {
 private:
@@ -34,37 +34,11 @@ private:
 	DeviceAddress hw_address;
 	bool active;
 public:
-	DigitalActuator(uint8_t pin, DeviceAddress& hw_address, bool invert) {
-		this->pin = pin;
-		memcpy(&this->hw_address, &hw_address, 8);
-		this->invert = invert;
+	DigitalActuator(uint8_t pin, DeviceAddress& hw_address, bool invert);
 
-		pinMode(pin, OUTPUT);
-
-		this->active =
-				digitalRead(pin) == HIGH ?
-						true ^ this->invert : false ^ this->invert;
-	}
-
-	void setActive(bool active) {
-		this->active = active;
-
-		digitalWrite(pin, active ^ invert ? HIGH : LOW);
-	}
-
-	bool toggle() {
-		setActive(!this->active);
-
-		return this->active;
-	}
-
-	bool isActive() {
-		return active;
-	}
-	uint8_t& getPin() {
-		return pin;
-	}
-	DeviceAddress& getHwAddress() {
-		return hw_address;
-	}
+	void setActive(bool active);
+	bool toggle();
+	bool isActive();
+	uint8_t& getPin();
+	DeviceAddress& getHwAddress();
 };
