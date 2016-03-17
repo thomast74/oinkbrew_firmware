@@ -44,6 +44,14 @@ protected:
 	void doProcess();
 
 private:
+	void setPump1Actuator(ActingDevice Pump1Actuator);
+	void setPump2Actuator(ActingDevice Pump2Actuator);
+	void turnOnPump1();
+	void turnOnPump2();
+	void turnOffPump1();
+	void turnOffPump2();
+
+
 	PwmActuator* pump1Actuator;
 	PwmActuator* pump2Actuator;
 

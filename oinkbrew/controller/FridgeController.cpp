@@ -51,8 +51,10 @@ void FridgeController::dispose()
 	turnOffCooler();
 	turnOffFan();
 
-	delete this->coolActuator;
-	delete this->fanActuator;
+	if (this->coolActuator)
+		delete this->coolActuator;
+	if (this->fanActuator)
+		delete this->fanActuator;
 }
 
 void FridgeController::setConfig(ControllerConfiguration& config)
@@ -109,6 +111,9 @@ void FridgeController::turnOnHeater(float pwm)
 
 void FridgeController::turnOnCooler(float pwm)
 {
+	if (!this->coolActuator)
+		return;
+
 	if (!this->coolActuator->isActive() && (millis() - this->coolingOffTime) < getConfig().coolingOffPeriod)
 		return;
 
@@ -124,7 +129,7 @@ void FridgeController::turnOnCooler(float pwm)
 
 void FridgeController::turnOffCooler()
 {
-	if (this->coolActuator->isActive()) {
+	if (this->coolActuator->isActive() && this->coolActuator) {
 		this->coolActuator->setPwm(0);
 		this->coolingOffTime = millis();
 
@@ -134,12 +139,16 @@ void FridgeController::turnOffCooler()
 
 void FridgeController::turnOnFan()
 {
-	this->fanActuator->setPwm(getConfig().fanPwm);
+	if (this->fanActuator) {
+		this->fanActuator->setPwm(getConfig().fanPwm);
+	}
 }
 
 void FridgeController::turnOffFan()
 {
-	this->fanActuator->setPwm(0);
+	if (this->fanActuator) {
+		this->fanActuator->setPwm(0);
+	}
 }
 
 void FridgeController::setIdle()
@@ -152,11 +161,14 @@ void FridgeController::setIdle()
 
 void FridgeController::setCoolActuator(ActingDevice CoolActuator)
 {
-	this->coolActuator = new PwmActuator(CoolActuator.pin_nr, CoolActuator.hw_address, 0, getConfig().coolingOnPeriod, false);
+	if (CoolActuator.pin_nr != 0 || !Helper::matchAddress(CoolActuator.hw_address, DEVICE_ADDRESS_EMPTY, 8)) {
+		this->coolActuator = new PwmActuator(CoolActuator.pin_nr, CoolActuator.hw_address, 0, getConfig().coolingOnPeriod);
+	}
 }
 
 void FridgeController::setFanActuator(ActingDevice FanActuator)
 {
-	this->fanActuator = new PwmActuator(FanActuator.pin_nr, FanActuator.hw_address, 0, getConfig().heatingPeriod, false);
-	this->fanActuator->setMinMax(0, 1);
+	if (FanActuator.pin_nr != 0 || !Helper::matchAddress(FanActuator.hw_address, DEVICE_ADDRESS_EMPTY, 8)) {
+		this->fanActuator = new PwmActuator(FanActuator.pin_nr, FanActuator.hw_address, 0, getConfig().heatingPeriod, false);
+	}
 }

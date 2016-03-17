@@ -91,7 +91,15 @@ void PwmActuator::setPwm(uint8_t val)
 	    recalculate();	}
 	else {
     	this->pwm = val;
-		analogWrite(this->pin, this->pwm);
+
+    	uint16_t value = 0;
+    	if (this->pin == 16) {
+    		value = (4095 / this->pwm) * 100;
+    	} else {
+    		value = (255 / this->pwm) * 100;
+    	}
+
+		analogWrite(this->pin, value);
 		this->active = this->pwm > 0;
 	}
 }

@@ -73,6 +73,8 @@ protected:
 	PID* getPID();
 	float getOutput();
 
+	DeviceAddress DEVICE_ADDRESS_EMPTY = {0,0,0,0,0,0,0,0};
+
 private:
 	ActingDevice tempSensor;
 	PwmActuator* heatActuator;

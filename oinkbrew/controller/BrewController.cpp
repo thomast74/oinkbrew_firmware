@@ -24,6 +24,7 @@
  */
 
 #include "BrewController.h"
+#include "../devices/Device.h"
 #include "../devices/DeviceManager.h"
 #include "../Helper.h"
 
@@ -40,8 +41,10 @@ void BrewController::dispose()
 	turnOffPump1();
 	turnOffPump2();
 
-	delete this->pump1Actuator;
-	delete this->pump2Actuator;
+	if (this->pump1Actuator)
+		delete this->pump1Actuator;
+	if (this->pump2Actuator)
+		delete this->pump2Actuator;
 }
 
 void BrewController::setConfig(ControllerConfiguration& config)
@@ -60,12 +63,13 @@ void BrewController::setConfig(ControllerConfiguration& config)
 	}
 
 	if (getConfig().pump1Pwm > 0) {
-
+		this->setPump1Actuator(getConfig().pump1Actuator);
+		this->turnOnPump1();
 	}
 	if (getConfig().pump2Pwm > 0) {
-
+		this->setPump2Actuator(getConfig().pump2Actuator);
+		this->turnOnPump2();
 	}
-
 }
 
 void BrewController::doProcess()
@@ -78,7 +82,16 @@ void BrewController::doProcess()
 
 void BrewController::setPump1Actuator(ActingDevice Pump1Actuator)
 {
+	if (Pump1Actuator.pin_nr != 0 || !Helper::matchAddress(Pump1Actuator.hw_address , DEVICE_ADDRESS_EMPTY, 8) ) {
+		this->pump1Actuator = new PwmActuator(Pump1Actuator.pin_nr, Pump1Actuator.hw_address, getConfig().pump1Pwm, getConfig().heatingPeriod, false);
+	}
+}
 
+void BrewController::turnOnPump1()
+{
+	if (this->pump1Actuator) {
+		this->pump1Actuator->setPwm(getConfig().pump1Pwm);
+	}
 }
 
 void BrewController::turnOffPump1()
@@ -90,7 +103,16 @@ void BrewController::turnOffPump1()
 
 void BrewController::setPump2Actuator(ActingDevice Pump2Actuator)
 {
+	if (Pump2Actuator.pin_nr != 0 || !Helper::matchAddress(Pump2Actuator.hw_address , DEVICE_ADDRESS_EMPTY, 8)) {
+		this->pump1Actuator = new PwmActuator(Pump2Actuator.pin_nr, Pump2Actuator.hw_address, getConfig().pump2Pwm, getConfig().heatingPeriod, false);
+	}
+}
 
+void BrewController::turnOnPump2()
+{
+	if (this->pump2Actuator) {
+		this->pump2Actuator->setPwm(getConfig().pump2Pwm);
+	}
 }
 
 void BrewController::turnOffPump2()
