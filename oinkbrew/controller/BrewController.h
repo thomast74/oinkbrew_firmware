@@ -37,11 +37,16 @@ class BrewController : public Controller
 {
 public:
 	BrewController(ControllerConfiguration& config);
-
+	void dispose();
 	void setConfig(ControllerConfiguration& config);
 
 protected:
 	void doProcess();
+
+private:
+	PwmActuator* pump1Actuator;
+	PwmActuator* pump2Actuator;
+
 };
 
 

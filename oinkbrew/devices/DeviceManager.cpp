@@ -63,8 +63,7 @@ void DeviceManager::readValues()
 	for (short i = 0; i < registered_devices; i++) {
 		if (activeDevices[i].type == DEVICE_HARDWARE_ONEWIRE_TEMP) {
 
-			activeDevices[i].value = sensors.getTempC(
-					activeDevices[i].hw_address) + activeDevices[i].offset;
+			activeDevices[i].value = sensors.getTempC(activeDevices[i].hw_address) + activeDevices[i].offset;
 
 			if (activeDevices[i].value > DEVICE_DISCONNECTED_C) {
 				activeDevices[i].lastSeen = millis();
@@ -77,7 +76,7 @@ void DeviceManager::readValues()
 		}
 	}
 
-	// send request for sensor data so theya re available next round in a second
+	// send request for sensor data so they are available next round in a second
 	sensors.requestTemperatures();
 }
 

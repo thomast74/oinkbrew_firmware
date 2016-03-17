@@ -33,6 +33,17 @@ BrewController::BrewController(ControllerConfiguration& config)
 	setConfig(config);
 }
 
+void BrewController::dispose()
+{
+	Controller::dispose();
+
+	turnOffPump1();
+	turnOffPump2();
+
+	delete this->pump1Actuator;
+	delete this->pump2Actuator;
+}
+
 void BrewController::setConfig(ControllerConfiguration& config)
 {
 	Controller::setConfig(config);
@@ -47,6 +58,14 @@ void BrewController::setConfig(ControllerConfiguration& config)
 		getPID()->SetMode(PID_MANUAL);
 		turnOnHeater(getConfig().heaterPwm);
 	}
+
+	if (getConfig().pump1Pwm > 0) {
+
+	}
+	if (getConfig().pump2Pwm > 0) {
+
+	}
+
 }
 
 void BrewController::doProcess()
@@ -54,5 +73,29 @@ void BrewController::doProcess()
 	if (getConfig().temperature > 0)
 	{
 		turnOnHeater(getOutput());
+	}
+}
+
+void BrewController::setPump1Actuator(ActingDevice Pump1Actuator)
+{
+
+}
+
+void BrewController::turnOffPump1()
+{
+	if (this->pump1Actuator) {
+		this->pump1Actuator->setPwm(0);
+	}
+}
+
+void BrewController::setPump2Actuator(ActingDevice Pump2Actuator)
+{
+
+}
+
+void BrewController::turnOffPump2()
+{
+	if (this->pump2Actuator) {
+		this->pump2Actuator->setPwm(0);
 	}
 }

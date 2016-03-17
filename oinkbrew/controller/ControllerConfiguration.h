@@ -56,9 +56,13 @@ struct ControllerConfiguration {
 	ActingDevice heatActuator;
 	ActingDevice coolActuator;
 	ActingDevice fanActuator;
+	ActingDevice pump1Actuator;
+	ActingDevice pump2Actuator;
 	float temperature;
 	float heaterPwm;
 	float fanPwm;
+	float pump1Pwm;
+	float pump2Pwm;
 	uint32_t heatingPeriod;
 	uint32_t coolingOnPeriod;
 	uint32_t coolingOffPeriod;

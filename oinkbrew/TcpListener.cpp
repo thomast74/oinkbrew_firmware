@@ -186,12 +186,20 @@ void TcpListener::receiveConfiguration(const char * key, const char * val, void*
 		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->coolActuator, val);
 	else if (strcmp(key, "fan_actuator") == 0)
 		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->fanActuator, val);
+	else if (strcmp(key, "pump_1_actuator") == 0)
+		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->pump1Actuator, val);
+	else if (strcmp(key, "pump_2_actuator") == 0)
+		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->pump2Actuator, val);
 	else if (strcmp(key, "temperature") == 0)
 		pControllerRequest->temperature = (float) atoi(val) / 10000.0000;
-	else if (strcmp(key, "heaterPwm") == 0)
+	else if (strcmp(key, "heat_pwm") == 0)
 		pControllerRequest->heaterPwm = (float) atoi(val) / 10000.0000;
-	else if (strcmp(key, "fanPwm") == 0)
+	else if (strcmp(key, "fan_pwm") == 0)
 		pControllerRequest->fanPwm = (float) atoi(val) / 10000.0000;
+	else if (strcmp(key, "pump_1_pwm") == 0)
+		pControllerRequest->pump1Pwm = (float) atoi(val) / 10000.0000;
+	else if (strcmp(key, "pump_2_pwm") == 0)
+		pControllerRequest->pump2Pwm = (float) atoi(val) / 10000.0000;
 	else if (strcmp(key, "heating_period") == 0)
 		pControllerRequest->heatingPeriod = atoi(val);
 	else if (strcmp(key, "cooling_on_time") == 0)
