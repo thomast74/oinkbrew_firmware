@@ -239,6 +239,10 @@ int8_t DeviceManager::enumerateActuatorPins(uint8_t offset)
 		return ACTUATOR_PIN_2;
 	case 2:
 		return ACTUATOR_PIN_3;
+#ifdef SPARK_V1
+	case 3:
+		return ACTUATOR_PIN_4;
+#endif
 	default:
 		return -1;
 	}

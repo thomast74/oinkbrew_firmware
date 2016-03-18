@@ -56,6 +56,8 @@ void StatusMessage::send() {
     jsonMessage.concat(sparkInfo.name);
     jsonMessage.concat("\",\"firmware_version\":\"");
     jsonMessage.concat(OINK_BREW_VERSION);
+    jsonMessage.concat("\",\"spark_version\":\"");
+    jsonMessage.concat(OINK_BREW_VERSION_STRING);
     jsonMessage.concat("\",\"ip_address\":\"");
     jsonMessage.concat(Helper::getLocalIpStr().c_str());
     jsonMessage.concat("\",\"web_address\":\"");

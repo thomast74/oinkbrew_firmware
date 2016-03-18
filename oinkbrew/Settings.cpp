@@ -30,10 +30,15 @@
 const char OINK_BREW_VERSION[] = "0.3";
 const char OINK_BREW_VERSION_STRING[] = "Version: 0.3";
 
+#ifdef SPARK_V1
+const char BREWPI_SPARK_REVISION[] = "V1";
+#else
+const char BREWPI_SPARK_REVISION[] = "V2";
+#endif
 
 const short REMOTE_LISTENER_PORT = 7872;
 const short LOCAL_LISTENER_PORT = 7873;
 
 
 const unsigned long DURATION_RUN = 1000;
-const unsigned long DURATION_LOG = 10000;
+const unsigned long DURATION_LOG = 5000;
