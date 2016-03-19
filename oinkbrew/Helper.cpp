@@ -227,7 +227,7 @@ void Helper::getBytes(const uint8_t* data, uint8_t len, char* buf) {
  * Function Name  : setBytes
  * Description    : convert const char* into uint8_t
  * Input          :
- * Output         : broadcast address as IPAddress
+ * Output         :
  * Return         :
  ******************************************************************************/
 void Helper::setBytes(uint8_t* data, const char* s, uint8_t len) {
