@@ -57,14 +57,14 @@ void StatusMessage::send() {
     jsonMessage.concat("\",\"firmware_version\":\"");
     jsonMessage.concat(OINK_BREW_VERSION);
     jsonMessage.concat("\",\"spark_version\":\"");
-    jsonMessage.concat(OINK_BREW_VERSION_STRING);
+    jsonMessage.concat(BREWPI_SPARK_REVISION);
     jsonMessage.concat("\",\"ip_address\":\"");
     jsonMessage.concat(Helper::getLocalIpStr().c_str());
     jsonMessage.concat("\",\"web_address\":\"");
     jsonMessage.concat(buf);
     jsonMessage.concat("\",\"web_port\":\"");
     jsonMessage.concat(sparkInfo.oinkWebPort);
-    jsonMessage.concat(",\"brewpi_time\":\"");
+    jsonMessage.concat("\",\"brewpi_time\":\"");
     jsonMessage.concat(Time.now());
     jsonMessage.concat("\"}");
 
