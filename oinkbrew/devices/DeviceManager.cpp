@@ -179,11 +179,11 @@ void DeviceManager::setDeviceValue(uint8_t& pin_nr, DeviceAddress& hw_address, f
 void DeviceManager::processActuators(Device devices[], uint8_t& slot)
 {
 	int8_t pin_nr;
-	for (uint8_t count = 0; (pin_nr = enumerateActuatorPins(count)) >= 0;
-			count++) {
+	for (uint8_t count = 0; (pin_nr = enumerateActuatorPins(count)) >= 0; count++) {
 		Device device;
 
 		device.pin_nr = pin_nr;
+		Helper::setBytes(device.hw_address, "0000000000000000", 8);
 
 		getDevice(device.pin_nr, device.hw_address, device);
 
@@ -198,6 +198,8 @@ void DeviceManager::processActuators(Device devices[], uint8_t& slot)
 	}
 }
 
+// finds all currently connected devices
+// if one was disconnected?? needs to be removed
 void DeviceManager::processOneWire(Device devices[], uint8_t& slot)
 {
 	DeviceAddress hw_address;
@@ -216,13 +218,11 @@ void DeviceManager::processOneWire(Device devices[], uint8_t& slot)
 
 		// if not in active devices already, add it and read initial value
 		if (active.type == DEVICE_HARDWARE_NONE) {
-			active.newly_found = true;
-
-			active.pin_nr = device.pin_nr;
-			memcpy(active.hw_address, device.hw_address, 8);
-
-			active.type = device.type;
-			active.value = 0;
+			device.newly_found = true;
+			device.type = DEVICE_HARDWARE_ONEWIRE_TEMP;
+			device.value = 0;
+		} else {
+			device.newly_found = false;
 		}
 
 		memcpy(&devices[slot], &device, sizeof(Device));
@@ -239,7 +239,7 @@ int8_t DeviceManager::enumerateActuatorPins(uint8_t offset)
 		return ACTUATOR_PIN_2;
 	case 2:
 		return ACTUATOR_PIN_3;
-#ifdef SPARK_V1
+#ifndef SPARK_V1
 	case 3:
 		return ACTUATOR_PIN_4;
 #endif
