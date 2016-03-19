@@ -29,24 +29,19 @@
 #include "Helper.h"
 #include "Settings.h"
 #include "StatusMessage.h"
-#include "Screen.h"
 #include "SparkInfo.h"
 #include "TcpListener.h"
 #include "TcpLogger.h"
 #include "controller/ControllerManager.h"
+#include "devices/Buzzer.h"
 
 /* Declarations --------------------------------------------------------------*/  
 void initialise();
 void processing();
-void wifiInit();
 
 static bool initialised = false;
 static unsigned long lastRun = -1000;
 static unsigned long lastLog = 0;
-
-
-SYSTEM_MODE(MANUAL);
-
 
 SparkInfo sparkInfo;
 TcpListener listener;
@@ -68,47 +63,12 @@ void setup()
         delay(2000);
     }
 
-    screen.init();
-    screen.showStartupScreen();
-    
-    wifiInit();
-    
-    screen.printStatusMessage("Start TCP Server");
+	buzzer.beep(1, 100);
+
     listener.init();
     logger.init();
 
-    screen.printStatusMessage("Initialise actuators and sensors");
     deviceManager.init();
-}
-
-/*******************************************************************************
- * Function Name  : wifiInit
- * Description    : turn on WiFi and starts listening mode if not configured
- * Input          :
- * Output         :
- * Return         :
- ******************************************************************************/
-void wifiInit()
-{
-    screen.printStatusMessage("Turn on WiFi");
-    WiFi.on();
-
-    if (!WiFi.hasCredentials())
-    {
-        screen.printStatusMessage("No credentials, change to Listen mode after connect");
-    }
-
-    screen.printStatusMessage("Connect to WiFi");
-    WiFi.connect();
-
-    // wait until WiFi is ready
-    while (!WiFi.ready())
-    {
-        delay(500);
-    }
-
-    delay(1000);
-    screen.printStatusMessage("WiFi ready");
 }
 
 /*******************************************************************************
@@ -145,6 +105,10 @@ void initialise()
 		deviceManager.findNewDevices();
 		logger.requestConfigurations();
 		initialised = true;
+		buzzer.beep(3, 50);
+	}
+	else {
+		listener.connected();
 	}
 }
 
@@ -176,8 +140,5 @@ void processing()
     }
 
     // check for client connectivity
-	if (listener.connected())
-	{
-		screen.update();
-	}
+	listener.connected();
 }
