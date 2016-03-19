@@ -31,10 +31,6 @@
 #include <stdint.h>
 
 
-#define BEEP_ON() digitalWrite(BUZZER_PIN, LOW);
-#define BEEP_OFF() digitalWrite(BUZZER_PIN, HIGH);
-
-
 class Buzzer {
 private:
 	bool active;
@@ -46,9 +42,9 @@ public:
 
 	void beep(uint8_t numBeeps, uint16_t duration) {
 	    for (uint8_t beepCount = 0; beepCount < numBeeps; beepCount++) {
-	        BEEP_ON();
+	    	digitalWrite(BUZZER_PIN, LOW);
 	        delay(duration);
-	        BEEP_OFF();
+	        digitalWrite(BUZZER_PIN, HIGH);
 	        if (beepCount < numBeeps - 1) {
 	            delay(duration);
 	        }
@@ -59,9 +55,9 @@ public:
 	    if (active != this->active) {
 	        this->active = active;
 	        if (active) {
-	            BEEP_ON();
+	        	digitalWrite(BUZZER_PIN, LOW);
 	        } else {
-	            BEEP_OFF();
+	        	digitalWrite(BUZZER_PIN, HIGH);
 	        }
 	    }
 	}
