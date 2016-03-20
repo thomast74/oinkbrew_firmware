@@ -41,6 +41,7 @@ public:
 	}
 
 	void beep(uint8_t numBeeps, uint16_t duration) {
+		pinMode(BUZZER_PIN, OUTPUT);
 	    for (uint8_t beepCount = 0; beepCount < numBeeps; beepCount++) {
 	    	digitalWrite(BUZZER_PIN, LOW);
 	        delay(duration);
