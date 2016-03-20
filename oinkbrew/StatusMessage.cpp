@@ -54,6 +54,8 @@ void StatusMessage::send() {
     jsonMessage.concat(Particle.deviceID().c_str());
     jsonMessage.concat("\",\"name\":\"");
     jsonMessage.concat(sparkInfo.name);
+    jsonMessage.concat("\",\"system_version\":\"");
+    jsonMessage.concat(System.version().c_str());
     jsonMessage.concat("\",\"firmware_version\":\"");
     jsonMessage.concat(OINK_BREW_VERSION);
     jsonMessage.concat("\",\"spark_version\":\"");
