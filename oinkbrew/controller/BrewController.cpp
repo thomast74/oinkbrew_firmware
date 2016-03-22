@@ -31,6 +31,9 @@
 BrewController::BrewController(ControllerConfiguration& config)
 	: Controller()
 {
+	this->pump1Actuator = NULL;
+	this->pump2Actuator = NULL;
+
 	setConfig(config);
 }
 
@@ -41,9 +44,9 @@ void BrewController::dispose()
 	turnOffPump1();
 	turnOffPump2();
 
-	if (this->pump1Actuator)
+	if (this->pump1Actuator != NULL)
 		delete this->pump1Actuator;
-	if (this->pump2Actuator)
+	if (this->pump2Actuator != NULL)
 		delete this->pump2Actuator;
 }
 
@@ -66,9 +69,20 @@ void BrewController::setConfig(ControllerConfiguration& config)
 		this->setPump1Actuator(getConfig().pump1Actuator);
 		this->turnOnPump1();
 	}
+	else {
+		if (this->pump1Actuator != NULL)
+			delete this->pump1Actuator;
+		this->pump1Actuator = NULL;
+	}
+
 	if (getConfig().pump2Pwm > 0) {
 		this->setPump2Actuator(getConfig().pump2Actuator);
 		this->turnOnPump2();
+	}
+	else {
+		if (this->pump2Actuator != NULL)
+			delete this->pump2Actuator;
+		this->pump2Actuator = NULL;
 	}
 }
 
@@ -82,42 +96,42 @@ void BrewController::doProcess()
 
 void BrewController::setPump1Actuator(ActingDevice Pump1Actuator)
 {
-	if (Pump1Actuator.pin_nr != 0 || !Helper::matchAddress(Pump1Actuator.hw_address , DEVICE_ADDRESS_EMPTY, 8) ) {
-		this->pump1Actuator = new PwmActuator(Pump1Actuator.pin_nr, Pump1Actuator.hw_address, getConfig().pump1Pwm, getConfig().heatingPeriod, false);
+	if (Pump1Actuator.pin_nr != 0 || (Pump1Actuator.hw_address[0] != 0x00 && Pump1Actuator.hw_address[7] != 0x00)) {
+		this->pump1Actuator = new PwmActuator(Pump1Actuator.pin_nr, Pump1Actuator.hw_address, 0, 0, false);
 	}
 }
 
 void BrewController::turnOnPump1()
 {
-	if (this->pump1Actuator) {
+	if (this->pump1Actuator != NULL) {
 		this->pump1Actuator->setPwm(getConfig().pump1Pwm);
 	}
 }
 
 void BrewController::turnOffPump1()
 {
-	if (this->pump1Actuator) {
+	if (this->pump1Actuator != NULL) {
 		this->pump1Actuator->setPwm(0);
 	}
 }
 
 void BrewController::setPump2Actuator(ActingDevice Pump2Actuator)
 {
-	if (Pump2Actuator.pin_nr != 0 || !Helper::matchAddress(Pump2Actuator.hw_address , DEVICE_ADDRESS_EMPTY, 8)) {
-		this->pump1Actuator = new PwmActuator(Pump2Actuator.pin_nr, Pump2Actuator.hw_address, getConfig().pump2Pwm, getConfig().heatingPeriod, false);
+	if (Pump2Actuator.pin_nr != 0 || (Pump2Actuator.hw_address[0] != 0x00 && Pump2Actuator.hw_address[7] != 0x00)) {
+		this->pump1Actuator = new PwmActuator(Pump2Actuator.pin_nr, Pump2Actuator.hw_address, 0, 0, false);
 	}
 }
 
 void BrewController::turnOnPump2()
 {
-	if (this->pump2Actuator) {
+	if (this->pump2Actuator != NULL) {
 		this->pump2Actuator->setPwm(getConfig().pump2Pwm);
 	}
 }
 
 void BrewController::turnOffPump2()
 {
-	if (this->pump2Actuator) {
+	if (this->pump2Actuator != NULL) {
 		this->pump2Actuator->setPwm(0);
 	}
 }

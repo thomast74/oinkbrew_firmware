@@ -51,7 +51,6 @@ private:
 	void turnOffPump1();
 	void turnOffPump2();
 
-
 	PwmActuator* pump1Actuator;
 	PwmActuator* pump2Actuator;
 

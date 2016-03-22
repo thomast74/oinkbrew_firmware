@@ -37,6 +37,7 @@ public:
 	void dispose();
 
 	void setConfig(ControllerConfiguration& config);
+	void update();
 
 protected:
 	void doProcess();

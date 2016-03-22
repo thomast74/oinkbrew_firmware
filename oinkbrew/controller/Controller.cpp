@@ -49,10 +49,11 @@ void Controller::dispose()
 {
 	turnOffHeater();
 
-	if (this->heatActuator)
+	if (this->heatActuator != NULL)
 		delete this->heatActuator;
 
-	delete this->pid;
+	if (this->pid != NULL)
+		delete this->pid;
 }
 
 void Controller::setConfig(ControllerConfiguration& config)
@@ -89,7 +90,7 @@ void Controller::process()
 
 void Controller::update()
 {
-	if (this->heatActuator) {
+	if (this->heatActuator != NULL && this->heatActuator->isActive()) {
 		this->heatActuator->updatePwm();
 	}
 }
@@ -101,14 +102,14 @@ void Controller::setTempSensor(ActingDevice TempSensor)
 
 void Controller::setHeatActuator(ActingDevice HeatActuator)
 {
-	if (HeatActuator.pin_nr != 0 || !Helper::matchAddress(HeatActuator.hw_address, DEVICE_ADDRESS_EMPTY, 8)) {
-		this->heatActuator = new PwmActuator(HeatActuator.pin_nr, HeatActuator.hw_address, 0, getConfig().heatingPeriod);
+	if (HeatActuator.pin_nr != 0 || (HeatActuator.hw_address[0] != 0x00 && HeatActuator.hw_address[7] != 0x00)) {
+		this->heatActuator = new PwmActuator(HeatActuator.pin_nr, HeatActuator.hw_address, 0, getConfig().heatingPeriod, true);
 	}
 }
 
 bool Controller::isHeaterOn()
 {
-	if (this->heatActuator) {
+	if (this->heatActuator != NULL) {
 		return this->heatActuator->isActive();
 	}
 	else
@@ -117,7 +118,7 @@ bool Controller::isHeaterOn()
 
 void Controller::turnOnHeater(float pwm)
 {
-	if (this->heatActuator) {
+	if (this->heatActuator != NULL) {
 		this->heatActuator->setPwm(pwm);
 		deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), pwm);
 	}
@@ -125,7 +126,7 @@ void Controller::turnOnHeater(float pwm)
 
 void Controller::turnOffHeater()
 {
-	if (isHeaterOn() && this->heatActuator) {
+	if (isHeaterOn()) {
 		this->heatActuator->setPwm(0.0);
 		this->heatActuator->updatePwm();
 
