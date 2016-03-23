@@ -25,19 +25,15 @@
 
 
 #include "PwmActuator.h"
+#include "../Helper.h"
 #include "spark_wiring.h"
 
 
-PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, uint32_t period)
-  : PwmActuator(pin, hw_address, pwm, period, true)
+PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, float pwm, unsigned long period, bool simulate)
 {
-}
 
-
-PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, uint32_t period, bool simulate)
-{
 	this->pin = pin;
-	memcpy(&this->hw_address, &hw_address, 8);
+	memcpy(&this->hw_address, &hw_address, sizeof(DeviceAddress));
 	this->periodStartTime = 0;
 	this->simulate = simulate;
 	this->periodLate = 0;
@@ -50,57 +46,59 @@ PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, ui
 
 	this->active = false;
 
-	this->setPwm(pwm);
-
 	pinMode(this->pin, OUTPUT);
+	this->setPwm(pwm);
 }
 
 void PwmActuator::recalculate(){
-	int32_t newPeriod = this->pwm * this->period / 100;
-	int32_t correctionFactor = (this->period + periodLate) / this->period;
-    this->dutyTime = int32_t(newPeriod * correctionFactor);
+	unsigned long newPeriod = this->pwm * this->period / 100;
+	unsigned long correctionFactor = (this->period + periodLate) / this->period;
+    this->dutyTime = newPeriod * correctionFactor;
 }
 
-void PwmActuator::setMinMax(uint8_t minVal, uint8_t maxVal)
+void PwmActuator::setMinMax(float minVal, float maxVal)
 {
 	this->minVal = minVal;
 	this->maxVal = maxVal;
 }
 
-uint8_t PwmActuator::getPwm()
+float PwmActuator::getPwm()
 {
 	return this->pwm;
 }
 
-void PwmActuator::setPwm(uint8_t val)
+void PwmActuator::setPwm(float val)
 {
 	if (this->simulate) {
-	    if (val <= minVal){
-	    	val = minVal;
+	    if (val <= this->minVal){
+	    	val = this->minVal;
 	    }
-	    if (val >= maxVal){
-	    	val = maxVal;
+	    if (val >= this->maxVal){
+	    	val = this->maxVal;
 	    }
 	    if(this->pwm != val){
-	    	uint8_t delta = (val > this->pwm) ? val - this->pwm : this->pwm - val;
+	    	float delta = (val > this->pwm) ? val - this->pwm : this->pwm - val;
 	    	this->pwm = val;
-	        if(delta > 1){
+	        if(delta > 1.0){
 	            dutyLate = 0;
 	        }
 	    }
-	    recalculate();	}
+	    recalculate();
+	    Helper::serialDebug(val);
+	}
 	else {
     	this->pwm = val;
 
-    	uint16_t value = 0;
+    	float value = 0.0;
     	if (this->pin == 16) {
-    		value = (4095 / this->pwm) * 100;
+    		value = (4095.0000 / 100.0000) * this->pwm;
     	} else {
-    		value = (255 / this->pwm) * 100;
+    		value = (255.0000 / 100.0000) * this->pwm;
     	}
 
+    	Helper::serialDebug(value);
 		analogWrite(this->pin, value);
-		this->active = this->pwm > 0;
+		this->active = this->pwm > 0.0;
 	}
 }
 
@@ -109,9 +107,9 @@ void PwmActuator::updatePwm()
 	if (!this->simulate)
 		return;
 
-    uint32_t adjDutyTime = this->dutyTime - this->dutyLate;
-    uint32_t currentTime = millis();
-    uint32_t elapsedTime = currentTime - periodStartTime;
+	unsigned long adjDutyTime = this->dutyTime - this->dutyLate;
+	unsigned long currentTime = millis();
+	unsigned long elapsedTime = currentTime - periodStartTime;
 
     if (this->pwm <= minVal) {
     	digitalWrite(this->pin, LOW);

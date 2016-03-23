@@ -30,6 +30,7 @@
 #include "FridgeController.h"
 #include "../Helper.h"
 #include "../SparkInfo.h"
+#include "../devices/Buzzer.h"
 
 Controller* ControllerManager::active_controllers[MAX_CONTROLLERS] = {};
 short ControllerManager::registered_controllers = 0;

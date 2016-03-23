@@ -25,10 +25,9 @@
 
 #include "Controller.h"
 #include "../SparkInfo.h"
-#include "../Helper.h"
 #include "../devices/DeviceManager.h"
 #include "../devices/DallasTemperatureSensor.h"
-#include "spark_wiring_time.h"
+#include "application.h"
 #include <string.h>
 
 Controller::Controller()
@@ -58,7 +57,7 @@ void Controller::dispose()
 
 void Controller::setConfig(ControllerConfiguration& config)
 {
-	memcpy(&this->config, &config, sizeof(config));
+	memcpy(&this->config, &config, sizeof(ControllerConfiguration));
 
 	setTempSensor(this->config.tempSensor);
 	setHeatActuator(this->config.heatActuator);
@@ -102,7 +101,7 @@ void Controller::setTempSensor(ActingDevice TempSensor)
 
 void Controller::setHeatActuator(ActingDevice HeatActuator)
 {
-	if (HeatActuator.pin_nr != 0 || (HeatActuator.hw_address[0] != 0x00 && HeatActuator.hw_address[7] != 0x00)) {
+	if (HeatActuator.pin_nr != 0) {
 		this->heatActuator = new PwmActuator(HeatActuator.pin_nr, HeatActuator.hw_address, 0, getConfig().heatingPeriod, true);
 	}
 }

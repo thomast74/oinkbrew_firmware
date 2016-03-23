@@ -33,31 +33,30 @@ class PwmActuator
 private:
 	uint8_t pin;
 	DeviceAddress hw_address;
-    uint8_t pwm;
-    uint8_t minVal;
-    uint8_t maxVal;
-    uint32_t period;
+    float pwm;
+    float minVal;
+    float maxVal;
+    unsigned long period;
     bool active;
     bool simulate;
 
-    uint32_t periodLate;
-    uint32_t dutyLate;
-    uint32_t dutyTime;
+    unsigned long periodLate;
+    unsigned long dutyLate;
+    unsigned long dutyTime;
 
     unsigned long periodStartTime;
 
     void recalculate();
 
 public:
-	PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, uint32_t period);
-	PwmActuator(uint8_t pin, DeviceAddress& hw_address, uint8_t pwm, uint32_t period, bool simulate);
+	PwmActuator(uint8_t pin, DeviceAddress& hw_address, float pwm, unsigned long period, bool simulate);
 
-	void setPwm(uint8_t pwm);
-	uint8_t getPwm();
-	void setMinMax(uint8_t minVal, uint8_t maxVal);
+	void setPwm(float pwm);
+	float getPwm();
+	void setMinMax(float minVal, float maxVal);
 	void updatePwm();
 
-	int32_t getPeriod(){
+	unsigned long getPeriod(){
 		return period;
 	}
 	bool isActive() {
