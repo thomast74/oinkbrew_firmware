@@ -75,9 +75,6 @@ bool TcpListener::connected()
 
 bool TcpListener::processRequest(char action)
 {
-	Helper::serialDebug("Action: ", false);
-	Helper::serialDebug(action);
-
 	switch (action) {
 	// do nothing wrong request
 	case ' ':
@@ -162,7 +159,6 @@ void TcpListener::receiveDeviceRequest(const char * key, const char * val, void*
 		sOffset.concat(pOffset);
 		sOffset.concat("   ");
 		sOffset.concat(offset);
-		Helper::serialDebug(sOffset.c_str());
 
 		pDeviceRequest->offset = offset;
 	}
@@ -201,11 +197,11 @@ void TcpListener::receiveConfiguration(const char * key, const char * val, void*
 	else if (strcmp(key, "pump_2_pwm") == 0)
 		pControllerRequest->pump2Pwm = (float) atoi(val) / 10000.0000;
 	else if (strcmp(key, "heating_period") == 0)
-		pControllerRequest->heatingPeriod = atoi(val);
-	else if (strcmp(key, "cooling_on_time") == 0)
-		pControllerRequest->coolingOnPeriod = atoi(val);
+		pControllerRequest->heatingPeriod = atol(val);
+	else if (strcmp(key, "cooling_on_period") == 0)
+		pControllerRequest->coolingOnPeriod = atol(val);
 	else if (strcmp(key, "cooling_off_period") == 0)
-		pControllerRequest->coolingOffPeriod = atoi(val);
+		pControllerRequest->coolingOffPeriod = atol(val);
 	else if (strcmp(key, "p") == 0)
 		pControllerRequest->p = (float) atoi(val) / 10000.0000;
 	else if (strcmp(key, "i") == 0)
