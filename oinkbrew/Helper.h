@@ -35,8 +35,8 @@ class Helper {
 public:   
     static bool isDebug();
     static void serialDebug(const char* message, bool lineFeed = true);
-    static void serialDebug(int8_t message, bool lineFeed = true);
-    static void serialDebug(int number, bool lineFeed);
+    //static void serialDebug(int8_t message, bool lineFeed = true);
+    static void serialDebug(float number, bool lineFeed = true);
 
     static String getIpStr(IPAddress ip);
     static void getRawIp(const char* ipString, uint8_t* address);

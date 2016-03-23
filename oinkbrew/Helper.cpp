@@ -49,7 +49,7 @@ bool Helper::isDebug() {
 #ifdef DEBUG_BUILD    
     return true;
 #else
-    return false;
+    return true;
 #endif
 }
 
@@ -69,7 +69,7 @@ void Helper::serialDebug(const char* message, bool lineFeed) {
         Serial.flush();
     }
 }
-
+/*
 void Helper::serialDebug(int8_t message, bool lineFeed) {
     if (Helper::isDebug()) {
         if (lineFeed)
@@ -79,8 +79,9 @@ void Helper::serialDebug(int8_t message, bool lineFeed) {
         Serial.flush();
     }
 }
+*/
 
-void Helper::serialDebug(int number, bool lineFeed) {
+void Helper::serialDebug(float number, bool lineFeed) {
     if (Helper::isDebug()) {
         if (lineFeed)
             Serial.println(number);
