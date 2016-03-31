@@ -44,6 +44,9 @@ private:
     unsigned long dutyLate;
     unsigned long dutyTime;
 
+    unsigned long minimumOnTime;
+    unsigned long minimumOffTime;
+
     unsigned long periodStartTime;
 
     void recalculate();
@@ -54,6 +57,7 @@ public:
 	void setPwm(float pwm);
 	float getPwm();
 	void setMinMax(float minVal, float maxVal);
+	void setMinimumOnTime(unsigned long minOnTime);
 	void updatePwm();
 
 	unsigned long getPeriod(){

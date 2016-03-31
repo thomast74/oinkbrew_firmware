@@ -64,8 +64,9 @@ struct ControllerConfiguration {
 	float pump1Pwm;
 	float pump2Pwm;
 	unsigned long heatingPeriod;
-	unsigned long coolingOnPeriod;
-	unsigned long coolingOffPeriod;
+	unsigned long coolingPeriod;
+	unsigned long coolingOnTime;
+	unsigned long coolingOffTime;
 	float p;
 	float i;
 	float d;

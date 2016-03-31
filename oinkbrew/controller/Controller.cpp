@@ -48,11 +48,15 @@ void Controller::dispose()
 {
 	turnOffHeater();
 
-	if (this->heatActuator != NULL)
+	if (this->heatActuator != NULL) {
 		delete this->heatActuator;
+		this->heatActuator = NULL;
+	}
 
-	if (this->pid != NULL)
+	if (this->pid != NULL) {
 		delete this->pid;
+		this->pid = NULL;
+	}
 }
 
 void Controller::setConfig(ControllerConfiguration& config)
@@ -61,6 +65,8 @@ void Controller::setConfig(ControllerConfiguration& config)
 
 	setTempSensor(this->config.tempSensor);
 	setHeatActuator(this->config.heatActuator);
+
+	setTargetTemperature(getConfig().temperature);
 
 	this->pid = new PID(&currentTemperature, &output, &targetTemperature, this->config.p, this->config.i, this->config.d, PID_DIRECT);
 }

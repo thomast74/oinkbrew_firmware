@@ -76,11 +76,6 @@ bool TcpListener::connected()
 bool TcpListener::processRequest(char action)
 {
 	switch (action) {
-	// do nothing wrong request
-	case ' ':
-	case '\n':
-	case '\r':
-		break;
 	// set offset for temp sensor
 	case 'o':
 		DeviceRequest dr3;
@@ -110,19 +105,15 @@ bool TcpListener::processRequest(char action)
 		client.write("Ok");
 		delay(100);
 		System.reset();
-		return true;
+		break;
 	// receive and process spark info
 	case 's':
 		parseJson(&TcpListener::processDeviceInfo, NULL);
 		sparkInfo.received = true;
 		client.write("Ok");
-		return true;
-	// bootloader mode
-	case '$':
-		client.write("Ok");
-		delay(100);
-		System.dfu(true);
 		break;
+	default:
+		client.write("--");
 	}
 
 	return false;
@@ -174,8 +165,10 @@ void TcpListener::receiveConfiguration(const char * key, const char * val, void*
 		memcpy(&pControllerRequest->name, val, strlen(val) + 1);
 	else if (strcmp(key, "config_type") == 0)
 		pControllerRequest->type = static_cast<ControllerType>(atoi(val));
+
 	else if (strcmp(key, "temp_sensor") == 0)
 		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->tempSensor, val);
+
 	else if (strcmp(key, "heat_actuator") == 0)
 		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->heatActuator, val);
 	else if (strcmp(key, "cool_actuator") == 0)
@@ -186,8 +179,10 @@ void TcpListener::receiveConfiguration(const char * key, const char * val, void*
 		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->pump1Actuator, val);
 	else if (strcmp(key, "pump_2_actuator") == 0)
 		parseActingDeviceString(&TcpListener::parseActingDevice, &pControllerRequest->pump2Actuator, val);
+
 	else if (strcmp(key, "temperature") == 0)
 		pControllerRequest->temperature = (float) atoi(val) / 10000.0000;
+
 	else if (strcmp(key, "heat_pwm") == 0)
 		pControllerRequest->heaterPwm = (float) atoi(val) / 10000.0000;
 	else if (strcmp(key, "fan_pwm") == 0)
@@ -196,12 +191,17 @@ void TcpListener::receiveConfiguration(const char * key, const char * val, void*
 		pControllerRequest->pump1Pwm = (float) atoi(val) / 10000.0000;
 	else if (strcmp(key, "pump_2_pwm") == 0)
 		pControllerRequest->pump2Pwm = (float) atoi(val) / 10000.0000;
+
 	else if (strcmp(key, "heating_period") == 0)
 		pControllerRequest->heatingPeriod = atol(val);
-	else if (strcmp(key, "cooling_on_period") == 0)
-		pControllerRequest->coolingOnPeriod = atol(val);
-	else if (strcmp(key, "cooling_off_period") == 0)
-		pControllerRequest->coolingOffPeriod = atol(val);
+
+	else if (strcmp(key, "cooling_period") == 0)
+		pControllerRequest->coolingPeriod = atol(val);
+	else if (strcmp(key, "cooling_on_time") == 0)
+		pControllerRequest->coolingOnTime = atol(val);
+	else if (strcmp(key, "cooling_off_time") == 0)
+		pControllerRequest->coolingOffTime = atol(val);
+
 	else if (strcmp(key, "p") == 0)
 		pControllerRequest->p = (float) atoi(val) / 10000.0000;
 	else if (strcmp(key, "i") == 0)

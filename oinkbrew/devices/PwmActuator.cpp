@@ -23,13 +23,12 @@
  ******************************************************************************
  */
 
-
 #include "PwmActuator.h"
 #include "../Helper.h"
 #include "spark_wiring.h"
 
-
-PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, float pwm, unsigned long period, bool simulate)
+PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, float pwm,
+		unsigned long period, bool simulate)
 {
 
 	this->pin = pin;
@@ -42,24 +41,38 @@ PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, float pwm, unsi
 	this->pwm = 0;
 	this->minVal = 0;
 	this->maxVal = 100;
-    this->period = period;
-
+	this->period = period;
+	this->minimumOnTime = 0;
+	this->minimumOffTime = 0;
 	this->active = false;
 
 	pinMode(this->pin, OUTPUT);
 	this->setPwm(pwm);
 }
 
-void PwmActuator::recalculate(){
+void PwmActuator::recalculate()
+{
 	unsigned long newPeriod = this->pwm * this->period / 100;
 	unsigned long correctionFactor = (this->period + periodLate) / this->period;
-    this->dutyTime = newPeriod * correctionFactor;
+
+	this->dutyTime = newPeriod * correctionFactor;
+
+	if (this->minimumOnTime > 0 && this->dutyTime < this->minimumOnTime) {
+		this->dutyTime = this->minimumOnTime;
+	}
 }
 
 void PwmActuator::setMinMax(float minVal, float maxVal)
 {
 	this->minVal = minVal;
 	this->maxVal = maxVal;
+}
+
+void PwmActuator::setMinimumOnTime(unsigned long minOnTime)
+{
+	this->minimumOnTime = minOnTime;
+	if (this->minimumOnTime > this->period)
+		this->minimumOnTime = this->period;
 }
 
 float PwmActuator::getPwm()
@@ -70,33 +83,30 @@ float PwmActuator::getPwm()
 void PwmActuator::setPwm(float val)
 {
 	if (this->simulate) {
-	    if (val <= this->minVal){
-	    	val = this->minVal;
-	    }
-	    if (val >= this->maxVal){
-	    	val = this->maxVal;
-	    }
-	    if(this->pwm != val){
-	    	float delta = (val > this->pwm) ? val - this->pwm : this->pwm - val;
-	    	this->pwm = val;
-	        if(delta > 1.0){
-	            dutyLate = 0;
-	        }
-	    }
-	    recalculate();
-	    Helper::serialDebug(val);
-	}
-	else {
-    	this->pwm = val;
+		if (val <= this->minVal) {
+			val = this->minVal;
+		}
+		if (val >= this->maxVal) {
+			val = this->maxVal;
+		}
+		if (this->pwm != val) {
+			float delta = (val > this->pwm) ? val - this->pwm : this->pwm - val;
+			this->pwm = val;
+			if (delta > 1.0) {
+				dutyLate = 0;
+			}
+		}
+		recalculate();
+	} else {
+		this->pwm = val;
 
-    	float value = 0.0;
-    	if (this->pin == 16) {
-    		value = (4095.0000 / 100.0000) * this->pwm;
-    	} else {
-    		value = (255.0000 / 100.0000) * this->pwm;
-    	}
+		float value = 0.0;
+		if (this->pin == 16) {
+			value = (4095.0000 / 100.0000) * this->pwm;
+		} else {
+			value = (255.0000 / 100.0000) * this->pwm;
+		}
 
-    	Helper::serialDebug(value);
 		analogWrite(this->pin, value);
 		this->active = this->pwm > 0.0;
 	}
@@ -111,46 +121,47 @@ void PwmActuator::updatePwm()
 	unsigned long currentTime = millis();
 	unsigned long elapsedTime = currentTime - periodStartTime;
 
-    if (this->pwm <= minVal) {
-    	digitalWrite(this->pin, LOW);
-    	this->active = false;
-        return;
-    }
+	if (this->pwm <= minVal) {
+		digitalWrite(this->pin, LOW);
+		this->active = false;
+		return;
+	}
 
-    if (this->pwm >= maxVal) {
-    	digitalWrite(this->pin, HIGH);
-    	this->active = true;
-        return;
-    }
+	if (this->pwm >= maxVal) {
+		digitalWrite(this->pin, HIGH);
+		this->active = true;
+		return;
+	}
 
-    if (this->active) {
-        if (elapsedTime >= adjDutyTime) {
-            // end of duty cycle
-        	digitalWrite(this->pin, LOW);
-        	this->active = false;
-
-        	this->dutyLate += elapsedTime - this->dutyTime;
-        }
-    }
-    if (!this->active) { // <- do not replace with else if
-        if (elapsedTime >= this->period) {
-            // end of PWM cycle
-            if (adjDutyTime < 0) {
-                // skip going high for 1 period when previous periods built up
-                // more than one entire duty cycle (duty is ahead)
-                // subtract duty cycle form duty late accumulator
-            	this->dutyLate = this->dutyLate - this->dutyTime;
-            } else {
-            	digitalWrite(this->pin, HIGH);
-            	this->active = true;
-            }
-            this->periodLate = elapsedTime - this->period;
-            // limit to half of the period
-            this->periodLate = (this->periodLate < this->period / 2) ? this->periodLate : this->period / 2;
-            // adjust next duty time to account for longer period due to infrequent updates
-            // low period was longer, increase high period (duty cycle) with same ratio
-            recalculate();
-            this->periodStartTime = currentTime;
-        }
-    }
+	if (this->active) {
+		if (elapsedTime >= adjDutyTime) {
+			// end of duty cycle
+			digitalWrite(this->pin, LOW);
+			this->active = false;
+			this->dutyLate += elapsedTime - this->dutyTime;
+		}
+	}
+	if (!this->active) { // <- do not replace with else if
+		if (elapsedTime >= this->period || periodStartTime == 0) {
+			// end of PWM cycle
+			if (adjDutyTime < 0) {
+				// skip going high for 1 period when previous periods built up
+				// more than one entire duty cycle (duty is ahead)
+				// subtract duty cycle form duty late accumulator
+				this->dutyLate = this->dutyLate - this->dutyTime;
+			} else {
+				digitalWrite(this->pin, HIGH);
+				this->active = true;
+			}
+			this->periodLate = elapsedTime - this->period;
+			// limit to half of the period
+			this->periodLate = (this->periodLate < this->period / 2)
+					? this->periodLate
+				    : this->period / 2;
+			// adjust next duty time to account for longer period due to infrequent updates
+			// low period was longer, increase high period (duty cycle) with same ratio
+			recalculate();
+			this->periodStartTime = currentTime;
+		}
+	}
 }

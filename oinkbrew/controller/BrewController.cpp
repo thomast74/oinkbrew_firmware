@@ -44,10 +44,15 @@ void BrewController::dispose()
 	turnOffPump1();
 	turnOffPump2();
 
-	if (this->pump1Actuator != NULL)
+	if (this->pump1Actuator != NULL) {
 		delete this->pump1Actuator;
-	if (this->pump2Actuator != NULL)
+		this->pump1Actuator = NULL;
+	}
+
+	if (this->pump2Actuator != NULL) {
 		delete this->pump2Actuator;
+		this->pump2Actuator = NULL;
+	}
 }
 
 void BrewController::setConfig(ControllerConfiguration& config)
@@ -58,7 +63,6 @@ void BrewController::setConfig(ControllerConfiguration& config)
 
 	if (getConfig().temperature > 0) {
 		getPID()->SetMode(PID_AUTOMATIC);
-		setTargetTemperature(getConfig().temperature);
 	}
 	else {
 		getPID()->SetMode(PID_MANUAL);
