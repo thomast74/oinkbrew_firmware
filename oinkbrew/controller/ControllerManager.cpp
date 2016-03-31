@@ -96,7 +96,6 @@ bool ControllerManager::removeController(int id)
 
 	for(int i=0; i < registered_controllers; i++) {
 		if (active_controllers[i]->getId() == id) {
-			Helper::serialDebug("EEPROM remove");
 			active_controllers[i]->dispose();
 			delete active_controllers[i];
 
@@ -127,25 +126,22 @@ int ControllerManager::findController(int id)
 	return -1;
 }
 
-const char* ControllerManager::getTargetTemperatureJson()
+void ControllerManager::getTargetTemperatureJson(String* requestBody)
 {
 	bool notFirst = false;
-	String targetsJson;
 
 	for(short i=0; i < registered_controllers; i++) {
 
 		if (notFirst) {
-			targetsJson.concat(',');
+			requestBody->concat(',');
 		} else {
 			notFirst = true;
 		}
 
-		targetsJson.concat("{\"config_id\":");
-		targetsJson.concat(active_controllers[i]->getId());
-		targetsJson.concat(",\"temperature\":");
-		targetsJson.concat(active_controllers[i]->getTargetTemperature());
-		targetsJson.concat("}");
+		requestBody->concat("{\"config_id\":");
+		requestBody->concat(active_controllers[i]->getId());
+		requestBody->concat(",\"temperature\":");
+		requestBody->concat(active_controllers[i]->getTargetTemperature());
+		requestBody->concat("}");
 	}
-
-	return targetsJson.c_str();
 }

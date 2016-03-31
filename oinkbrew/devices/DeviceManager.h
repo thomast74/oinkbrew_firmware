@@ -58,7 +58,7 @@ public:
 
 	static void setOffset(DeviceRequest& deviceRequest);
 	static void setDeviceValue(uint8_t& pin_nr, DeviceAddress& hw_address, float value);
-	static const char* getDeviceTemperatureJson();
+	static void getDeviceTemperatureJson(String* requestBody);
 private:
 	static void processActuators(Device devices[], uint8_t& slot);
 	static void processOneWire(Device devices[], uint8_t& slot);

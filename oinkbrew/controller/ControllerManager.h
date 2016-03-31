@@ -30,6 +30,7 @@
 #include "ControllerConfiguration.h"
 #include "BrewController.h"
 #include "FridgeController.h"
+#include "spark_wiring_string.h"
 
 
 class ControllerManager
@@ -49,7 +50,7 @@ public:
 	static bool changeController(ControllerConfiguration request);
 	static bool removeController(int id);
 
-	static const char* getTargetTemperatureJson();
+	static void getTargetTemperatureJson(String* requestBody);
 private:
 	static int findController(int id);
 };

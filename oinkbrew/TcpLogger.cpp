@@ -56,11 +56,10 @@ void TcpLogger::logDeviceValues()
 	request.port = sparkInfo.oinkWebPort;
 
 	request.body.concat("{\"temperatures\":[");
-	request.body.concat(deviceManager.getDeviceTemperatureJson());
+	deviceManager.getDeviceTemperatureJson(&request.body);
 	request.body.concat("],\"targets\":[");
-	request.body.concat(controllerManager.getTargetTemperatureJson());
+	controllerManager.getTargetTemperatureJson(&request.body);
 	request.body.concat("]}");
-
 
 	request.path = "/api/logs/";
 	request.path.concat(Particle.deviceID().c_str());

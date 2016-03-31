@@ -261,32 +261,29 @@ void DeviceManager::getDevice(uint8_t& pin_nr, DeviceAddress& hw_address, Device
 	}
 }
 
-const char* DeviceManager::getDeviceTemperatureJson()
+void DeviceManager::getDeviceTemperatureJson(String* requestBody)
 {
 	bool notFirst = false;
 	char buf[17];
-	String temperatureJson;
 
 	for (short i = 0; i < registered_devices; i++) {
 		if (activeDevices[i].type != DEVICE_HARDWARE_NONE) {
 
 			if (notFirst) {
-				temperatureJson.concat(',');
+				requestBody->concat(',');
 			} else {
 				notFirst = true;
 			}
 
 			Helper::getBytes(activeDevices[i].hw_address, 8, buf);
 
-			temperatureJson.concat("{\"pin_nr\":\"");
-			temperatureJson.concat(activeDevices[i].pin_nr);
-			temperatureJson.concat("\",\"hw_address\":\"");
-			temperatureJson.concat(buf);
-			temperatureJson.concat("\",\"value\":");
-			temperatureJson.concat(activeDevices[i].value);
-			temperatureJson.concat('}');
+			requestBody->concat("{\"pin_nr\":\"");
+			requestBody->concat(activeDevices[i].pin_nr);
+			requestBody->concat("\",\"hw_address\":\"");
+			requestBody->concat(buf);
+			requestBody->concat("\",\"value\":");
+			requestBody->concat(activeDevices[i].value);
+			requestBody->concat('}');
 		}
 	}
-
-	return temperatureJson.c_str();
 }
