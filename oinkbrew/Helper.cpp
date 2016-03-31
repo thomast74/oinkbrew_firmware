@@ -49,7 +49,7 @@ bool Helper::isDebug() {
 #ifdef DEBUG_BUILD    
     return true;
 #else
-    return true;
+    return false;
 #endif
 }
 
