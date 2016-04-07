@@ -27,7 +27,7 @@
 #ifndef OINKBREW_PLATFORM_H_
 #define OINKBREW_PLATFORM_H_
 
-#define SPARK_V1 1
+#define SPARK_V1 0
 
 
 #include <stdio.h>
