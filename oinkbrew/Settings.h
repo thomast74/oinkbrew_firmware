@@ -38,7 +38,7 @@ extern const short LOCAL_LISTENER_PORT;
 
 extern const unsigned long DURATION_RUN;
 extern const unsigned long DURATION_LOG;
-extern const unsigned long DURATION_MSG;
+extern const unsigned long DURATION_DETECT;
 
 
 #endif

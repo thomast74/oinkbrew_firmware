@@ -42,6 +42,7 @@ void processing();
 static bool initialised = false;
 static unsigned long lastRun = -1000;
 static unsigned long lastLog = 0;
+//static unsigned long lastDetect = 0;
 
 SparkInfo sparkInfo;
 TcpListener listener;
@@ -137,6 +138,12 @@ void processing()
     	lastLog = time;
     	logger.logDeviceValues();
     }
+
+    //if ((time - lastDetect) >= DURATION_DETECT)
+    //{
+    //	lastDetect = time;
+	//	deviceManager.findNewDevices();
+    //}
 
     // check for client connectivity
 	listener.connected();
