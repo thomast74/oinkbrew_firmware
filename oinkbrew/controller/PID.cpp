@@ -16,7 +16,7 @@ PID::PID(float* Input, float* Output, float* Setpoint,
     this->mySetpoint = Setpoint;
     this->inAuto = false;
 
-	PID::SetOutputLimits(-10, 100);				//default output limit corresponds to
+	PID::SetOutputLimits(0, 100);				//default output limit corresponds to
 													//the arduino pwm limits
 
     SampleTime = 1000;								//default Controller Sample Time is 1 seconds
