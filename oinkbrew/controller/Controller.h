@@ -58,6 +58,8 @@ public:
 	float getTargetTemperature();
 	void setTargetTemperature(float target);
 
+	float getCurrentTemperature();
+
 	int getId();
 
 protected:

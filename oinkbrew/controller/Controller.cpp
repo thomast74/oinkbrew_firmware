@@ -46,7 +46,12 @@ Controller::~Controller()
 
 void Controller::dispose()
 {
+
 	turnOffHeater();
+
+	this->output = 0.0;
+	this->targetTemperature = 0.0;
+	this->currentTemperature = 0.0;
 
 	if (this->heatActuator != NULL) {
 		delete this->heatActuator;
@@ -95,7 +100,7 @@ void Controller::process()
 
 void Controller::update()
 {
-	if (this->heatActuator != NULL && this->heatActuator->isActive()) {
+	if (this->heatActuator != NULL) {
 		this->heatActuator->updatePwm();
 	}
 }
@@ -147,6 +152,11 @@ float Controller::getTargetTemperature()
 void Controller::setTargetTemperature(float target)
 {
 	this->targetTemperature = target;
+}
+
+float Controller::getCurrentTemperature()
+{
+	return this->currentTemperature;
 }
 
 PID * Controller::getPID()
