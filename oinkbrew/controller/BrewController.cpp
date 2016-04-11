@@ -62,6 +62,7 @@ void BrewController::setConfig(ControllerConfiguration& config)
 	getPID()->SetOutputLimits(0, 100);
 
 	if (getConfig().temperature > 0) {
+		this->setSetPoint(getConfig().temperature - 0.5);
 		getPID()->SetMode(PID_AUTOMATIC);
 	}
 	else {
@@ -96,6 +97,14 @@ void BrewController::doProcess()
 {
 	if (getConfig().temperature > 0 && this->getCurrentTemperature() > 0)
 	{
+		if (this->getSetPoint() != this->getTargetTemperature())
+		{
+			if (this->getCurrentTemperature() < this->getTargetTemperature() && this->getCurrentTemperature() > (this->getSetPoint() - 0.5))
+			{
+				this->setSetPoint(this->getTargetTemperature());
+			}
+		}
+
 		float output = getOutput();
 
 		if (output > 0)

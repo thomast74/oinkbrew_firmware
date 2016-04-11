@@ -36,6 +36,7 @@ Controller::Controller()
 	this->heatActuator = NULL;
 
 	this->output = 0.0;
+	this->setPoint = 0.0;
 	this->targetTemperature = 0.0;
 	this->currentTemperature = 0.0;
 }
@@ -50,6 +51,7 @@ void Controller::dispose()
 	turnOffHeater();
 
 	this->output = 0.0;
+	this->setPoint = 0.0;
 	this->targetTemperature = 0.0;
 	this->currentTemperature = 0.0;
 
@@ -73,7 +75,7 @@ void Controller::setConfig(ControllerConfiguration& config)
 
 	setTargetTemperature(getConfig().temperature);
 
-	this->pid = new PID(&currentTemperature, &output, &targetTemperature, this->config.p, this->config.i, this->config.d, PID_DIRECT);
+	this->pid = new PID(&currentTemperature, &output, &setPoint, this->config.p, this->config.i, this->config.d, PID_DIRECT);
 }
 
 ControllerConfiguration& Controller::getConfig()
@@ -152,6 +154,16 @@ float Controller::getTargetTemperature()
 void Controller::setTargetTemperature(float target)
 {
 	this->targetTemperature = target;
+}
+
+void Controller::setSetPoint(float newSetPoint)
+{
+	this->setPoint = newSetPoint;
+}
+
+float Controller::getSetPoint()
+{
+	return this->setPoint;
 }
 
 float Controller::getCurrentTemperature()

@@ -68,6 +68,9 @@ protected:
 	void setTempSensor(ActingDevice TempSensor);
 	void setHeatActuator(ActingDevice HeatActuator);
 
+	void setSetPoint(float newSetPoint);
+	float getSetPoint();
+
 	bool isHeaterOn();
 	virtual void turnOnHeater(float pwm);
 	virtual void turnOffHeater();
@@ -82,6 +85,7 @@ private:
 	PwmActuator* heatActuator;
 	ControllerConfiguration config;
 
+	float setPoint;
 	float targetTemperature;
 	float currentTemperature;
 	float output;

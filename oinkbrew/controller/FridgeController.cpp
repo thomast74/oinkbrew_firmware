@@ -73,6 +73,8 @@ void FridgeController::setConfig(ControllerConfiguration& config)
 	this->setCoolActuator(getConfig().coolActuator);
 	this->setFanActuator(getConfig().fanActuator);
 
+	this->setSetPoint(getConfig().temperature);
+
 	getPID()->SetOutputLimits(-100, 100);
 	getPID()->SetMode(PID_AUTOMATIC);
 
