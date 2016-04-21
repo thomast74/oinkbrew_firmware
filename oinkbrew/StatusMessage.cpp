@@ -49,11 +49,8 @@ void StatusMessage::send() {
     sprintf(buf, "%i.%i.%i.%i", sparkInfo.oinkWeb[0], sparkInfo.oinkWeb[1], sparkInfo.oinkWeb[2], sparkInfo.oinkWeb[3]);
 
     String jsonMessage("{");
-    jsonMessage.concat("\"command\":\"status\"");
-    jsonMessage.concat(",\"device_id\":\"");
+    jsonMessage.concat("\"device_id\":\"");
     jsonMessage.concat(Particle.deviceID().c_str());
-    jsonMessage.concat("\",\"name\":\"");
-    jsonMessage.concat(sparkInfo.name);
     jsonMessage.concat("\",\"system_version\":\"");
     jsonMessage.concat(System.version().c_str());
     jsonMessage.concat("\",\"firmware_version\":\"");
