@@ -27,8 +27,8 @@
 #include "Platform.h"
 #include "spark_wiring_ipaddress.h"
 
-const char OINK_BREW_VERSION[] = "0.3";
-const char OINK_BREW_VERSION_STRING[] = "Version: 0.3";
+const char OINK_BREW_VERSION[] = "0.4";
+const char OINK_BREW_VERSION_STRING[] = "Version: 0.4";
 
 #if SPARK_V1
 const char BREWPI_SPARK_REVISION[] = "V1";
