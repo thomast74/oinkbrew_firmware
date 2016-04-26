@@ -28,6 +28,10 @@
 
 #include "../devices/Device.h"
 
+const int START = 0;
+const int IN_PULSE = 1;
+const int PULSE_ENDED = 2;
+
 class PwmActuator
 {
 private:
@@ -37,19 +41,14 @@ private:
     float minVal;
     float maxVal;
     unsigned long period;
+    int currentState;
     bool active;
     bool simulate;
-
-    unsigned long periodLate;
-    unsigned long dutyLate;
-    unsigned long dutyTime;
 
     unsigned long minimumOnTime;
     unsigned long minimumOffTime;
 
-    unsigned long periodStartTime;
-
-    void recalculate();
+    unsigned long cycleStart;
 
 public:
 	PwmActuator(uint8_t pin, DeviceAddress& hw_address, float pwm, unsigned long period, bool simulate);

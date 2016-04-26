@@ -33,11 +33,8 @@ PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, float pwm,
 
 	this->pin = pin;
 	memcpy(&this->hw_address, &hw_address, sizeof(DeviceAddress));
-	this->periodStartTime = 0;
+	this->cycleStart = 0;
 	this->simulate = simulate;
-	this->periodLate = 0;
-	this->dutyTime = 0;
-	this->dutyLate = 0;
 	this->pwm = 0;
 	this->minVal = 0;
 	this->maxVal = 100;
@@ -45,21 +42,9 @@ PwmActuator::PwmActuator(uint8_t pin, DeviceAddress& hw_address, float pwm,
 	this->minimumOnTime = 0;
 	this->minimumOffTime = 0;
 	this->active = false;
-
+	this->currentState = START;
 	pinMode(this->pin, OUTPUT);
 	this->setPwm(pwm);
-}
-
-void PwmActuator::recalculate()
-{
-	unsigned long newPeriod = this->pwm * this->period / 100;
-	unsigned long correctionFactor = (this->period + periodLate) / this->period;
-
-	this->dutyTime = newPeriod * correctionFactor;
-
-	if (this->minimumOnTime > 0 && this->dutyTime < this->minimumOnTime) {
-		this->dutyTime = this->minimumOnTime;
-	}
 }
 
 void PwmActuator::setMinMax(float minVal, float maxVal)
@@ -89,14 +74,7 @@ void PwmActuator::setPwm(float val)
 		if (val >= this->maxVal) {
 			val = this->maxVal;
 		}
-		if (this->pwm != val) {
-			float delta = (val > this->pwm) ? val - this->pwm : this->pwm - val;
-			this->pwm = val;
-			if (delta > 1.0) {
-				dutyLate = 0;
-			}
-		}
-		recalculate();
+		this->pwm = val;
 	} else {
 		this->pwm = val;
 
@@ -106,7 +84,6 @@ void PwmActuator::setPwm(float val)
 		} else {
 			value = (255.0000 / 100.0000) * this->pwm;
 		}
-
 		analogWrite(this->pin, value);
 		this->active = this->pwm > 0.0;
 	}
@@ -117,51 +94,33 @@ void PwmActuator::updatePwm()
 	if (!this->simulate)
 		return;
 
-	unsigned long adjDutyTime = this->dutyTime - this->dutyLate;
-	unsigned long currentTime = millis();
-	unsigned long elapsedTime = currentTime - periodStartTime;
+	unsigned long runtime = 0;
 
-	if (this->pwm <= minVal) {
-		digitalWrite(this->pin, LOW);
-		this->active = false;
-		return;
-	}
-
-	if (this->pwm >= maxVal) {
-		digitalWrite(this->pin, HIGH);
-		this->active = true;
-		return;
-	}
-
-	if (this->active) {
-		if (elapsedTime >= adjDutyTime) {
-			// end of duty cycle
-			digitalWrite(this->pin, LOW);
-			this->active = false;
-			this->dutyLate += elapsedTime - this->dutyTime;
-		}
-	}
-	if (!this->active) { // <- do not replace with else if
-		if (elapsedTime >= this->period || periodStartTime == 0) {
-			// end of PWM cycle
-			if (adjDutyTime < 0) {
-				// skip going high for 1 period when previous periods built up
-				// more than one entire duty cycle (duty is ahead)
-				// subtract duty cycle form duty late accumulator
-				this->dutyLate = this->dutyLate - this->dutyTime;
-			} else {
+	switch ( currentState ) {
+		case START:  // start of cycle
+			this->cycleStart = millis();
+			if ( this->pwm > 0 ) {
 				digitalWrite(this->pin, HIGH);
-				this->active = true;
 			}
-			this->periodLate = elapsedTime - this->period;
-			// limit to half of the period
-			this->periodLate = (this->periodLate < this->period / 2)
-					? this->periodLate
-				    : this->period / 2;
-			// adjust next duty time to account for longer period due to infrequent updates
-			// low period was longer, increase high period (duty cycle) with same ratio
-			recalculate();
-			this->periodStartTime = currentTime;
-		}
+			currentState = IN_PULSE;  //set up state machine to detect end of high state of pulse
+			break;
+		case IN_PULSE:  // currently in high state, so keep track of when to end high state of pulse
+			runtime = (this->pwm * this->period / 100);
+			if (runtime < this->minimumOnTime) {
+				runtime = this->minimumOnTime;
+			}
+
+			if ( millis() >= (cycleStart + runtime) ) {
+				if ( this->pwm < 100 ) {
+					digitalWrite(this->pin, LOW);
+				}
+				currentState = PULSE_ENDED;
+			}
+			break;
+		case PULSE_ENDED:
+			if ( millis() >= (this->cycleStart + this->period)) {
+				currentState = START;
+			}
+			break;
 	}
 }
