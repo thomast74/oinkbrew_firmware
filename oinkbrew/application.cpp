@@ -139,12 +139,6 @@ void processing()
     	logger.logDeviceValues();
     }
 
-    //if ((time - lastDetect) >= DURATION_DETECT)
-    //{
-    //	lastDetect = time;
-	//	deviceManager.findNewDevices();
-    //}
-
     // check for client connectivity
 	listener.connected();
 }

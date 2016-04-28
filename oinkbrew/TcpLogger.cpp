@@ -55,15 +55,15 @@ void TcpLogger::logDeviceValues()
 	request.ip = oinkWebIp;
 	request.port = sparkInfo.oinkWebPort;
 
+	request.path = "/api/logs/";
+	request.path.concat(Particle.deviceID().c_str());
+	request.path.concat("/");
+
 	request.body.concat("{\"temperatures\":[");
 	deviceManager.getDeviceTemperatureJson(&request.body);
 	request.body.concat("],\"targets\":[");
 	controllerManager.getTargetTemperatureJson(&request.body);
 	request.body.concat("]}");
-
-	request.path = "/api/logs/";
-	request.path.concat(Particle.deviceID().c_str());
-	request.path.concat("/");
 
 	http.post(request, response, headers);
 
@@ -126,6 +126,10 @@ bool TcpLogger::prepareDeviceRequest(Device &device)
 	request.ip = oinkWebIp;
 	request.port = sparkInfo.oinkWebPort;
 
+	request.path = "/api/devices/";
+	request.path.concat(Particle.deviceID().c_str());
+	request.path.concat("/");
+
 	char hw_address[17];
 	Helper::getBytes(device.hw_address, 8, hw_address);
 
@@ -141,10 +145,5 @@ bool TcpLogger::prepareDeviceRequest(Device &device)
 	request.body.concat(device.offset);
 	request.body.concat("}");
 
-	request.path = "/api/devices/";
-	request.path.concat(Particle.deviceID().c_str());
-	request.path.concat("/");
-
 	return true;
 }
-
