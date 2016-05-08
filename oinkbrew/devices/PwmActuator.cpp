@@ -101,8 +101,8 @@ void PwmActuator::updatePwm()
 			this->cycleStart = millis();
 			if ( this->pwm > 0 ) {
 				digitalWrite(this->pin, HIGH);
+				currentState = IN_PULSE;
 			}
-			currentState = IN_PULSE;  //set up state machine to detect end of high state of pulse
 			break;
 		case IN_PULSE:  // currently in high state, so keep track of when to end high state of pulse
 			runtime = (this->pwm * this->period / 100);
@@ -123,4 +123,11 @@ void PwmActuator::updatePwm()
 			}
 			break;
 	}
+}
+
+void PwmActuator::stopPwm()
+{
+	digitalWrite(this->pin, LOW);
+	this->pwm = 0.0;
+	currentState = START;
 }

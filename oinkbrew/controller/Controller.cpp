@@ -102,7 +102,7 @@ void Controller::process()
 
 void Controller::update()
 {
-	if (this->heatActuator != NULL) {
+	if (this->heatActuator != NULL && this->heatActuator->isActive()) {
 		this->heatActuator->updatePwm();
 	}
 }
@@ -132,6 +132,8 @@ void Controller::turnOnHeater(float pwm)
 {
 	if (this->heatActuator != NULL) {
 		this->heatActuator->setPwm(pwm);
+		this->heatActuator->updatePwm();
+
 		deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), pwm);
 	}
 }
@@ -139,8 +141,7 @@ void Controller::turnOnHeater(float pwm)
 void Controller::turnOffHeater()
 {
 	if (isHeaterOn()) {
-		this->heatActuator->setPwm(0.0);
-		this->heatActuator->updatePwm();
+		this->heatActuator->stopPwm();
 
 		deviceManager.setDeviceValue(this->heatActuator->getPin(), this->heatActuator->getHwAddress(), 0);
 	}

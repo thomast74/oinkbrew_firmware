@@ -58,6 +58,7 @@ public:
 	void setMinMax(float minVal, float maxVal);
 	void setMinimumOnTime(unsigned long minOnTime);
 	void updatePwm();
+	void stopPwm();
 
 	unsigned long getPeriod(){
 		return period;

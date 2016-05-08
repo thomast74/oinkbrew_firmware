@@ -50,6 +50,10 @@ private:
 	void turnOnFan();
 	void turnOffFan();
 
+	bool isCoolerOn();
+	bool isCoolerOff();
+	bool isCoolerOffTimeSet();
+
 	void setIdle();
 
 	void setCoolActuator(ActingDevice CoolActuator);
