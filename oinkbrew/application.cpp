@@ -49,6 +49,11 @@ TcpListener listener;
 TcpLogger logger;
 
 
+#if not SPARK_V1
+STARTUP(WiFi.selectAntenna(ANT_EXTERNAL));
+#endif
+
+
 /*******************************************************************************
  * Function Name  : setup
  * Description    : configure device after startup
