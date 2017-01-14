@@ -169,7 +169,11 @@ void FridgeController::turnOffFan()
 void FridgeController::setIdle()
 {
 	turnOffHeater();
-	turnOffCooler();
+
+	if (isCoolerOn() && (millis() - this->coolingOnTime) < getConfig().coolingOnTime)
+		return;
+	else
+		turnOffCooler();
 
 	this->state = IDLE;
 }
