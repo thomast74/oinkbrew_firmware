@@ -27,8 +27,6 @@
 #ifndef OINKBREW_PLATFORM_H_
 #define OINKBREW_PLATFORM_H_
 
-#define SPARK_V1 0
-
 
 #include <stdio.h>
 
@@ -51,5 +49,8 @@
 #define PROGMEM
 #define pgm_read_byte(x)  (*(x))
 
+
+uint8_t getShieldVersion();
+bool shieldIsV2();
 
 #endif /* OINKBREW_PLATFORM_H_ */

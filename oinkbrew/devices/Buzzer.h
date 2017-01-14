@@ -43,17 +43,19 @@ public:
 	void beep(uint8_t numBeeps, uint16_t duration) {
 		pinMode(BUZZER_PIN, OUTPUT);
 	    for (uint8_t beepCount = 0; beepCount < numBeeps; beepCount++) {
-#if SPARK_V1 == 1
-	    	digitalWrite(BUZZER_PIN, LOW);
-#else
-	    	digitalWrite(BUZZER_PIN, HIGH);
-#endif
-	        delay(duration);
-#if SPARK_V1 == 1
-	    	digitalWrite(BUZZER_PIN, HIGH);
-#else
-	    	digitalWrite(BUZZER_PIN, LOW);
-#endif
+
+	    	if (shieldIsV2())
+		    	digitalWrite(BUZZER_PIN, HIGH);
+	    	else
+	    		digitalWrite(BUZZER_PIN, LOW);
+
+	    	delay(duration);
+
+	    	if (shieldIsV2())
+		    	digitalWrite(BUZZER_PIN, LOW);
+	    	else
+	    		digitalWrite(BUZZER_PIN, HIGH);
+
 	        if (beepCount < numBeeps - 1) {
 	            delay(duration);
 	        }
@@ -64,17 +66,15 @@ public:
 	    if (active != this->active) {
 	        this->active = active;
 	        if (active) {
-#if SPARK_V1 == 1
-	        	digitalWrite(BUZZER_PIN, LOW);
-#else
-	        	digitalWrite(BUZZER_PIN, HIGH);
-#endif
+		    	if (shieldIsV2())
+			    	digitalWrite(BUZZER_PIN, HIGH);
+		    	else
+		    		digitalWrite(BUZZER_PIN, LOW);
 	        } else {
-#if SPARK_V1 == 1
-	        	digitalWrite(BUZZER_PIN, HIGH);
-#else
-	        	digitalWrite(BUZZER_PIN, LOW);
-#endif
+		    	if (shieldIsV2())
+			    	digitalWrite(BUZZER_PIN, LOW);
+		    	else
+		    		digitalWrite(BUZZER_PIN, HIGH);
 	        }
 	    }
 	}

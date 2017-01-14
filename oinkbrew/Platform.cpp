@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    Settings.cpp
+ * @file    Board.cpp
  * @authors Thomas Trageser
- * @version V0.1
- * @date    2015-03-25
+ * @version V0.5
+ * @date    2017-01-14
  * @brief   Oink Brew Spark Core Firmware
  ******************************************************************************
   Copyright (c) 2015 Oink Brew;  All rights reserved.
@@ -23,17 +23,32 @@
  ******************************************************************************
  */
 
-#include "Settings.h"
 #include "Platform.h"
-#include "spark_wiring_ipaddress.h"
+#include "spark_wiring.h"
 
-const char OINK_BREW_VERSION[] = "0.5";
-const char OINK_BREW_VERSION_STRING[] = "Version: 0.5";
-
-const short REMOTE_LISTENER_PORT = 7872;
-const short LOCAL_LISTENER_PORT = 7873;
+#define BREWPI_SHIELD_SPARK_V1 1
+#define BREWPI_SHIELD_SPARK_V2 2
 
 
-const unsigned long DURATION_RUN = 1000;
-const unsigned long DURATION_LOG = 5000;
-const unsigned long DURATION_DETECT = 60000;
+uint8_t getShieldVersion(){
+	static uint8_t shield = 255;
+
+	// only auto-detect once
+	if(shield == 255){
+		// V2 has a pull down resistor, V1 has a pull up resistor on the alarm pin
+		// If the pin is low, it is V2
+		pinMode(BUZZER_PIN, INPUT);
+		delay(1);
+		if(digitalRead(BUZZER_PIN)){
+			shield = BREWPI_SHIELD_SPARK_V1;
+		}
+		else{
+			shield = BREWPI_SHIELD_SPARK_V2;
+		}
+	}
+	return shield;
+}
+
+bool shieldIsV2(){
+	return getShieldVersion() == BREWPI_SHIELD_SPARK_V2;
+}

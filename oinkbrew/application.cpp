@@ -66,9 +66,10 @@ void setup()
 
 	buzzer.beep(1, 100);
 
-	#if not SPARK_V1
-	WiFi.selectAntenna(ANT_AUTO);
-	#endif
+	if (shieldIsV2())
+		WiFi.selectAntenna(ANT_INTERNAL);
+	else
+		WiFi.selectAntenna(ANT_EXTERNAL);
 
     listener.init();
     logger.init();

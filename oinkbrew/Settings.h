@@ -31,8 +31,6 @@
 extern const char OINK_BREW_VERSION[];
 extern const char OINK_BREW_VERSION_STRING[];
 
-extern const char BREWPI_SPARK_REVISION[];
-
 extern const short REMOTE_LISTENER_PORT;
 extern const short LOCAL_LISTENER_PORT;
 

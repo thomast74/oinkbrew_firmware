@@ -27,6 +27,7 @@
 #include "StatusMessage.h"
 #include "Helper.h"
 #include "Settings.h"
+#include "Platform.h"
 #include "spark_wiring_time.h"
 #include "spark_wiring_udp.h"
 #include "spark_wiring_wifi.h"
@@ -46,7 +47,10 @@ void StatusMessage::send() {
         return;
 
     char buf[16];
+    char brewpi_revision[3];
+
     sprintf(buf, "%i.%i.%i.%i", sparkInfo.oinkWeb[0], sparkInfo.oinkWeb[1], sparkInfo.oinkWeb[2], sparkInfo.oinkWeb[3]);
+    sprintf(brewpi_revision, "%s", shieldIsV2() ? "V2" : "V1");
 
     String jsonMessage("{");
     jsonMessage.concat("\"device_id\":\"");
@@ -56,7 +60,7 @@ void StatusMessage::send() {
     jsonMessage.concat("\",\"firmware_version\":\"");
     jsonMessage.concat(OINK_BREW_VERSION);
     jsonMessage.concat("\",\"spark_version\":\"");
-    jsonMessage.concat(BREWPI_SPARK_REVISION);
+    jsonMessage.concat(brewpi_revision);
     jsonMessage.concat("\",\"ip_address\":\"");
     jsonMessage.concat(Helper::getLocalIpStr().c_str());
     jsonMessage.concat("\",\"web_address\":\"");
