@@ -1,6 +1,9 @@
-$(MAKECMDGOALS) %: run_make
+$(MAKECMDGOALS) : run_make
 
 .PHONY: run_make
+
+unexport CC
+unexport CXX
 
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(patsubst %/,%,$(dir $(mkfile_path)))
